@@ -44,31 +44,31 @@ public class SingleTestState : State<Enemy>
 
     public float PathFollowSteeringForce(Enemy _owner)
     {
-        Node currentNode = _owner.currentNode;
-        int targetIndex = _owner.targetIndex;
-        List<Node> path = _owner.path;
-        Transform _ownerTruck = _owner.truck._transform;
-
+        
         if (_owner.PathCheck())
         {
-            if ((currentNode.worldPosition.z - _ownerTruck.position.z) <= _owner.truck.CurrentSpeed() / 10)
+            float currentSpeedClamped = _owner.truck.CurrentSpeed();
+
+            currentSpeedClamped = Mathf.Clamp(currentSpeedClamped, 0, 10);
+
+            //Debug.Log(currentSpeedClamped);
+            if ((_owner.currentNode.worldPosition.z - _owner.truck._transform.position.z) <= currentSpeedClamped)
             {
-                targetIndex++;
-                if (targetIndex > path.Count - 1)
+                _owner.targetIndex++;
+                if (_owner.targetIndex > _owner.path.Count - 1)
                     return 0;
                 else
                 {
-                    _owner.currentNode = path[targetIndex];
-                    path.Remove(path[targetIndex--]);
+                    _owner.currentNode = _owner.path[_owner.targetIndex];
+                    _owner.path.Remove(_owner.path[_owner.targetIndex--]);
                 }
             }
 
-            Vector3 relativeToCurrentNode = _ownerTruck.InverseTransformPoint(currentNode.worldPosition);
+            Vector3 relativeToCurrentNode = _owner.truck._transform.InverseTransformPoint(_owner.currentNode.worldPosition);
             float newsteer = (relativeToCurrentNode.x / relativeToCurrentNode.magnitude);
             return newsteer;
 
         }
         else return 0;
-
     }
 }

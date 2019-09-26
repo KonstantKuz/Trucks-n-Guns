@@ -15,7 +15,7 @@ public class TurretGun : GunParent
 
     private Quaternion bulletSpreadedRotation, rotationFromCurve;
     private Vector3[] gunsBarrelsUpDirections;
-    private Vector3 tempTargetForPlatform = Vector3.zero, tempTargetForHead = Vector3.zero;
+    private Vector3 targetForPlatform = Vector3.zero, targetForHead = Vector3.zero;
 
     private ObjectPoolerBase effectPooler, battleUnitPooler;
 
@@ -41,15 +41,15 @@ public class TurretGun : GunParent
 
     public override void Fire()
     {
-        CalculateBulletsSpread();
+        UpdateTimers();
 
-        if(myData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody != null)
+        if (myData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody != null)
         {
             LookAtTarget();
         }
 
-        UpdateTimers();
-       
+        CalculateBulletsSpread();
+
         if (myData.timeSinceLastShot <= 0)
         {
             myData.timeSinceLastShot = myData.rateofFire;
@@ -73,18 +73,19 @@ public class TurretGun : GunParent
    
     void LookAtTarget()
     {
-        tempTargetForHead = (targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.1f) - platform.position;
+        targetForHead = (targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.1f) - platform.position;
 
-        tempTargetForPlatform = Vector3.ProjectOnPlane(tempTargetForHead, platform.up);
+        targetForPlatform = Vector3.ProjectOnPlane(targetForHead, platform.up);
         
-        head.rotation = Quaternion.LookRotation(tempTargetForHead, platform.up);
-        platform.rotation = Quaternion.LookRotation(tempTargetForPlatform, platform.up);
+        head.rotation = Quaternion.LookRotation(targetForHead, platform.up);
+        platform.rotation = Quaternion.LookRotation(targetForPlatform, platform.up);
     }
 
     void UpdateTimers()
     {
-        myData.timeElapsed += Time.deltaTime;
-        myData.timeSinceLastShot -= Time.deltaTime + Random.Range(0.01f, 0.005f);
+        float randomDifference = Random.Range(0.01f, 0.05f);
+        myData.timeElapsed += randomDifference;
+        myData.timeSinceLastShot -= randomDifference;
     }
    
 }

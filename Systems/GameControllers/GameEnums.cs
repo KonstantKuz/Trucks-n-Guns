@@ -14,15 +14,15 @@ public static class GameEnums
     }
     public enum FirePointType
     {
-        None = 0,
-        D_FPType = 2,
-        DM_FPType = 3,
-        DP_FPType = 4,
-        DMP_FPType = 5,
-        DC_FPType = 7,
-        DCM_FPType = 8,
-        DCP_FPType = 10,
-        DCMP_FPType = 11
+        None /*= 0*/,
+        D_FPType /*= 2*/,
+        DM_FPType /*= 3*/,
+        DP_FPType /*= 4*/,
+        DMP_FPType /*= 5*/,
+        DC_FPType /*= 7*/,
+        DCM_FPType /*= 8*/,
+        DCP_FPType /*= 10*/,
+        DCMP_FPType /*= 11*/
     }
     public enum GunLocation
     {

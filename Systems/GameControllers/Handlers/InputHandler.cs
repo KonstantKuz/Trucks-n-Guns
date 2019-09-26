@@ -14,6 +14,8 @@ public class InputHandler : MonoCached
     private RectTransform fireArea;
     private Button forwardBoost, backwardBoost, parkingBrake, restart;
     private Camera mainCamera;
+    private Vector3 seekPointPosition = Vector3.zero;
+
 
     public Player player { get; set; }
     public float steeringForce { get; private set; }
@@ -74,8 +76,14 @@ public class InputHandler : MonoCached
 
         #region unityAndroid
 #if UNITY_ANDROID
-        steeringForce = moveController.value;
-        player.MovePlayerTruck(steeringForce);
+        if(player.seekPoint != null)
+        {
+            steeringForce = moveController.value;
+            seekPointPosition.x = steeringForce * 21f;
+            seekPointPosition.z = player.truck._transform.position.z + 30f;
+            player.seekPoint.position = seekPointPosition;
+            player.MovePlayerTruck(steeringForce);
+        }
 
         foreach (Touch touch in Input.touches)
         {

@@ -65,6 +65,7 @@ public class ObjectPoolerBase : ScriptableObject
     {
         if (!poolDictionary.ContainsKey(tag))
         {
+            Debug.Log($"PoolDictionaty does not contain tag {tag}");
             return null;
         }
 
@@ -81,6 +82,7 @@ public class ObjectPoolerBase : ScriptableObject
     {
         if (!poolDictionary.ContainsKey(tag))
         {
+            Debug.Log($"PoolDictionaty does not contain tag {tag}");
             return null;
         }
 
@@ -95,10 +97,12 @@ public class ObjectPoolerBase : ScriptableObject
     {
         if (!poolDictionary.ContainsKey(tag))
         {
+            Debug.Log($"PoolDictionaty does not contain tag {tag}");
             return;
         }
-        Debug.Log(objToReturn.name + "has been returned to" + tag + "pool");
         poolDictionary[tag].Enqueue(objToReturn);
+
+        objToReturn.transform.parent = parentInScene;
 
         objToReturn.SetActive(false);
     }

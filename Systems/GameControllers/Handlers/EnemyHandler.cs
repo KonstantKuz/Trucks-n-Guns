@@ -15,18 +15,23 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
     public float enemySpawnEveryPeriodTime = 15f;
     public int maxCurrentSessionEnemiesCount = 4;
     private int enemiesPoolCount;
-    private ObjectPoolerBase myEnemyPooler;
+    private ObjectPoolerBase enemyPooler;
     public int CurrentSessionEnemiesCount
     {
         get { return currentSessionEnemies.Count; }
     }
+    private PathHandler pathHandler;
 
     public void InjectNeededPooler(ObjectPoolerBase objectPooler)
     {
-        myEnemyPooler = objectPooler;
-        enemiesPoolCount = myEnemyPooler.pools.Count;
+        enemyPooler = objectPooler;
+        enemiesPoolCount = enemyPooler.pools.Count;
     }
    
+    public void InjectPathHandler(PathHandler pathHandler)
+    {
+        this.pathHandler = pathHandler;
+    }
     public void StartCheckingEnemiesPositions(Rigidbody player_rigidbody)
     {
         StartCoroutine(CheckingEnemiesPosition(player_rigidbody));
@@ -42,7 +47,6 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
             if (distance > distanceToDestroyEnemy)
             {
                 currentSessionEnemies[i].gameObject.SetActive(false);
-                //currentSessionEnemies[i].truck.TruckData.ReturnObjectsToPool(currentSessionEnemies[i].truck);
                 currentSessionEnemies.Remove(currentSessionEnemies[i]);
             }
         }
@@ -62,6 +66,21 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
 
     }
 
+    public void StartSpawnAllEnemiesEveryPeriod(Rigidbody player_rigidbody)
+    {
+        StartCoroutine(SpawnAllEnemiesEveryPeriod(player_rigidbody));
+    }
+
+    private IEnumerator SpawnAllEnemiesEveryPeriod(Rigidbody player_rigidbody)
+    {
+        yield return new WaitForSeconds(enemySpawnEveryPeriodTime);
+        if (currentSessionEnemies.Count < maxCurrentSessionEnemiesCount)
+        {
+            SpawnAllEnemies(player_rigidbody);
+        }
+        yield return StartCoroutine(SpawnRandomEnemyEveryPeriod(player_rigidbody));
+    }
+
     public void StartSpawnRandomEnemyEveryPeriod(Rigidbody player_rigidbody)
     {
         StartCoroutine(SpawnRandomEnemyEveryPeriod(player_rigidbody));
@@ -77,7 +96,7 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
     }
     public void SpawnRandomEnemy(Rigidbody player_rigidbody)
     {
-        GameObject enemy = myEnemyPooler.SpawnRandomItemFromPool(RandomPositionNearPlayer(player_rigidbody), Quaternion.identity, 100);
+        GameObject enemy = enemyPooler.SpawnRandomItemFromPool(RandomPositionNearPlayer(player_rigidbody), Quaternion.identity, 100);
         SetUpEnemyAndLaunch(enemy, player_rigidbody);
     }
 
@@ -85,7 +104,7 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
     {
         for (int i = 0; i < enemiesPoolCount; i++)
         {
-            GameObject enemy = myEnemyPooler.SpawnFromPool(myEnemyPooler.tags[i], RandomPositionNearPlayer(player_rigidbody), Quaternion.identity);
+            GameObject enemy = enemyPooler.SpawnFromPool(enemyPooler.tags[i], RandomPositionNearPlayer(player_rigidbody), Quaternion.identity);
             SetUpEnemyAndLaunch(enemy, player_rigidbody);
         }
     }
@@ -93,14 +112,14 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
     private void SetUpEnemyAndLaunch(GameObject enemyToLaunch, Rigidbody player_rigidbody)
     {
         var enemyTransform = enemyToLaunch.transform;
-        enemyToLaunch.GetComponent<Rigidbody>().AddRelativeForce(player_rigidbody.velocity.magnitude * enemyTransform.forward, ForceMode.VelocityChange);
-        enemyToLaunch.GetComponent<Enemy>().InjectNewTargetData(player_rigidbody);
         currentSessionEnemies.Add(enemyToLaunch.GetComponent<Enemy>());
+        enemyToLaunch.GetComponent<Enemy>().InjectNewTargetData(player_rigidbody);
+        UpdateEnemyPath(enemyToLaunch.GetComponent<Enemy>());
     }
     
     private Vector3 RandomPositionNearPlayer(Rigidbody player_rigidbody)
     {
-        int randomZ = Random.Range(50, 60);
+        int randomZ = Random.Range(25, 35);
         return player_rigidbody.position - new Vector3(0, 0, randomZ);
     }
 
@@ -124,6 +143,15 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
                 yield return new WaitForSeconds(0.5f);
             }
         }
+    }
+
+    public void UpdateEnemyPath(Enemy enemy)
+    {
+        Transform enemyTruck_transform = enemy.truck._transform;
+        Transform pathsEndPoints = pathHandler.pathsEndPoints[Random.Range(0,pathHandler.pathsEndPoints.Length)];
+        List<Node> newPathForEnemy = pathHandler.FindPath(enemyTruck_transform.position + enemyTruck_transform.forward, pathsEndPoints.position);
+
+        enemy.ReTracePath(newPathForEnemy);
     }
 
     public void GameOver()

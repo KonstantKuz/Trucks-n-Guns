@@ -4,7 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 public class Player : MonoCached
 {
-    private Truck truck;
+    public Transform seekPoint;
+
+    public Truck truck { get; set; }
 
     #region NEWSYSTEM
 
@@ -27,7 +29,10 @@ public class Player : MonoCached
         TrackingGroupsTargetsDictionary.Add(GameEnums.TrackingGroup.FirstTrackingGroup, FirstTrackingGroupsTarget);
         TrackingGroupsTargetsDictionary.Add(GameEnums.TrackingGroup.SecondTrackingGroup, SecondTrackingGroupTarget);
     }
-
+    private void OnEnable()
+    {
+        allTicks.Add(this);
+    }
     public void InjectPlayerIntoInput(InputHandler inputHandler)
     {
         inputHandler.player = this;
@@ -59,7 +64,14 @@ public class Player : MonoCached
         {
             truck.MoveTruck(1 - Mathf.Abs(steeringForce));
         }
-        truck.SteeringWheels(steeringForce);
+        SteeringWheels();
+    }
+
+    public void SteeringWheels()
+    {
+        Vector3 relativeToSeekPoint = truck._transform.InverseTransformPoint(seekPoint.position);
+        float newsteer = (relativeToSeekPoint.x / relativeToSeekPoint.magnitude);
+        truck.SteeringWheels(newsteer);
     }
 
     public override void OnTick()

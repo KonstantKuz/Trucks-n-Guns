@@ -5,14 +5,15 @@ using Pathfinding;
 
 public class PathHandler : MonoCached
 {
-    public LayerMask unwalkableMask;
-    public Vector2 gridWorldSize;
-    public float nodeRadius;
-    public Vector3 offsetFromRoad;
+    public LayerMask obstacleMask;
+    [SerializeField]
+    private Vector3 gridOffset;
 
+    public int pathGridLength;
+    public int nodeRadius;
+    public int pathGridWidth { get; set; }
+    public float roadLength { get; set; }
     public Node[,] grid { get; private set; }
-    private float nodeDiameter;
-    private int gridSizeX, gridSizeY;
 
     public Transform[] pathsEndPoints;
 
@@ -24,7 +25,7 @@ public class PathHandler : MonoCached
     private int freeRetracedPathsIndex = 0;
 
 
-    public int MaxSize { get { return gridSizeX * gridSizeY; } }
+    public int MaxSize { get { return pathGridLength * pathGridWidth; } }
 
     public void InjectEnemyHandler(EnemyHandler enemyHandler)
     {
@@ -33,21 +34,16 @@ public class PathHandler : MonoCached
 
     public void CreateGrid(Vector3 roadPos)
     {
+        grid = new Node[pathGridWidth, pathGridLength];
+        Vector3 worldBottomLeft = roadPos ;
 
-        nodeDiameter = nodeRadius * 2;
-        gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
-        gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
-
-        grid = new Node[gridSizeX, gridSizeY];
-        Vector3 worldBottomLeft = roadPos /* - Vector3.right * gridWorldSize.x / 2 - Vector3.forward * gridWorldSize.y / 2*/;
-
-        for (int x = 0; x < gridSizeX; x++)
+        for (int x = 0; x < pathGridWidth; x++)
         {
-            for (int y = 0; y < gridSizeY; y++)
+            for (int y = 0; y < pathGridLength; y++)
             {
-                Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) + Vector3.forward * (y * nodeDiameter + nodeRadius);
+                Vector3 worldPoint = worldBottomLeft - Vector3.right * ((roadLength / pathGridWidth) / 2 + x * (roadLength / pathGridWidth) + gridOffset.x) - Vector3.forward * ((roadLength / pathGridWidth) / 2 + y * (roadLength / pathGridWidth) + gridOffset.z);
 
-                bool walkable = !(Physics.CheckSphere(worldPoint, nodeDiameter - 0.2f, unwalkableMask));
+                bool walkable = !(Physics.CheckSphere(worldPoint, nodeRadius, obstacleMask));
 
                 grid[x, y] = new Node(walkable, worldPoint, x, y);
             }
@@ -68,9 +64,9 @@ public class PathHandler : MonoCached
 
     private void AddNeighboursToNodes()
     {
-        for (int x = 0; x < gridSizeX; x++)
+        for (int x = 0; x < pathGridWidth; x++)
         {
-            for (int y = 0; y < gridSizeY; y++)
+            for (int y = 0; y < pathGridLength; y++)
             {
                 for (int X = -1; X <= 1; X++)
                 {
@@ -82,7 +78,7 @@ public class PathHandler : MonoCached
                         int checkX = grid[x, y].gridX + X;
                         int checkY = grid[x, y].gridY + Y;
 
-                        if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                        if (checkX >= 0 && checkX < pathGridWidth && checkY >= 0 && checkY < pathGridLength)
                         {
                             grid[x, y].neighbours.Add(grid[checkX, checkY]);
                         }
@@ -99,13 +95,11 @@ public class PathHandler : MonoCached
 
     private IEnumerator TranslateGrid(Vector3 newRoadPos)
     {
-        Vector3 worldBottomLeft = newRoadPos - offsetFromRoad;
-
-        for (int x = 0; x < gridSizeX; x++)
+        for (int x = 0; x < pathGridWidth; x++)
         {
-            for (int y = 0; y < gridSizeY; y++)
+            for (int y = 0; y < pathGridLength; y++)
             {
-                Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) + Vector3.forward * (y * nodeDiameter + nodeRadius);
+                Vector3 worldPoint = newRoadPos - Vector3.right * ((roadLength / pathGridWidth) / 2 + x * (roadLength / pathGridWidth) + gridOffset.x) - Vector3.forward * ((roadLength / pathGridWidth) / 2 + y * (roadLength / pathGridWidth) + gridOffset.z);
                 grid[x, y].worldPosition = worldPoint;
             }
         }
@@ -119,14 +113,15 @@ public class PathHandler : MonoCached
     {
         yield return new WaitForFixedUpdate();
 
-        Vector3 worldBottomLeft = roadPos - offsetFromRoad;
+        Vector3 worldBottomLeft = roadPos;
 
-        for (int x = 0; x < gridSizeX; x++)
+        for (int x = 0; x < pathGridWidth; x++)
         {
-            for (int y = 0; y < gridSizeY; y++)
+            for (int y = 0; y < pathGridLength; y++)
             {
-                bool walkable = !(Physics.CheckSphere(grid[x,y].worldPosition, nodeDiameter - 0.2f, unwalkableMask));
+                bool walkable = !(Physics.CheckSphere(grid[x,y].worldPosition, nodeRadius, obstacleMask));
                 grid[x, y].walkable = walkable;
+                grid[x, y].isUsed = false;
             }
         }
 
@@ -134,7 +129,7 @@ public class PathHandler : MonoCached
         {
             pathsEnd.x = pathsEndPoints[i].position.x;
             pathsEnd.y = roadPos.y;
-            pathsEnd.z = roadPos.z + gridWorldSize.y;
+            pathsEnd.z = roadPos.z + pathGridLength;
 
             pathsEndPoints[i].position = pathsEnd;
         }
@@ -173,7 +168,7 @@ public class PathHandler : MonoCached
         Node startNode = FindClosestNodeTo(startPos);
         Node targetNode = FindClosestNodeTo(targetPos);
 
-        Heap<Node> openSet = new Heap<Node>(gridSizeX * gridSizeY);
+        Heap<Node> openSet = new Heap<Node>(pathGridWidth * pathGridLength);
         HashSet<Node> closedSet = new HashSet<Node>();
         openSet.Add(startNode);
 
@@ -198,14 +193,17 @@ public class PathHandler : MonoCached
                 int newCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour) + neighbour.weight;
                 if (newCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
                 {
-                    neighbour.gCost = newCostToNeighbour;
-                    neighbour.hCost = GetDistance(neighbour, targetNode);
-                    neighbour.parent = currentNode;
+                    //if(currentNode.isUsed==false)
+                   // {
+                        neighbour.gCost = newCostToNeighbour;
+                        neighbour.hCost = GetDistance(neighbour, targetNode);
+                        neighbour.parent = currentNode;
 
-                    if (!openSet.Contains(neighbour))
-                        openSet.Add(neighbour);
-                    else
-                        openSet.UpdateItem(neighbour);
+                        if (!openSet.Contains(neighbour))
+                            openSet.Add(neighbour);
+                        else
+                            openSet.UpdateItem(neighbour);
+                   // }
                 }
             }
         }
@@ -232,6 +230,7 @@ public class PathHandler : MonoCached
 
         while (currentNode != startNode)
         {
+            //currentNode.isUsed = true;
             retracedPaths[freeRetracedPathsIndex].Add(currentNode);
             currentNode = currentNode.parent;
         }
@@ -252,15 +251,15 @@ public class PathHandler : MonoCached
 
     void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y));
+        Gizmos.DrawWireCube(transform.position, new Vector3(pathGridWidth, 1, pathGridLength));
 
-        if (grid != null)
+        if (grid != null && grid.Length>5)
         {
             foreach (Node n in grid)
             {
                 Gizmos.color = (n.walkable) ? Color.white : Color.red;
 
-                Gizmos.DrawWireSphere(n.worldPosition, /*Vector3.one * (nodeDiameter - .1f)*/ nodeRadius-.4f);
+                Gizmos.DrawWireSphere(n.worldPosition, /*Vector3.one * (nodeDiameter - .1f)*/ nodeRadius);
             }
         }
     }

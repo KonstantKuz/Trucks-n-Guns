@@ -23,22 +23,22 @@ public class FirePointData : Data
 
     public void SetUpGunsConfigurationsDictionary()
     {
-        if (gunsConfigurations.Length > (int)firePointType)
-        {
-            throw new System.Exception("Количество конфигураций оружия превышает количество точек для установки." + gunsConfigurations.Length + ">>" + (int)firePointType);
-        }
-        else
-        {
+        //if (gunsConfigurations.Length > (int)firePointType)
+        //{
+        //    throw new System.Exception("Количество конфигураций оружия превышает количество точек для установки." + gunsConfigurations.Length + ">>" + (int)firePointType);
+        //}
+        //else
+        //{
             gunsConfigurationsDictionary = new Dictionary<string, string>(gunsConfigurations.Length);
 
             for (int i = 0; i < gunsConfigurations.Length; i++)
             {
                 gunsConfigurationsDictionary.Add(gunsConfigurations[i].locationPath.ToString(), gunsConfigurations[i].gunType.ToString());
             }
-        }
+        //}
     }
 
-    public void SetUpFirePoint(FirePoint firePoint)
+    public void PermanentSetUpFirePoint(FirePoint firePoint)
     {
         firePoint.CreateFirePointsDictionaries();
 
@@ -50,10 +50,7 @@ public class FirePointData : Data
                 gun.transform.parent = firePoint.GunPointsDictionary[gunsConfigurations[i].locationPath.ToString()];
                 gun.transform.localPosition = Vector3.zero;
                 gun.transform.localEulerAngles = Vector3.zero;
-                if(gunsConfigurations[i].gunDataToSet != null)
-                {
-                    gun.GetComponent<GunParent>().myData = gunsConfigurations[i].gunDataToSet;
-                }
+                gun.GetComponent<GunParent>().myData = gunsConfigurations[i].gunDataToSet;
                 firePoint.TrackingGroupsDictionary[gunsConfigurations[i].trackingGroup].Add(gun.GetComponent<GunParent>());
             }
         }

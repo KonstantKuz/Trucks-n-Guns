@@ -30,10 +30,19 @@ public class ChaseGameStateHandler : MonoCached // IState
         allFixedTicks.Add(this);
         allTicks.Add(this);
 
-        objectPoolersHolder.AwakePoolers();
+        objectPoolersHolder.AwakeGeneralGameStatePoolers();
 
         inputHandler.FindControlsUI();
+        
 
+        #region InjectDependencies
+        roadHandler.InjectPathHandler(pathHandler);
+        pathHandler.InjectEnemyHandler(enemyHandler);
+        enemyHandler.InjectPathHandler(pathHandler);
+        enemyHandler.InjectNeededPooler(objectPoolersHolder.EnemyPooler);
+        roadHandler.InjectNeededPooler(objectPoolersHolder.RoadPooler);
+        //eventHandler.InjectNeededPooler(objectPoolersHolder.EventPooler);
+        #endregion
         #region WorldCreation
 
         playerHandler.CreatePlayer(inputHandler);
@@ -41,23 +50,16 @@ public class ChaseGameStateHandler : MonoCached // IState
         //enemyHandler.AddEnemyPlayerToCurrentSession(playerHandler.player.GetComponent<Enemy>());
         playerHandler.CreateCamera();
         inputHandler.FindCamera();
-        pathHandler.CreateGrid(new Vector3(0, 0, 0));
         roadHandler.CreateRoadGrid();
-        #endregion
+        pathHandler.CreateGrid(new Vector3(0, 0, 0));
 
-        #region InjectDependencies
-        roadHandler.InjectPathHandler(pathHandler);
-        pathHandler.InjectEnemyHandler(enemyHandler);
-        enemyHandler.InjectNeededPooler(objectPoolersHolder.EnemyPooler);
-        roadHandler.InjectNeededPooler(objectPoolersHolder.RoadPooler);
-        //eventHandler.InjectNeededPooler(objectPoolersHolder.EventPooler);
         #endregion
-
         #region StartGamePlay
 
         roadHandler.StartPlayerPositionCheckForMakeRoadComplex(playerHandler.player_rigidbody);
         enemyHandler.StartCheckingEnemiesPositions(playerHandler.player_rigidbody);
-        enemyHandler.StartSpawnRandomEnemyEveryPeriod(playerHandler.player_rigidbody);
+        //enemyHandler.StartSpawnRandomEnemyEveryPeriod(playerHandler.player_rigidbody);
+        enemyHandler.StartSpawnAllEnemiesEveryPeriod(playerHandler.player_rigidbody);
         //enemyHandler.StartIncrementMaxEnemiesCount(5f);
         roadHandler.StartIncrementRoadTroubleCount();
         //eventHandler.StartCheckDistance(playerHandler.playerStartPosition, playerHandler.player_rigidbody);

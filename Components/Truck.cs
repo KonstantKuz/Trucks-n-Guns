@@ -25,7 +25,7 @@ public class Truck : MonoCached
 
     public Rigidbody _rigidbody { get; private set; }
     public Transform _transform { get; private set; }
-    
+    public Transform CenterOfMass { get { return centerOfMass; } }
 
     public void SetUpTruck()
     {
@@ -115,19 +115,15 @@ public class Truck : MonoCached
 
     public void LaunchTruck()
     {
-        foreach (RaycastWheel drivingWheel in drivingWheels)
-        {
-            drivingWheel.motorTorque = TruckData.maxMotorTorque;
-        }
         _rigidbody.drag = 0.05f;
     }
 
     public void MoveTruck(float torqueForce)
     {
-        _rigidbody.drag = Mathf.Abs(CurrentSteerAngle()) * 0.0005f;
+        //_rigidbody.drag = Mathf.Abs(CurrentSteerAngle()) * 0.001f;
         foreach (RaycastWheel drivingWheel in drivingWheels)
         {
-            drivingWheel.motorTorque = TruckData.maxMotorTorque * torqueForce;
+            drivingWheel.motorTorque = TruckData.maxMotorTorque *( torqueForce - Mathf.Abs(CurrentSteerAngle()) * 0.01f);
         }
     }
 
@@ -153,13 +149,20 @@ public class Truck : MonoCached
         //    _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
         //}
     }
+
+    public void StopTruckSlow(float force)
+    {
+        _rigidbody.drag -= force;
+    }
+
     public void StopTruck()
     {
+        _rigidbody.drag = 2f;
+
         foreach (RaycastWheel drivingWheel in drivingWheels)
         {
             drivingWheel.motorTorque = 0;
         }
-        _rigidbody.drag = 2f;
     }
 
 

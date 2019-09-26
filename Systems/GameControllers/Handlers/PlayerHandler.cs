@@ -8,6 +8,8 @@ public class PlayerHandler : MonoCached
     private GameObject playerPreafab;
     [SerializeField]
     private GameObject cameraPrefab;
+    [SerializeField]
+    private GameObject playerSeekPoint;
 
     [SerializeField]
     private float playerStartingForce;
@@ -27,9 +29,12 @@ public class PlayerHandler : MonoCached
   
     public void CreatePlayer(InputHandler inputHandler)
     {
+        GameObject seekPnt = Instantiate(playerSeekPoint);
+
         GameObject pl = Instantiate(playerPreafab, GameObject.Find("Scene").transform);
         player = pl;
         playerInstance = player.GetComponent<Player>();
+        playerInstance.seekPoint = seekPnt.transform;
 
         playerInstance.InjectPlayerIntoInput(inputHandler);
 

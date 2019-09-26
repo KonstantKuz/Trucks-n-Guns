@@ -24,7 +24,13 @@ public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
 
     public ObjectPoolerBase TrucksPooler { get { return trucksPooler; } }
 
-    public void AwakePoolers()
+
+    private void OnEnable()
+    {
+        AwakeCustomizationGameStatePooler();
+    }
+
+    public void AwakeGeneralGameStatePoolers()
     {
         Data.objectPoolersHolder = this;
         
@@ -38,7 +44,14 @@ public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
         enemyPooler.AwakePooler();
     }
 
-    
+    public void AwakeCustomizationGameStatePooler()
+    {
+        Data.objectPoolersHolder = this;
+
+        firePointPooler.AwakePooler();
+        gunsPooler.AwakePooler();
+        trucksPooler.AwakePooler();
+    }
 
     // [System.Serializable]
     // public class Pool

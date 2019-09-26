@@ -6,6 +6,7 @@ public class OnTriggerCulling : MonoBehaviour
 {
     public MeshRenderer[] meshes;
 
+
     private void OnEnable()
     {
         RendererSetActive(false);
@@ -35,4 +36,6 @@ public class OnTriggerCulling : MonoBehaviour
             meshes[i].enabled = enabled;
         }
     }
+
+  
 }

@@ -60,6 +60,7 @@ public class Enemy : MonoCached, INeedTarget
     private void OnEnable()
     {
         allTicks.Add(this);
+
         enemyState.ChangeState(EnemyStateDictionary.stateDictionary[followType]);
     }
     private void OnDisable()
@@ -92,10 +93,12 @@ public class Enemy : MonoCached, INeedTarget
     public override void OnTick()
     {
         enemyState.UpdateMachine();
+       
     }
-    
+  
     public void ReTracePath(List<Node> newPath)
     {
+       
         path = newPath;
         targetIndex = 0;
         if(PathCheck())
@@ -112,15 +115,15 @@ public class Enemy : MonoCached, INeedTarget
     public float AvoidForce()
     {
 
-        sensorsStartPos = truck._transform.TransformPoint(sensorsPosition.localPosition);
+        sensorsStartPos = sensorsPosition.position;
         sensorsRSidePos = sensorsStartPos + sideSensorsOffsetVec;
         sensorsLSidePos = sensorsStartPos - sideSensorsOffsetVec;
         float avoidForce = 0;
         RaycastHit hit;
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i <2 ; i++)
         {
-            if (Physics.Raycast(sensorsRSidePos, Quaternion.AngleAxis(sensorsAngle/2+ i * sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, out hit, sensorsLength))
+            if (Physics.Raycast(sensorsRSidePos, Quaternion.AngleAxis(sensorsAngle + i * sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, out hit, sensorsLength))
             {
                 avoiding = true;
                 Debug.DrawLine(sensorsRSidePos, hit.point, Color.red);
@@ -128,7 +131,7 @@ public class Enemy : MonoCached, INeedTarget
             }
             else { avoiding = false; }
 
-            if (Physics.Raycast(sensorsLSidePos, Quaternion.AngleAxis(-sensorsAngle/2+i * -sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, out hit, sensorsLength))
+            if (Physics.Raycast(sensorsLSidePos, Quaternion.AngleAxis(- sensorsAngle + i * -sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, out hit, sensorsLength))
             {
                 avoiding = true;
                 Debug.DrawLine(sensorsLSidePos, hit.point, Color.red);
@@ -140,6 +143,7 @@ public class Enemy : MonoCached, INeedTarget
         return avoidForce;
 
     }
+    
 
     private void OnDrawGizmos()
     {

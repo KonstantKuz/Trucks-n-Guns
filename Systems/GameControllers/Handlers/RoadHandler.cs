@@ -4,33 +4,45 @@ using UnityEngine;
 
 public class RoadHandler : MonoCached, INeedObjectPooler
 {
-
-    public string generalRoadNameToSpawn;
-    public float roadLength;
-    private float allSpawnedRoadLength;
-
-    public int roadGridSize;
+    [SerializeField]
+    private string generalRoadNameToSpawn;
+    [SerializeField]
+    private float roadLength;
+    [SerializeField]
+    private int roadGridSize;
+    [SerializeField]
+    private Vector3 gridOffset;
+    
     public int roadTroubleCount;
     public int maxRoadTroubleCount;
     public float countIncrementPeriod;
 
     public float playerPosCheckPeriod;
     public float distanceFromPlayerToMakeNewRoadComplex;
-    public float xOffsetFromRoad;
+
+    private float allSpawnedRoadLength;
 
     public Vector3[,] roadMapPoints { get; private set; }
 
-    ObjectPoolerBase roadPooler;
+    private ObjectPoolerBase roadPooler;
 
-    PathHandler pathHandler;
+    private PathHandler pathHandler;
 
     public void InjectPathHandler(PathHandler pathHandler)
     {
         this.pathHandler = pathHandler;
+        SetUpPathHandler();
     }
     public void InjectNeededPooler(ObjectPoolerBase objectPooler)
     {
         roadPooler = objectPooler;
+    }
+
+
+    public void SetUpPathHandler()
+    {
+        pathHandler.pathGridWidth = roadGridSize;
+        pathHandler.roadLength = roadLength;
     }
 
     public void CreateRoadGrid()
@@ -84,14 +96,13 @@ public class RoadHandler : MonoCached, INeedObjectPooler
 
     private void TranslateRoadGrid(Transform generalRoadTransform)
     {
-        Vector3 roadCenter = generalRoadTransform.position;
-
-        for (int i = 1; i < roadGridSize + 1; i++)
+        for (int i = 0; i < roadGridSize; i++)
         {
-            for (int j = 1; j < roadGridSize + 1; j++)
+            for (int j = 0; j < roadGridSize; j++)
             {
-                roadMapPoints[i - 1, j - 1].x = (roadCenter.x - (roadLength / roadGridSize) / 2) + i * (roadLength / roadGridSize) + xOffsetFromRoad;
-                roadMapPoints[i - 1, j - 1].z = (roadCenter.z - (roadLength / roadGridSize) / 2) + j * (roadLength / roadGridSize);
+                roadMapPoints[i, j] = generalRoadTransform.position 
+                    - Vector3.right * ((roadLength / roadGridSize) / 2 + i * (roadLength / roadGridSize) + gridOffset.x) 
+                    - Vector3.forward * ((roadLength / roadGridSize) / 2 + j * (roadLength / roadGridSize) + gridOffset.z);
             }
         }
     }
@@ -105,6 +116,7 @@ public class RoadHandler : MonoCached, INeedObjectPooler
             roadTrouble.transform.rotation = Quaternion.AngleAxis(Random.Range(50, 280), transform.up);
         }
     }
+
     private int GetRandomIndex(int length)
     {
         return Random.Range(0, length);

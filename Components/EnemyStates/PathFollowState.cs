@@ -47,58 +47,57 @@ public class PathFollowState : State<Enemy>
     public float MovingForce(TargetData targetData, Truck truck)
     {
         float movingForce = 0;
-        float boostForce = 0;
         float distanceToTarget = targetData.target_rigidbody.position.z - truck._transform.position.z;
+        float targetForwardVelocity = targetData.target_rigidbody.velocity.z;
 
-        movingForce = distanceToTarget * 0.2f;
-
-        if (distanceToTarget < 0f)
+        if (distanceToTarget < 0)
         {
+            if(targetForwardVelocity>0)
+            {
+                truck.StopTruckSlow(distanceToTarget * 0.00005f * targetForwardVelocity);
+                movingForce = 1;
+            }
+            else
+            {
+                truck.StopTruckSlow(distanceToTarget * 0.00005f);
                 movingForce = 0;
+            }
         }
-        else if (distanceToTarget > 50f)
+        else
         {
-            movingForce = distanceToTarget * 0.1f - truck._rigidbody.velocity.magnitude * 0.05f;
-            Debug.Log(movingForce);
-            boostForce = distanceToTarget * 0.1f;
+            truck.LaunchTruck();
+            movingForce = distanceToTarget*targetForwardVelocity*0.005f;
         }
-        else if (distanceToTarget < -5f)
-        {
-            truck.StopTruck();
-        }
-
-        truck.SetBoost(boostForce);
-
         return movingForce;
     }
 
     public float PathFollowSteeringForce(Enemy _owner)
     {
-        Node currentNode = _owner.currentNode;
-        int targetIndex = _owner.targetIndex;
-        List<Node> path = _owner.path;
-        Transform _ownerTruck = _owner.truck._transform;
 
         if (_owner.PathCheck())
         {
-            if ((currentNode.worldPosition.z - _ownerTruck.position.z) <= 1)
+            float currentSpeedClamped = _owner.truck.CurrentSpeed();
+
+            currentSpeedClamped = Mathf.Clamp(currentSpeedClamped, 0, 10);
+
+            //Debug.Log(currentSpeedClamped);
+            if ((_owner.currentNode.worldPosition.z - _owner.truck._transform.position.z) <= currentSpeedClamped)
             {
-                targetIndex++;
-                if (targetIndex > path.Count - 1)
+                _owner.targetIndex++;
+                if (_owner.targetIndex > _owner.path.Count - 1)
                     return 0;
                 else
                 {
-                    _owner.currentNode = path[targetIndex];
-                    path.Remove(path[targetIndex--]);
+                    _owner.currentNode = _owner.path[_owner.targetIndex];
+                    _owner.path.Remove(_owner.path[_owner.targetIndex--]);
                 }
             }
 
-            Vector3 relativeToCurrentNode = _ownerTruck.InverseTransformPoint(currentNode.worldPosition);
+            Vector3 relativeToCurrentNode = _owner.truck._transform.InverseTransformPoint(_owner.currentNode.worldPosition);
             float newsteer = (relativeToCurrentNode.x / relativeToCurrentNode.magnitude);
             return newsteer;
 
         }
         else return 0;
-
     }
 }

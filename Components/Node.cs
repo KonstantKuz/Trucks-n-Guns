@@ -5,7 +5,7 @@ namespace Pathfinding
 {
     public class Node : IHeapItem<Node>
     {
-        public bool walkable;
+        public bool walkable, isUsed;
         public Vector3 worldPosition;
         public int gridX, gridY, gCost, hCost, weight;
 

@@ -4,8 +4,12 @@ using UnityEngine;
 public class RoadBlock : MonoCached
 {
     public LayerMask damageable;
+
+    public LayerMask obstacle;
+
     public FirePoint firePoint;
-    public float conditionPerFirePoint;
+    public FirePointData firePointData;
+    public float conditionPerGun;
     public Transform[] blocksToDestroy;
 
     private TargetData[] targets;
@@ -21,12 +25,12 @@ public class RoadBlock : MonoCached
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
+        if(other.gameObject.layer == obstacle)
         {
             other.gameObject.SetActive(false);
         }
 
-        if(other.gameObject.layer == LayerMask.NameToLayer("Damageable"))
+        if(other.gameObject.layer == damageable)
         {
             StartCoroutine(SetTargets());
             activated = true;
@@ -47,7 +51,7 @@ public class RoadBlock : MonoCached
         for (int i = 0; i < firePoint.FirstTrackingGroupGuns.Count; i++)
         {
             firePoint.FirstTrackingGroupGuns[i].gameObject.SetActive(true);
-            firePoint.FirstTrackingGroupGuns[i].GetComponent<EntityCondition>().maxCondition = conditionPerFirePoint;
+            firePoint.FirstTrackingGroupGuns[i].GetComponent<EntityCondition>().maxCondition = conditionPerGun;
             totalStartCondition += firePoint.FirstTrackingGroupGuns[i].GetComponent<EntityCondition>().currentCondition;
         }
     }

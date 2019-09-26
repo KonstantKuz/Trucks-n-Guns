@@ -41,7 +41,7 @@ public class Bullet : BattleUnitParent
 
     public override void SearchTargets()
     {
-        rayDistance = myData.speed * 0.02f;
+        rayDistance = myData.speed * 0.01f;
         ray.origin = _transform.position;
         ray.direction = _forwardDirection;
         if(Physics.Raycast(ray, rayDistance))
