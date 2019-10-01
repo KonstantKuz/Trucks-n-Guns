@@ -27,7 +27,7 @@ public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
 
     private void OnEnable()
     {
-        AwakeCustomizationGameStatePooler();
+        AwakeGeneralGameStatePoolers();
     }
 
     public void AwakeGeneralGameStatePoolers()

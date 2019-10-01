@@ -20,9 +20,9 @@ public class CustomizationHandler : MonoBehaviour
     public void ChangeGuns()
     {
         playerTruck.TruckData.ReturnObjectsToPool(playerTruck);
-        for (int i = 0; i < playerTruck.TruckData.firePointDataToCopy.gunsConfigurations.Length; i++)
+        for (int i = 0; i < playerTruck.TruckData.firePointData.gunsConfigurations.Length; i++)
         {
-            playerTruck.TruckData.firePointDataToCopy.gunsConfigurations[i].gunType = (GameEnums.Gun)Random.Range(1, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
+            playerTruck.TruckData.firePointData.gunsConfigurations[i].gunType = (GameEnums.Gun)Random.Range(1, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
         }
 
         playerTruck.TruckData.SetUpTruck(playerTruck);
@@ -32,13 +32,17 @@ public class CustomizationHandler : MonoBehaviour
     {
         playerTruck.TruckData.ReturnObjectsToPool(playerTruck);
 
-        playerTruck.TruckData.firePointDataToCopy.firePointType++;
+        playerTruck.TruckData.firePointType++;
 
         playerTruck.TruckData.SetUpTruck(playerTruck);
     }
 
     public void ChangeTruck()
     {
+        playerTruck.TruckData.ReturnObjectsToPool(playerTruck);
 
+        playerTruck.TruckData.truckType++;
+
+        playerTruck.TruckData.SetUpTruck(playerTruck);
     }
 }

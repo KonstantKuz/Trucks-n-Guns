@@ -10,10 +10,11 @@ public class RocketGun : GunParent
     public override GunData myData { get; set; }
     public override TargetData targetData { get; set; }
 
-    public Transform head, platform;
+    public Transform head, headHolder;
     public Transform[] gunsBarrels;
 
-    private Vector3 tempTargetForPlatform = Vector3.zero, tempTargetForHead = Vector3.zero;
+    private Vector3 targetDirection, targetDirection_XZprojection, targetDirection_ZYprojection;
+    private Transform headHolderRoot;
 
     private ObjectPoolerBase battleUnitPooler;
 
@@ -35,6 +36,7 @@ public class RocketGun : GunParent
         myData = Instantiate(gunDataToCopy);
         myData.CreateBattleUnitInstance();
         battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
+        headHolderRoot = headHolder.root;
     }
 
     public override void Fire()
@@ -59,12 +61,23 @@ public class RocketGun : GunParent
 
     void LookAtTarget()
     {
-        tempTargetForHead = targetData.target_rigidbody.position - head.position;
+        targetDirection = (targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.1f) - headHolder.position;
 
-        tempTargetForPlatform = Vector3.ProjectOnPlane(tempTargetForHead, platform.up);
+        targetDirection_XZprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.up);
+        targetDirection_ZYprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.right);
 
-        head.rotation = Quaternion.LookRotation(tempTargetForHead, platform.up);
-        platform.rotation = Quaternion.LookRotation(tempTargetForPlatform, platform.up);
+        float headForwardAngle = Vector3.SignedAngle(targetDirection_ZYprojection.normalized, headHolder.forward, headHolder.right);
+        float headRightAngle = Vector3.Angle(targetDirection_XZprojection.normalized, headHolderRoot.forward);
+
+        if (headRightAngle < 120)
+        {
+            headHolder.rotation = Quaternion.LookRotation(targetDirection_XZprojection, headHolder.up);
+
+            if (headForwardAngle < 60 && headForwardAngle > -20 && headRightAngle < 120)
+            {
+                head.rotation = Quaternion.LookRotation(targetDirection_ZYprojection, headHolder.up);
+            }
+        }
     }
 
     void UpdateTimers()

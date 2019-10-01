@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using StateMachine;
 
-public class PlayerFollowState : State<Enemy>
+public class PlayerOvertakingState : State<Enemy>
 {
-    public static PlayerFollowState _instance;
+    public static PlayerOvertakingState _instance;
 
 
-    private PlayerFollowState()
+    private PlayerOvertakingState()
     {
         if (_instance != null)
             return;
@@ -16,19 +16,19 @@ public class PlayerFollowState : State<Enemy>
         _instance = this;
     }
 
-    public static PlayerFollowState Instance
+    public static PlayerOvertakingState Instance
     {
         get
         {
             if (_instance == null)
-                new PlayerFollowState();
+                new PlayerOvertakingState();
 
             return _instance;
         }
     }
 
     public override void EnterState(Enemy _owner)
-    {      
+    {
     }
 
     public override void ExitState(Enemy _owner)
@@ -41,23 +41,23 @@ public class PlayerFollowState : State<Enemy>
         _owner.truck.SteeringWheels(SteeringForceOnDistanceBased(_owner) + _owner.AvoidForce());
     }
 
-    
+
     public float SteeringForceOnDistanceBased(Enemy _owner)
     {
         float distanceToTarget = _owner.targetData.target_rigidbody.position.z - _owner.truck._transform.position.z;
-        if(distanceToTarget > 30 || distanceToTarget < 0)
+        if (distanceToTarget > -5 || distanceToTarget < -15)
         {
             return PathFollowSteeringForce(_owner);
         }
         else
         {
-            return PlayerFollowSteeringForce(_owner);
+            return PlayerOverTakingSteeringForce(_owner);
         }
     }
 
-    public float PlayerFollowSteeringForce(Enemy _owner)
+    public float PlayerOverTakingSteeringForce(Enemy _owner)
     {
-        Vector3 relativeToPlayer = _owner.truck._transform.InverseTransformPoint(_owner.targetData.target_rigidbody.position - 10 * _owner.truck._transform.forward);
+        Vector3 relativeToPlayer = _owner.truck._transform.InverseTransformPoint(_owner.targetData.target_rigidbody.position + 10 * _owner.truck._transform.forward);
         float newsteer = (relativeToPlayer.x / relativeToPlayer.magnitude);
         return newsteer;
     }
@@ -92,10 +92,10 @@ public class PlayerFollowState : State<Enemy>
     public float MovingForce(Enemy _owner)
     {
         float movingForce = 0;
-        float distanceToTarget = (_owner.targetData.target_rigidbody.position.z - 10 * _owner.truck._transform.forward.z) - _owner.truck._transform.position.z;
+        float distanceToTarget = (_owner.targetData.target_rigidbody.position.z + 10 * _owner.truck._transform.forward.z) - _owner.truck._transform.position.z;
         float targetForwardVelocity = _owner.targetData.target_rigidbody.velocity.z;
 
-        if (distanceToTarget < 0)
+        if (distanceToTarget < -15)
         {
             if (targetForwardVelocity > 0)
             {

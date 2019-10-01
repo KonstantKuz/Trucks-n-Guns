@@ -14,7 +14,6 @@ public static class GameEnums
     }
     public enum FirePointType
     {
-        None /*= 0*/,
         D_FPType /*= 2*/,
         DM_FPType /*= 3*/,
         DP_FPType /*= 4*/,

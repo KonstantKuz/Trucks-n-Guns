@@ -111,16 +111,21 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
 
     private void SetUpEnemyAndLaunch(GameObject enemyToLaunch, Rigidbody player_rigidbody)
     {
-        var enemyTransform = enemyToLaunch.transform;
-        currentSessionEnemies.Add(enemyToLaunch.GetComponent<Enemy>());
-        enemyToLaunch.GetComponent<Enemy>().InjectNewTargetData(player_rigidbody);
+        var enemy = enemyToLaunch.GetComponent<Enemy>();
+        enemy.AwakeEnemy();
+        var enemyTransform = enemy.truck._transform;
+        currentSessionEnemies.Add(enemy);
+        enemy.InjectNewTargetData(player_rigidbody);
         UpdateEnemyPath(enemyToLaunch.GetComponent<Enemy>());
     }
     
     private Vector3 RandomPositionNearPlayer(Rigidbody player_rigidbody)
     {
-        int randomZ = Random.Range(25, 35);
-        return player_rigidbody.position - new Vector3(0, 0, randomZ);
+        int randomX = Random.Range(-pathHandler.pathGridWidth / 2, pathHandler.pathGridWidth / 2);
+        Vector3 newPos = player_rigidbody.position;
+        newPos.z -= 60;
+        newPos.x = randomX;
+        return newPos;
     }
 
     public void StartUpdateEnemiesPaths(PathHandler pathHandler)

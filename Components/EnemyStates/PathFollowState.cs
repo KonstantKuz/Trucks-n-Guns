@@ -38,34 +38,32 @@ public class PathFollowState : State<Enemy>
 
     public override void UpdateState(Enemy _owner)
     {
-        _owner.truck.MoveTruck(MovingForce(_owner.targetData, _owner.truck));
+        _owner.truck.MoveTruck(MovingForce(_owner));
         _owner.truck.SteeringWheels(PathFollowSteeringForce(_owner) + _owner.AvoidForce());
-        _owner.truck.firePoint.FirstTrackingAttack();
-        _owner.truck.firePoint.StaticAttack();
     }
 
-    public float MovingForce(TargetData targetData, Truck truck)
+    public float MovingForce(Enemy _owner)
     {
         float movingForce = 0;
-        float distanceToTarget = targetData.target_rigidbody.position.z - truck._transform.position.z;
-        float targetForwardVelocity = targetData.target_rigidbody.velocity.z;
+        float distanceToTarget = _owner.targetData.target_rigidbody.position.z - _owner.truck._transform.position.z;
+        float targetForwardVelocity = _owner.targetData.target_rigidbody.velocity.z;
 
         if (distanceToTarget < 0)
         {
             if(targetForwardVelocity>0)
             {
-                truck.StopTruckSlow(distanceToTarget * 0.00005f * targetForwardVelocity);
+                _owner.truck.StopTruckSlow(distanceToTarget * 0.00005f * targetForwardVelocity);
                 movingForce = 1;
             }
             else
             {
-                truck.StopTruckSlow(distanceToTarget * 0.00005f);
+                _owner.truck.StopTruckSlow(distanceToTarget * 0.00005f);
                 movingForce = 0;
             }
         }
         else
         {
-            truck.LaunchTruck();
+            _owner.truck.LaunchTruck();
             movingForce = distanceToTarget*targetForwardVelocity*0.005f;
         }
         return movingForce;
@@ -80,7 +78,6 @@ public class PathFollowState : State<Enemy>
 
             currentSpeedClamped = Mathf.Clamp(currentSpeedClamped, 0, 10);
 
-            //Debug.Log(currentSpeedClamped);
             if ((_owner.currentNode.worldPosition.z - _owner.truck._transform.position.z) <= currentSpeedClamped)
             {
                 _owner.targetIndex++;

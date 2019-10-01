@@ -38,7 +38,7 @@ public class RaycastWheel : MonoCached {
     
     private Vector3 forwardDifferenceDirection = Vector3.zero, sideDifferenceDirection = Vector3.zero;
 
-    private Transform _transform;
+    public Transform _transform { get; set; }
 
     private void OnEnable()
     {
@@ -57,7 +57,7 @@ public class RaycastWheel : MonoCached {
 
     public override void OnFixedTick()
     {
-        _transform.localRotation = Quaternion.AngleAxis(steerAngle, Vector3.up);
+        _transform.localRotation = Quaternion.AngleAxis(steerAngle, _transform.up);
 
         speed = parentRigidbody.velocity.magnitude;
 
@@ -119,16 +119,26 @@ public class RaycastWheel : MonoCached {
             isGrounded = false;
 		}
     }
+
+    private Vector3 newVisualPosition = Vector3.zero;
+
     public void VisualWheelSync(Transform visualWheel)
     {
         if(isGrounded)
         {
-            visualWheel.position = _transform.position + (wheelDownDirection * (hit.distance - wheelRadius));
+            //visualWheel.position = visualWheel.position + (wheelDownDirection * (hit.distance - wheelRadius));
+            newVisualPosition = _transform.position + (wheelDownDirection * (hit.distance - wheelRadius));
         }
         else
         {
-            visualWheel.position = _transform.position + (wheelDownDirection * suspensionRange);
+            //visualWheel.position = visualWheel.position + (wheelDownDirection * suspensionRange);
+            newVisualPosition = _transform.position + (wheelDownDirection * suspensionRange);
         }
+
+        newVisualPosition.x = visualWheel.position.x;
+        newVisualPosition.z = visualWheel.position.z;
+
+        visualWheel.position = newVisualPosition;
 
         visualWheel.Rotate(360 * (speed / wheelCircumference) * Time.deltaTime, 0, 0);
     }

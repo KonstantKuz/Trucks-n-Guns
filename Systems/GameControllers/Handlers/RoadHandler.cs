@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#pragma warning disable 0168 // variable declared but not used.
+#pragma warning disable 0219 // variable assigned but not used.
+#pragma warning disable 0414 // private field assigned but not used.
+
 public class RoadHandler : MonoCached, INeedObjectPooler
 {
     [SerializeField]
@@ -24,6 +28,8 @@ public class RoadHandler : MonoCached, INeedObjectPooler
 
     public Vector3[,] roadMapPoints { get; private set; }
 
+    private List<Collider> obstacleColliders = new List<Collider>(100);
+
     private ObjectPoolerBase roadPooler;
 
     private PathHandler pathHandler;
@@ -36,6 +42,7 @@ public class RoadHandler : MonoCached, INeedObjectPooler
     public void InjectNeededPooler(ObjectPoolerBase objectPooler)
     {
         roadPooler = objectPooler;
+        SetUpObstacleHandle();
     }
 
 
@@ -48,6 +55,26 @@ public class RoadHandler : MonoCached, INeedObjectPooler
     public void CreateRoadGrid()
     {
         roadMapPoints = new Vector3[roadGridSize, roadGridSize];
+    }
+
+    public void SetUpObstacleHandle()
+    {
+        for (int i = 0; i < roadPooler.pools.Count; i++)
+        {
+            if(roadPooler.pools[i].tag == generalRoadNameToSpawn)
+            {
+                continue;
+            }
+
+            GameObject[] obstacles = roadPooler.poolDictionary[roadPooler.pools[i].tag].ToArray();
+            for (int j = 0; j < obstacles.Length; j++)
+            {
+                for (int n = 0; n < obstacles[j].GetComponents<Collider>().Length; n++)
+                {
+                    obstacleColliders.Add(obstacles[j].GetComponents<Collider>()[n]);
+                }
+            }
+        }
     }
 
     public void SetRoadTroubleCount(int count)
@@ -69,29 +96,57 @@ public class RoadHandler : MonoCached, INeedObjectPooler
         yield return StartCoroutine(IncrementRoadTroubleCount(countIncrementPeriod));
     }
 
-    public void StartPlayerPositionCheckForMakeRoadComplex(Rigidbody player_rigidbody)
+    public void StartRoadHandle(Rigidbody player_rigidbody)
     {
-        StartCoroutine(PlayerPositionCheckForMakeRoadComplex(player_rigidbody, playerPosCheckPeriod));
+        StartCoroutine(RoadHandle(player_rigidbody, playerPosCheckPeriod));
     }
-    private IEnumerator PlayerPositionCheckForMakeRoadComplex(Rigidbody player_rigidbody, float period = 2f)
+    private IEnumerator RoadHandle(Rigidbody player_rigidbody, float period = 2f)
     {
         yield return new WaitForSeconds(period);
         if (player_rigidbody.position.z > (allSpawnedRoadLength - distanceFromPlayerToMakeNewRoadComplex))
         {
             MakeNewRoadComplex();
+            ObstacleHandle(player_rigidbody);
         }
-        yield return StartCoroutine(PlayerPositionCheckForMakeRoadComplex(player_rigidbody, period));
+
+
+        yield return StartCoroutine(RoadHandle(player_rigidbody, period));
+    }
+
+    public void ObstacleHandle(Rigidbody player_rigidbody)
+    {
+        for (int i = 0; i < obstacleColliders.Count; i++)
+        {
+            float distance = player_rigidbody.position.z - obstacleColliders[i].transform.position.z;
+            if (distance > 50)
+            {
+                obstacleColliders[i].enabled = false;
+            }
+            else
+            {
+                obstacleColliders[i].enabled = true;
+            }
+        }
+
     }
 
     private void MakeNewRoadComplex()
     {
-        GameObject generalRoad = roadPooler.SpawnFromPool(generalRoadNameToSpawn);
-        generalRoad.transform.localPosition = Vector3.forward * allSpawnedRoadLength;
-        allSpawnedRoadLength += roadLength;
+        GameObject generalRoad = TranslateGeeneralRoad();
+        
         TranslateRoadGrid(generalRoad.transform);
         TranslateRoadTroubles();
         TranslatePathGrid(generalRoad.transform.position);
+    }
+
+    private GameObject TranslateGeeneralRoad()
+    {
+        GameObject generalRoad = roadPooler.SpawnFromPool(generalRoadNameToSpawn);
+        generalRoad.transform.localPosition = Vector3.forward * allSpawnedRoadLength;
+        allSpawnedRoadLength += roadLength;
         generalRoad.GetComponent<CanyonElementsRotator>().RotateCanyonElements();
+
+        return generalRoad;
     }
 
     private void TranslateRoadGrid(Transform generalRoadTransform)
@@ -109,10 +164,12 @@ public class RoadHandler : MonoCached, INeedObjectPooler
 
     private void TranslateRoadTroubles()
     {
+    
         for (int i = 0; i < roadTroubleCount; i++)
         {
             Vector3 randomPosition = roadMapPoints[GetRandomIndex(roadGridSize), GetRandomIndex(roadGridSize)];
             GameObject roadTrouble = roadPooler.SpawnRandomItemFromPool(randomPosition, Quaternion.identity, 0);
+
             roadTrouble.transform.rotation = Quaternion.AngleAxis(Random.Range(50, 280), transform.up);
         }
     }

@@ -56,7 +56,7 @@ public class ChaseGameStateHandler : MonoCached // IState
         #endregion
         #region StartGamePlay
 
-        roadHandler.StartPlayerPositionCheckForMakeRoadComplex(playerHandler.player_rigidbody);
+        roadHandler.StartRoadHandle(playerHandler.player_rigidbody);
         enemyHandler.StartCheckingEnemiesPositions(playerHandler.player_rigidbody);
         //enemyHandler.StartSpawnRandomEnemyEveryPeriod(playerHandler.player_rigidbody);
         enemyHandler.StartSpawnAllEnemiesEveryPeriod(playerHandler.player_rigidbody);

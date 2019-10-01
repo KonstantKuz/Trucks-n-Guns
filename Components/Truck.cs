@@ -21,7 +21,9 @@ public class Truck : MonoCached
     private Transform centerOfMass;
 
     private List<RaycastWheel> drivingWheels;
-    private Transform[] wheelsVisual;
+
+    private List<Transform> frontWheelsVisual;
+    private List<Transform> rearWheelsVisual;
 
     public Rigidbody _rigidbody { get; private set; }
     public Transform _transform { get; private set; }
@@ -45,6 +47,7 @@ public class Truck : MonoCached
     private void SetUpData()
     {
         TruckData = Instantiate(truckDataToCopy);
+        TruckData.firePointData = Instantiate(TruckData.firePointDataToCopy);
         trucksCondition.maxCondition = TruckData.maxTrucksCondition;
         TruckData.SetUpTruck(this);
         if (firePoint == null)
@@ -85,32 +88,52 @@ public class Truck : MonoCached
         }
     }
 
-    public void SetUpFrontWheelsVisual(Transform visual)
+    public void SetUpWheelsVisual(Transform visual)
     {
-        //wheelsVisual = new Transform[6];
-        //for (int i = 0; i < visual.childCount; i++)
+        frontWheelsVisual = new List<Transform>();
+        rearWheelsVisual = new List<Transform>();
+
+        frontWheelsVisual.Add(visual.GetChild(0));
+        frontWheelsVisual.Add(visual.GetChild(1));
+
+        rearWheelsVisual.Add(visual.GetChild(2));
+        rearWheelsVisual.Add(visual.GetChild(3));
+
+        if (visual.childCount > 4)
+        {
+            rearWheelsVisual.Add(visual.GetChild(4));
+            rearWheelsVisual.Add(visual.GetChild(5));
+        }
+
+        //for (int i = 0; i < frontWheelsVisual.Count; i++)
         //{
-        //    wheelsVisual[i] = visual.GetChild(i);
+        //    frontWheels[i]._transform.position = frontWheelsVisual[i].position;
         //}
-        //wheelsVisual[0] = visual.GetChild(0);
-        //wheelsVisual[1] = visual.GetChild(1);
-        //wheelsVisual[0].parent = frontWheels[0].transform;
-        //wheelsVisual[1].parent = frontWheels[1].transform;
-        //wheelsVisual[0].localPosition = Vector3.zero;
-        //wheelsVisual[1].localPosition = Vector3.zero;
+        //for (int i = 0; i < rearWheelsVisual.Count; i++)
+        //{
+        //    rearWheels[i]._transform.position = rearWheelsVisual[i].position;
+        //}
+
+        frontWheels[0].transform.position = frontWheelsVisual[0].position;
+        frontWheels[1].transform.position = frontWheelsVisual[1].position;
+
+        frontWheelsVisual[0].transform.parent = frontWheels[0].transform;
+        frontWheelsVisual[1].transform.parent = frontWheels[1].transform;
+        frontWheelsVisual[0].localPosition = Vector3.zero;
+        frontWheelsVisual[1].localPosition = Vector3.zero;
     }
 
-    public void UpdateFrontWheelsVisuals()
+    public void UpdateWheelsVisual()
     {
-        //frontWheels[0].VisualWheelSync(wheelsVisual[0]);
-        //frontWheels[1].VisualWheelSync(wheelsVisual[1]);
-        //rearWheels[0].VisualWheelSync(wheelsVisual[2]);
-        //rearWheels[1].VisualWheelSync(wheelsVisual[3]);
-        //if(!ReferenceEquals(rearWheels[2], null))
-        //{
-        //    rearWheels[2].VisualWheelSync(wheelsVisual[4]);
-        //    rearWheels[3].VisualWheelSync(wheelsVisual[5]);
-        //}
+        for (int i = 0; i < frontWheelsVisual.Count; i++)
+        {
+            frontWheels[i].VisualWheelSync(frontWheelsVisual[i]);
+        }
+        for (int i = 0; i < rearWheelsVisual.Count; i++)
+        {
+            rearWheels[i].VisualWheelSync(rearWheelsVisual[i]);
+        }
+
     }
 
     public void LaunchTruck()
@@ -133,7 +156,7 @@ public class Truck : MonoCached
         {
             frontWheel.steerAngle = Mathf.Lerp(CurrentSteerAngle(), steeringForce* TruckData.maxSteerAngle, TruckData.wheelSteeringSpeed );
         }
-        UpdateFrontWheelsVisuals();
+        UpdateWheelsVisual();
     }
 
     public void SetBoost(float force)
