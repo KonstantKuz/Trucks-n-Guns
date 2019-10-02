@@ -9,6 +9,7 @@ public class TurretGun : GunParent
 
     public override GunData myData { get; set; }
     public override TargetData targetData { get; set; }
+    public override GunAnglesData allowableAngles { get; set; }
 
     public Transform head, headHolder;
     public Transform[] gunsBarrels;
@@ -31,7 +32,7 @@ public class TurretGun : GunParent
         myData = Instantiate(gunDataToCopy);
         myData.CreateBattleUnitInstance();
 
-        headHolderRoot = headHolder.root;
+        headHolderRoot = headHolder.parent;
 
         gunsBarrelsUpDirections = new Vector3[gunsBarrels.Length];
         for (int i = 0; i < gunsBarrels.Length; i++)
@@ -41,6 +42,25 @@ public class TurretGun : GunParent
 
         effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
         battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
+    }
+
+    public override void SetUpAngles(GunAnglesData anglesData)
+    {
+        if (anglesData == null)
+        {
+            allowableAngles = ScriptableObject.CreateInstance<GunAnglesData>();
+
+            allowableAngles.HeadHolderMaxAngle = GunAnglesData.headHolderMaxAngle;
+            allowableAngles.HeadMaxAngle = GunAnglesData.headMaxAngle;
+            allowableAngles.HeadMinAngle = GunAnglesData.headMinAngle;
+            allowableAngles.StartDirectionAngle = 0;
+        }
+        else
+        {
+            allowableAngles = anglesData;
+        }
+
+        transform.localEulerAngles = new Vector3(0, allowableAngles.StartDirectionAngle, 0);
     }
 
     public override void Fire()
@@ -82,14 +102,14 @@ public class TurretGun : GunParent
         targetDirection_XZprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.up);
         targetDirection_ZYprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.right);
 
-        float headForwardAngle = Vector3.SignedAngle(targetDirection_ZYprojection.normalized, headHolder.forward, headHolder.right);
-        float headRightAngle = Vector3.Angle(targetDirection_XZprojection.normalized, headHolderRoot.forward);
+        float angleBtwn_targetDirZY_hhFWD = Vector3.SignedAngle(targetDirection_ZYprojection.normalized, headHolder.forward, headHolder.right);
+        float angleBtwn_targetDirXZ_hhrootFWD = Vector3.Angle(targetDirection_XZprojection.normalized, headHolderRoot.forward);
 
-        if(headRightAngle<120)
+        if(angleBtwn_targetDirXZ_hhrootFWD < allowableAngles.HeadHolderMaxAngle)
         {
             headHolder.rotation = Quaternion.LookRotation(targetDirection_XZprojection, headHolder.up);
 
-            if (headForwardAngle < 60 && headForwardAngle > -20 && headRightAngle < 120)
+            if (angleBtwn_targetDirZY_hhFWD < allowableAngles.HeadMaxAngle && angleBtwn_targetDirZY_hhFWD > allowableAngles.HeadMinAngle)
             {
                 head.rotation = Quaternion.LookRotation(targetDirection_ZYprojection, headHolder.up);
             }

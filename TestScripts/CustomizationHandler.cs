@@ -22,7 +22,7 @@ public class CustomizationHandler : MonoBehaviour
         playerTruck.TruckData.ReturnObjectsToPool(playerTruck);
         for (int i = 0; i < playerTruck.TruckData.firePointData.gunsConfigurations.Length; i++)
         {
-            playerTruck.TruckData.firePointData.gunsConfigurations[i].gunType = (GameEnums.Gun)Random.Range(1, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
+            playerTruck.TruckData.firePointData.gunsConfigurations[i].gun = (GameEnums.Gun)Random.Range(1, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
         }
 
         playerTruck.TruckData.SetUpTruck(playerTruck);

@@ -70,7 +70,7 @@ public class TruckData : Data
             if(owner.firePoint.gunsPoints[i].gunsLocation.childCount>0)
             {
                 GameObject gunToReturn = owner.firePoint.gunsPoints[i].gunsLocation.GetChild(0).gameObject;
-                objectPoolersHolder.GunsPooler.ReturnGameObjectToPool(gunToReturn, firePointData.gunsConfigurations[i].gunType.ToString());
+                objectPoolersHolder.GunsPooler.ReturnGameObjectToPool(gunToReturn, firePointData.gunsConfigurations[i].gun.ToString());
             }
         }
 

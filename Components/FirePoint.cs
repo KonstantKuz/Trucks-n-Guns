@@ -4,44 +4,33 @@ using UnityEngine;
 
 public class FirePoint : MonoCached
 {
-
-    #region NEWSYSTEM
     [System.Serializable]
     public class GunPoint
     {
         public Transform gunsLocation;
-        //[Range(0,180)]
-        //public float rotation
+        public GunAnglesData allowableAnglesOnPoint;
         public string locationPath { get; set; }
     }
-
-
-    [Header("NEWSYSTEM")]
-
     public GunPoint[] gunsPoints;
 
-    public Dictionary<string, Transform> GunPointsDictionary { get; private set; }
+    public Dictionary<string, GunPoint> GunPointsDictionary { get; private set; }
 
     public List<GunParent> StaticGuns { get; set; }
     public List<GunParent> FirstTrackingGroupGuns { get; set; }
     public List<GunParent> SecondTrackingGroupGuns { get; set; }
 
     public Dictionary<GameEnums.TrackingGroup, List<GunParent>> TrackingGroupsDictionary { get; set; }
-
-    #endregion
-
-    #region NEWSYSTEM
-   
+    
 
     public void CreateFirePointsDictionaries()
     {
         
-        GunPointsDictionary = new Dictionary<string, Transform>(gunsPoints.Length);
+        GunPointsDictionary = new Dictionary<string, GunPoint>(gunsPoints.Length);
         for (int i = 0; i < gunsPoints.Length; i++)
         {
             var gunPoint = gunsPoints[i];
             gunPoint.locationPath = gunPoint.gunsLocation.parent.name + gunPoint.gunsLocation.name;
-            GunPointsDictionary.Add(gunPoint.locationPath, gunPoint.gunsLocation);
+            GunPointsDictionary.Add(gunPoint.locationPath, gunPoint);
         }
 
         StaticGuns = new List<GunParent>();
@@ -85,5 +74,4 @@ public class FirePoint : MonoCached
             SecondTrackingGroupGuns[i].Fire();
         }
     }
-    #endregion
 }

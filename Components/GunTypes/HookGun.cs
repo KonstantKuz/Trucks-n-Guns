@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HookGun : GunParent
+public class HookGun : MonoCached, Gun
 {
     [SerializeField]
     private GunData gunDataToCopy;
 
-    public override GunData myData { get; set; }
-    public override TargetData targetData { get; set; }
+    public GunData myData { get; set; }
+    public TargetData targetData { get; set; }
+
+    public int HeadHolderMaxAngle { get; set; }
+    public int HeadMaxAngle { get; set; }
+    public int HeadMinAngle { get; set; }
 
     public Transform rotationPoint;
     public Transform gunsMouth;
@@ -18,11 +22,11 @@ public class HookGun : GunParent
         myData = Instantiate(gunDataToCopy);
         myData.CreateBattleUnitInstance();
     }
-    public override void SetTargetData(TargetData targetData)
+    public void SetTargetData(TargetData targetData)
     {
         this.targetData = targetData;
     }
-    public override void Fire()
+    public void Fire()
     {
         //rotationPoint.LookAt(target);
 
@@ -31,5 +35,13 @@ public class HookGun : GunParent
         //    GameObject bullet = ObjectPooler.Instance.SpawnFromPool(myData.nameOfBattleUnit, gunsMouth.position, gunsMouth.rotation);
         //    Debug.Log(myData.nameOfThisGun + string.Empty + gameObject.name);
         //}
+    }
+
+    public void SetAllowableAngles(int headHolderMaxAngle, int headMaxAngle, int headMinAngle)
+    {
+    }
+
+    public void SetStandardAllowableAngles()
+    {
     }
 }

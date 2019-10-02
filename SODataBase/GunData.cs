@@ -18,6 +18,7 @@ public class GunData : Data
     public float timeElapsed { get; set; }
     public float timeSinceLastShot { get; set; }
 
+
     public void CreateBattleUnitInstance()
     {
         myBattleUnit = Instantiate(battleUnitToCopy);
