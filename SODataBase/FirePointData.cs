@@ -43,4 +43,16 @@ public class FirePointData : Data
             }
         }
     }
+
+    public void ReturnObjectToPool(FirePoint owner, FirePointData ownerData)
+    {
+        for (int i = 0; i < owner.gunsPoints.Length; i++)
+        {
+            if (owner.gunsPoints[i].gunsLocation.childCount > 0)
+            {
+                GameObject gunToReturn = owner.gunsPoints[i].gunsLocation.GetChild(0).gameObject;
+                objectPoolersHolder.GunsPooler.ReturnGameObjectToPool(gunToReturn, ownerData.gunsConfigurations[i].gun.ToString());
+            }
+        }
+    }
 }

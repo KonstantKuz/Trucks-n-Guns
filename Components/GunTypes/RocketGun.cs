@@ -81,7 +81,7 @@ public class RocketGun : GunParent
 
     void LookAtTarget()
     {
-        targetDirection = (targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.1f) - headHolder.position;
+        targetDirection = (targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.5f) - headHolder.position;
 
         targetDirection_XZprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.up);
         targetDirection_ZYprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.right);

@@ -6,7 +6,7 @@ public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
 {
     
     [SerializeField]
-    ObjectPoolerBase battleUnitPooler, roadPooler, enemyPooler, effectPooler, eventPooler, firePointPooler, gunsPooler, trucksPooler;
+    ObjectPoolerBase battleUnitPooler, roadPooler, enemyPooler, effectPooler, eventPooler, trucksFirePointPooler, roadBlocksFirePointPooler, gunsPooler, trucksPooler;
 
     public ObjectPoolerBase BattleUnitPooler { get { return battleUnitPooler; } }
 
@@ -18,11 +18,14 @@ public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
 
     public ObjectPoolerBase EventPooler { get { return eventPooler; } }
 
-    public ObjectPoolerBase FirePointPooler { get { return firePointPooler; } }
+    public ObjectPoolerBase TrucksFirePointPooler { get { return trucksFirePointPooler; } }
 
     public ObjectPoolerBase GunsPooler { get { return gunsPooler; } }
 
     public ObjectPoolerBase TrucksPooler { get { return trucksPooler; } }
+
+    //inactive
+    public ObjectPoolerBase RoadBlocksFirePointPooler { get { return roadBlocksFirePointPooler; } }
 
 
     private void OnEnable()
@@ -38,7 +41,8 @@ public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
         roadPooler.AwakePooler();
         effectPooler.AwakePooler();
         eventPooler.AwakePooler();
-        firePointPooler.AwakePooler();
+        trucksFirePointPooler.AwakePooler();
+        roadBlocksFirePointPooler.AwakePooler();
         gunsPooler.AwakePooler();
         trucksPooler.AwakePooler();
         enemyPooler.AwakePooler();
@@ -48,7 +52,7 @@ public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
     {
         Data.objectPoolersHolder = this;
 
-        firePointPooler.AwakePooler();
+        trucksFirePointPooler.AwakePooler();
         gunsPooler.AwakePooler();
         trucksPooler.AwakePooler();
     }

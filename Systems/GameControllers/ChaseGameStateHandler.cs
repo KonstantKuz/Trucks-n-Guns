@@ -58,26 +58,15 @@ public class ChaseGameStateHandler : MonoCached // IState
 
         roadHandler.StartRoadHandle(playerHandler.player_rigidbody);
         enemyHandler.StartCheckingEnemiesPositions(playerHandler.player_rigidbody);
-        //enemyHandler.StartSpawnRandomEnemyEveryPeriod(playerHandler.player_rigidbody);
-        enemyHandler.StartSpawnAllEnemiesEveryPeriod(playerHandler.player_rigidbody);
+        enemyHandler.StartSpawnRandomEnemyEveryPeriod(playerHandler.player_rigidbody);
+        //enemyHandler.StartSpawnAllEnemiesEveryPeriod(playerHandler.player_rigidbody);
         //enemyHandler.StartIncrementMaxEnemiesCount(5f);
         roadHandler.StartIncrementRoadTroubleCount();
         //eventHandler.StartCheckDistance(playerHandler.playerStartPosition, playerHandler.player_rigidbody);
+
+        playerHandler.StartUpdateCamera();
+        inputHandler.StartUpdateInputs();
         #endregion
     }
 
-    public override void OnFixedTick()
-    {
-        playerHandler.UpdateCamera();
-    }
-    public override void OnTick()
-    {
-        inputHandler.UpdateInputs();
-        if (playerHandler.player_transform.gameObject.activeInHierarchy == false)
-        {
-            enemyHandler.GameOver();
-            //playerHandler.player_transform.gameObject.SetActive(true);
-        }
-    }
-   
 }

@@ -25,6 +25,11 @@ public class EntityCondition : MonoCached
         currentCondition = maxCondition;
         effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
     }
+
+    public void ResetCurrentCondition(float value)
+    {
+        currentCondition = value;
+    }
     private void OnCollisionEnter(Collision collision)
     {
             AddDamage(Mathf.Abs(collision.relativeVelocity.magnitude*100f));

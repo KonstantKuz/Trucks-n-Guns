@@ -3,37 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 public class RoadBlock : MonoCached
 {
-    public LayerMask damageable;
 
-    public LayerMask obstacle;
+    public RoadBlockData roadBlockData;
 
-    public FirePoint firePoint;
-    public FirePointData firePointData;
-    public float conditionPerGun;
-    public Transform[] blocksToDestroy;
+    public FirePoint firePoint { get; set; }
+
+    public Transform[] blocksToDestroy { get; set; }
 
     private TargetData[] targets;
-    private float totalStartCondition, conditionToDestroy = 100f;
+
+    private float totalStartCondition = 0, conditionToDestroy = 100f;
 
     private bool activated = false, destroyed = false;
 
+
     private void OnEnable()
     {
+        roadBlockData.PermanentSetUpRoadBlock(this);
         StartCoroutine(SetUpRoadBlock());
     }
 
-
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.layer == obstacle)
+        if (other.gameObject.layer == 10)
         {
             other.gameObject.SetActive(false);
         }
 
-        if(other.gameObject.layer == damageable)
+        if (other.gameObject.layer == 9 && other.GetComponent<Truck>()!= null)
         {
+            Debug.Log("<color=red> SettingUpTargets on RoadBlock </color>");
             StartCoroutine(SetTargets());
-            activated = true;
         }
     }
 
@@ -42,23 +42,22 @@ public class RoadBlock : MonoCached
         SetUpConditions();
         SetUpTargets();
         yield return new WaitForEndOfFrame();
-        StartCoroutine(UpdateRoadBlock());
+        //StartCoroutine(UpdateRoadBlock());
     }
-    
+
     private void SetUpConditions()
     {
-
-        for (int i = 0; i < firePoint.FirstTrackingGroupGuns.Count; i++)
+        for (int i = 0; i < firePoint.gunsPoints.Length; i++)
         {
-            firePoint.FirstTrackingGroupGuns[i].gameObject.SetActive(true);
-            firePoint.FirstTrackingGroupGuns[i].GetComponent<EntityCondition>().maxCondition = conditionPerGun;
-            totalStartCondition += firePoint.FirstTrackingGroupGuns[i].GetComponent<EntityCondition>().currentCondition;
+            firePoint.gunsPoints[i].gunsLocation.gameObject.SetActive(true);
+            firePoint.gunsPoints[i].gunsLocation.gameObject.GetComponent<EntityCondition>().ResetCurrentCondition(roadBlockData.conditionPerGun);
+            totalStartCondition = firePoint.gunsPoints[i].gunsLocation.gameObject.GetComponent<EntityCondition>().currentCondition;
         }
     }
 
     private void SetUpTargets()
     {
-        targets = new TargetData[firePoint.FirstTrackingGroupGuns.Count + firePoint.SecondTrackingGroupGuns.Count];
+        targets = new TargetData[firePoint.gunsPoints.Length];
 
         for (int i = 0; i < targets.Length; i++)
         {
@@ -66,53 +65,81 @@ public class RoadBlock : MonoCached
         }
     }
 
-    private IEnumerator UpdateRoadBlock()
+    public override void OnTick()
     {
-        yield return new WaitForEndOfFrame();
         CheckCondition();
         if (activated)
         {
             AttackTargets();
         }
-        if(gameObject.activeInHierarchy == true)
-        {
-            yield return StartCoroutine(UpdateRoadBlock());
-        }
     }
+
+    //private IEnumerator UpdateRoadBlock()
+    //{
+    //    yield return new WaitForEndOfFrame();
+    //    Debug.Log($"<color=blue> {activated } </color>");
+    //    CheckCondition();
+        
+    //    if (gameObject.activeInHierarchy == true)
+    //    {
+    //        yield return StartCoroutine(UpdateRoadBlock());
+    //    }
+    //}
 
     private IEnumerator SetTargets()
     {
-        var hits = Physics.OverlapSphere(transform.position, 100f, damageable);
+        var hits = Physics.OverlapSphere(transform.position, 100f, roadBlockData.damageable);
 
         for (int i = 0; i < hits.Length; i++)
         {
             if (hits[i].GetComponent<Truck>() != null)
             {
                 targets[Random.Range(0, targets.Length)].target_rigidbody = hits[i].GetComponent<Rigidbody>();
+                Debug.Log($"<color=green> Selected target is {hits[i].name} </color>");
             }
         }
-        for (int i = 0; i < targets.Length; i++)
+        for (int i = 0; i < firePoint.FirstTrackingGroupGuns.Count; i++)
         {
-            firePoint.FirstTrackingGroupGuns[i].SetTargetData(targets[i]);
+                firePoint.FirstTrackingGroupGuns[i].SetTargetData(NotNullTarget());
         }
+        for (int i = 0; i < firePoint.SecondTrackingGroupGuns.Count; i++)
+        {
+                firePoint.SecondTrackingGroupGuns[i].SetTargetData(NotNullTarget());
+        }
+
+        activated = true;
 
         yield return null;
     }
 
+    public TargetData NotNullTarget()
+    {
+        int randomTargetIndex = Random.Range(0, targets.Length);
+        if (targets[randomTargetIndex].target_rigidbody != null)
+        {
+            return targets[randomTargetIndex];
+        }
+        else
+        {
+            return NotNullTarget();
+        }
+    }
+
     private void AttackTargets()
     {
+        firePoint.StaticAttack();
         for (int i = 0; i < targets.Length; i++)
         {
-            if(targets[i].target_rigidbody != null)
+            if (targets[i].target_rigidbody != null)
             {
-                if(targets[i].target_rigidbody.gameObject.activeInHierarchy == false)
+                if (targets[i].target_rigidbody.gameObject.activeInHierarchy == false)
                 {
                     StartCoroutine(SetTargets());
                 }
-                firePoint.StaticAttack();
                 firePoint.FirstTrackingAttack();
+                firePoint.SecondTrackingAttack();
             }
-            else if(targets[i].target_rigidbody == null)
+            else if (targets[i].target_rigidbody == null)
             {
                 StartCoroutine(SetTargets());
             }
@@ -123,25 +150,26 @@ public class RoadBlock : MonoCached
     {
         float currentTotalCondition = 0;
 
-        for (int i = 0; i < firePoint.FirstTrackingGroupGuns.Count; i++)
+        for (int i = 0; i < firePoint.gunsPoints.Length; i++)
         {
-            currentTotalCondition += firePoint.FirstTrackingGroupGuns[i].GetComponent<EntityCondition>().currentCondition;
+            currentTotalCondition += firePoint.gunsPoints[i].gunsLocation.GetComponent<EntityCondition>().currentCondition;
         }
+
         if (currentTotalCondition <= conditionToDestroy && destroyed == false)
         {
             destroyed = true;
             OpenRoad();
         }
     }
-    
+
     private void OpenRoad()
     {
-        int randomBlockoDestroyNumber = Random.Range(0, blocksToDestroy.Length);
+        int randomBlockToDestroyNumber = Random.Range(0, blocksToDestroy.Length);
 
         for (int i = 0; i < 5; i++)
         {
             GameObject expl = ObjectPoolersHolder.Instance.EffectPooler.SpawnFromPool("BigExplosion",
-                blocksToDestroy[randomBlockoDestroyNumber].position + new Vector3(Random.Range(-3,3), Random.Range(-1, 2), 
+                blocksToDestroy[randomBlockToDestroyNumber].position + new Vector3(Random.Range(-3, 3), Random.Range(-1, 2),
                 Random.Range(-3, 3)), Quaternion.identity);
             expl.GetComponent<ParticleSystem>().Play();
             foreach (var item in expl.GetComponentsInChildren<ParticleSystem>())
@@ -149,7 +177,7 @@ public class RoadBlock : MonoCached
                 item.Play();
             }
         }
-        blocksToDestroy[randomBlockoDestroyNumber].gameObject.SetActive(false);
+        blocksToDestroy[randomBlockToDestroyNumber].gameObject.SetActive(false);
 
         StartCoroutine(DeactivateAll());
     }
@@ -158,14 +186,5 @@ public class RoadBlock : MonoCached
     {
         yield return new WaitForSeconds(20f);
         gameObject.SetActive(false);
-    }
-
-    private void OnDrawGizmos()
-    {
-        for (int i = 0; i < firePoint.FirstTrackingGroupGuns.Count; i++)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(firePoint.FirstTrackingGroupGuns[i].transform.position, firePoint.FirstTrackingGroupGuns[i].transform.forward * 15f);
-        }
     }
 }

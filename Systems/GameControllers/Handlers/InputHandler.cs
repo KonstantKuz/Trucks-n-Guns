@@ -54,6 +54,8 @@ public class InputHandler : MonoCached
         backwardBoost.onClick.AddListener(() => player.BackwardBoost());
         parkingBrake.onClick.AddListener(() => StopPlayer());
         //restart.onClick.AddListener(() => Restart());
+
+        moveController.onValueChanged.AddListener(delegate { Move(); });
     }
     public void FindCamera()
     {
@@ -70,15 +72,24 @@ public class InputHandler : MonoCached
         moveController.value = 0;
         player.StopPlayerTruck();
     }
-    
-    public void UpdateInputs()
+    void Move()
     {
+        steeringForce = moveController.value;
+    }
+    public void StartUpdateInputs()
+    {
+        StartCoroutine(UpdateInputs());
+    }
+
+    private IEnumerator UpdateInputs()
+    {
+        yield return new WaitForFixedUpdate();
 
         #region unityAndroid
 #if UNITY_ANDROID
         if(player.seekPoint != null)
         {
-            steeringForce = moveController.value;
+            //steeringForce = moveController.value;
             seekPointPosition.x = steeringForce * 21f;
             seekPointPosition.z = player.truck._transform.position.z + 30f;
             player.seekPoint.position = seekPointPosition;
@@ -105,7 +116,7 @@ public class InputHandler : MonoCached
         #endregion 
         #region unityEditor
 #if UNITY_EDITOR
-        steeringForce = Input.GetAxis("Vertical");
+       // steeringForce = Input.GetAxis("Vertical");
         Vector2 localMousePosition = fireArea.InverseTransformPoint(Input.mousePosition);
         if (fireArea.rect.Contains(localMousePosition))
         {
@@ -132,6 +143,8 @@ public class InputHandler : MonoCached
         }
 
 #endif
+
+        yield return StartCoroutine(UpdateInputs());
         #endregion
     }
     void SetUpPlayersTarget(Vector3 mousePosition, GameEnums.TrackingGroup trackingGroup)

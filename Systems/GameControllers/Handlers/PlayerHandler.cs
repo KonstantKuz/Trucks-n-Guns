@@ -69,9 +69,15 @@ public class PlayerHandler : MonoCached
         player_rigidbody.AddForce(player_rigidbody.transform.forward * playerStartingForce, ForceMode.VelocityChange);
     }
 
-
-    public void UpdateCamera()
+    public void StartUpdateCamera()
     {
+        StartCoroutine(UpdateCamera());
+    }
+
+    private IEnumerator UpdateCamera()
+    {
+        yield return new WaitForFixedUpdate();
+
         var camPos = camera_transform.position;
         var playerPos = player_transform.position;
         if(cameraFixedPos == Vector3.zero)
@@ -86,6 +92,7 @@ public class PlayerHandler : MonoCached
             camera_transform.position = camPos;
         }
 
+        yield return StartCoroutine(UpdateCamera());
     }
    
     public void FixCamera(Vector3 pos)

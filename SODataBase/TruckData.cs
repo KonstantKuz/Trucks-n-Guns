@@ -55,7 +55,7 @@ public class TruckData : Data
     public void PermanentSetUpFirePoint(Truck owner)
     {
         string firePointTypeName = firePointType.ToString();
-        GameObject firePoint = objectPoolersHolder.FirePointPooler.PermanentSpawnFromPool(firePointTypeName);
+        GameObject firePoint = objectPoolersHolder.TrucksFirePointPooler.PermanentSpawnFromPool(firePointTypeName);
         firePoint.transform.parent = owner._transform;
         firePoint.transform.localPosition = Vector3.zero;
         firePoint.transform.localEulerAngles = Vector3.zero;
@@ -65,17 +65,10 @@ public class TruckData : Data
 
     public void ReturnObjectsToPool(Truck owner)
     {
-        for (int i = 0; i < owner.firePoint.gunsPoints.Length; i++)
-        {
-            if(owner.firePoint.gunsPoints[i].gunsLocation.childCount>0)
-            {
-                GameObject gunToReturn = owner.firePoint.gunsPoints[i].gunsLocation.GetChild(0).gameObject;
-                objectPoolersHolder.GunsPooler.ReturnGameObjectToPool(gunToReturn, firePointData.gunsConfigurations[i].gun.ToString());
-            }
-        }
+        owner.TruckData.firePointData.ReturnObjectToPool(owner.firePoint, owner.TruckData.firePointData);
 
         GameObject firePointToReturn = owner.transform.GetChild(3).gameObject;
-        objectPoolersHolder.FirePointPooler.ReturnGameObjectToPool(firePointToReturn, firePointType.ToString());
+        objectPoolersHolder.TrucksFirePointPooler.ReturnGameObjectToPool(firePointToReturn, firePointType.ToString());
 
         GameObject truckVisualToReturn = owner.transform.GetChild(0).transform.GetChild(0).gameObject;
         objectPoolersHolder.TrucksPooler.ReturnGameObjectToPool(truckVisualToReturn, truckType.ToString());
