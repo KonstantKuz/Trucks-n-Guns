@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Singleton;
 using Pathfinding;
-public class EnemyHandler : MonoCached, INeedObjectPooler
+public class EnemyHandler : MonoCached
 {
     List<Enemy> currentSessionEnemies = new List<Enemy>(15);
 
@@ -22,10 +22,10 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
     }
     private PathHandler pathHandler;
 
-    public void InjectNeededPooler(ObjectPoolerBase objectPooler)
+    private void Awake()
     {
-        enemyPooler = objectPooler;
-        enemiesPoolCount = enemyPooler.pools.Count;
+        Enemy.CreateStateDictionary();
+        enemyPooler = ObjectPoolersHolder.Instance.EnemyPooler;
     }
    
     public void InjectPathHandler(PathHandler pathHandler)
@@ -43,11 +43,17 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
 
         for (int i = 0; i < currentSessionEnemies.Count; i++)
         {
-            var distance = (player_rigidbody.position - currentSessionEnemies[i].transform.position).magnitude;
+            var enemy = currentSessionEnemies[i];
+            var distance = (player_rigidbody.position - enemy.transform.position).magnitude;
+            if(enemy.truck.trucksCondition.currentCondition<0.95f)
+            {
+                currentSessionEnemies.Remove(enemy);
+            }
             if (distance > distanceToDestroyEnemy)
             {
-                currentSessionEnemies[i].gameObject.SetActive(false);
-                currentSessionEnemies.Remove(currentSessionEnemies[i]);
+                enemy.ReturnObjectsToPool();
+                enemy.gameObject.SetActive(false);
+                currentSessionEnemies.Remove(enemy);
             }
         }
         yield return StartCoroutine(CheckingEnemiesPosition(player_rigidbody));
@@ -108,17 +114,17 @@ public class EnemyHandler : MonoCached, INeedObjectPooler
             SetUpEnemyAndLaunch(enemy, player_rigidbody);
         }
     }
-
     private void SetUpEnemyAndLaunch(GameObject enemyToLaunch, Rigidbody player_rigidbody)
     {
         var enemy = enemyToLaunch.GetComponent<Enemy>();
         enemy.AwakeEnemy();
+        enemy.RandomizeData();
         var enemyTransform = enemy.truck._transform;
         currentSessionEnemies.Add(enemy);
         enemy.InjectNewTargetData(player_rigidbody);
         UpdateEnemyPath(enemyToLaunch.GetComponent<Enemy>());
     }
-    
+
     private Vector3 RandomPositionNearPlayer(Rigidbody player_rigidbody)
     {
         int randomX = Random.Range(-pathHandler.pathGridWidth / 2, pathHandler.pathGridWidth / 2);

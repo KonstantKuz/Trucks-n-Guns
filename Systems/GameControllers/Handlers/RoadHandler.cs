@@ -6,7 +6,7 @@ using UnityEngine;
 #pragma warning disable 0219 // variable assigned but not used.
 #pragma warning disable 0414 // private field assigned but not used.
 
-public class RoadHandler : MonoCached, INeedObjectPooler
+public class RoadHandler : MonoCached
 {
     [SerializeField]
     private string generalRoadNameToSpawn;
@@ -34,18 +34,16 @@ public class RoadHandler : MonoCached, INeedObjectPooler
 
     private PathHandler pathHandler;
 
+    private void Awake()
+    {
+        roadPooler = ObjectPoolersHolder.Instance.RoadPooler;
+        SetUpObstacleHandle();
+    }
     public void InjectPathHandler(PathHandler pathHandler)
     {
         this.pathHandler = pathHandler;
         SetUpPathHandler();
     }
-    public void InjectNeededPooler(ObjectPoolerBase objectPooler)
-    {
-        roadPooler = objectPooler;
-        SetUpObstacleHandle();
-    }
-
-
     public void SetUpPathHandler()
     {
         pathHandler.pathGridWidth = roadGridSize;

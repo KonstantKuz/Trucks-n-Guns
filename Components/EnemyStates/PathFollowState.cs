@@ -52,7 +52,7 @@ public class PathFollowState : State<Enemy>
         {
             if(targetForwardVelocity>0)
             {
-                _owner.truck.StopTruckSlow(distanceToTarget * 0.00005f * targetForwardVelocity);
+                _owner.truck.StopTruckSlow(distanceToTarget * 0.00005f);
                 movingForce = 1;
             }
             else
@@ -66,6 +66,8 @@ public class PathFollowState : State<Enemy>
             _owner.truck.LaunchTruck();
             movingForce = distanceToTarget*targetForwardVelocity*0.005f;
         }
+
+        movingForce += distanceToTarget * targetForwardVelocity* 0.00005f;
         return movingForce;
     }
 

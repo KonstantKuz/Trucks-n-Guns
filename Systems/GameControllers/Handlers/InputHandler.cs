@@ -2,7 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Singleton;
+
+[System.Serializable]
+public class GeneralGameStateController
+{
+
+}
+
 public class InputHandler : MonoCached
 {
     [SerializeField]
@@ -21,11 +27,6 @@ public class InputHandler : MonoCached
     public float steeringForce { get; private set; }
     public bool doubleTap { get; private set; }
     
-    public static bool GetKeyDown(KeyCode key)
-    {
-        return Input.GetKeyDown(key);
-    }
-
     public void CreateControlsUI()
     {
         GameObject contr = Instantiate(moveControllerPrefab, GameObject.Find("UI").transform.GetChild(0).transform);
@@ -55,24 +56,25 @@ public class InputHandler : MonoCached
         parkingBrake.onClick.AddListener(() => StopPlayer());
         //restart.onClick.AddListener(() => Restart());
 
-        moveController.onValueChanged.AddListener(delegate { Move(); });
+        moveController.onValueChanged.AddListener(delegate { SteeringForceValueChange(); });
     }
     public void FindCamera()
     {
         mainCamera = Camera.main;
     }
+
     private void Restart()
     {
-        UnityEngine.SceneManagement.SceneManager.UnloadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
     }
+
     private void StopPlayer()
     {
         steeringForce = 0;
         moveController.value = 0;
         player.StopPlayerTruck();
     }
-    void Move()
+    private void SteeringForceValueChange()
     {
         steeringForce = moveController.value;
     }
@@ -80,7 +82,6 @@ public class InputHandler : MonoCached
     {
         StartCoroutine(UpdateInputs());
     }
-
     private IEnumerator UpdateInputs()
     {
         yield return new WaitForFixedUpdate();
@@ -120,11 +121,11 @@ public class InputHandler : MonoCached
         Vector2 localMousePosition = fireArea.InverseTransformPoint(Input.mousePosition);
         if (fireArea.rect.Contains(localMousePosition))
         {
-            if (Input.GetMouseButton(1))
+            if (Input.GetMouseButton(0))
             {
                 SetUpPlayersTarget(Input.mousePosition, GameEnums.TrackingGroup.FirstTrackingGroup);
             }
-            if (Input.GetMouseButton(0))
+            if (Input.GetMouseButton(1))
             {
                 SetUpPlayersTarget(Input.mousePosition, GameEnums.TrackingGroup.SecondTrackingGroup);
             }
@@ -156,7 +157,6 @@ public class InputHandler : MonoCached
             player.SetUpTargets(hit.rigidbody, trackingGroup);
         }
     }
-
     void SetUpPlayersTarget(Touch touch, GameEnums.TrackingGroup trackingGroup)
     {
         Ray ray = mainCamera.ScreenPointToRay(touch.position);
@@ -165,10 +165,5 @@ public class InputHandler : MonoCached
         {
             player.SetUpTargets(hit.rigidbody, trackingGroup);
         }
-    }
-   
-    public bool PlayGame()
-    {
-        return Input.GetKeyDown(KeyCode.Space);
     }
 }

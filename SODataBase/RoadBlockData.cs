@@ -33,9 +33,9 @@ public class RoadBlockData : Data
 
     public void ReturnObjectsToPool(RoadBlock owner)
     {
-        owner.roadBlockData.firePointData.ReturnObjectToPool(owner.firePoint, owner.roadBlockData.firePointData);
-
-        GameObject firePointToReturn = owner.transform.GetChild(3).gameObject;
+        owner.roadBlockData.firePointData.ReturnObjectsToPool(owner.firePoint, owner.roadBlockData.firePointData);
+        GameObject firePointToReturn = owner.firePoint.gameObject;
         objectPoolersHolder.RoadBlocksFirePointPooler.ReturnGameObjectToPool(firePointToReturn, firePointType.ToString());
     }
+
 }

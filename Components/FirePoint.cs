@@ -11,11 +11,11 @@ public class FirePoint : MonoCached
         public GunAnglesData allowableAnglesOnPoint;
         public string locationPath { get; set; }
     }
-    public GunPoint[] gunsPoints;
+    public List<GunPoint> gunsPoints;
 
     public Dictionary<string, GunPoint> GunPointsDictionary { get; private set; }
 
-    public List<GunParent> StaticGuns { get; set; }
+    public List<GunParent> StaticGroupGuns { get; set; }
     public List<GunParent> FirstTrackingGroupGuns { get; set; }
     public List<GunParent> SecondTrackingGroupGuns { get; set; }
 
@@ -24,23 +24,41 @@ public class FirePoint : MonoCached
 
     public void CreateFirePointsDictionaries()
     {
-        
-        GunPointsDictionary = new Dictionary<string, GunPoint>(gunsPoints.Length);
-        for (int i = 0; i < gunsPoints.Length; i++)
+        GunPointsDictionary = new Dictionary<string, GunPoint>(gunsPoints.Count);
+        for (int i = 0; i < gunsPoints.Count; i++)
         {
             var gunPoint = gunsPoints[i];
             gunPoint.locationPath = gunPoint.gunsLocation.parent.name + gunPoint.gunsLocation.name;
-            GunPointsDictionary.Add(gunPoint.locationPath, gunPoint);
+
+            if(!GunPointsDictionary.ContainsKey(gunPoint.locationPath))
+            {
+                GunPointsDictionary.Add(gunPoint.locationPath, gunPoint);
+            }
         }
 
-        StaticGuns = new List<GunParent>();
+        StaticGroupGuns = new List<GunParent>();
         FirstTrackingGroupGuns = new List<GunParent>();
         SecondTrackingGroupGuns = new List<GunParent>();
 
         TrackingGroupsDictionary = new Dictionary<GameEnums.TrackingGroup, List<GunParent>>(3);
         TrackingGroupsDictionary.Add(GameEnums.TrackingGroup.FirstTrackingGroup, FirstTrackingGroupGuns);
         TrackingGroupsDictionary.Add(GameEnums.TrackingGroup.SecondTrackingGroup, SecondTrackingGroupGuns);
-        TrackingGroupsDictionary.Add(GameEnums.TrackingGroup.StaticGroup, StaticGuns);
+        TrackingGroupsDictionary.Add(GameEnums.TrackingGroup.StaticGroup, StaticGroupGuns);
+    }
+
+    public void MergeFirePoints(FirePoint firePointToMerge)
+    {
+        List<GunPoint> newGunPoints = new List<GunPoint>(gunsPoints.Count + firePointToMerge.gunsPoints.Count);
+        for (int i = 0; i < gunsPoints.Count; i++)
+        {
+            newGunPoints.Add(gunsPoints[i]);
+        }
+
+        for (int i = 0; i < firePointToMerge.gunsPoints.Count; i++)
+        {
+            newGunPoints.Add(firePointToMerge.gunsPoints[i]);
+        }
+        gunsPoints = newGunPoints;
     }
 
     public void SetUpTargets(TargetData targetData, GameEnums.TrackingGroup trackingGroup)
@@ -50,12 +68,28 @@ public class FirePoint : MonoCached
             TrackingGroupsDictionary[trackingGroup][i].SetTargetData(targetData);
         }
     }
+
+    public void RemoveGun(GunParent gunToRemove)
+    {
+        if(FirstTrackingGroupGuns.Contains(gunToRemove))
+        {
+            FirstTrackingGroupGuns.Remove(gunToRemove);
+        }
+        if(SecondTrackingGroupGuns.Contains(gunToRemove))
+        {
+            SecondTrackingGroupGuns.Remove(gunToRemove);
+        }
+        if (StaticGroupGuns.Contains(gunToRemove))
+        {
+            StaticGroupGuns.Remove(gunToRemove);
+        }
+    }
  
    public void StaticAttack()
    {
-        for (int i = 0; i < StaticGuns.Count; i++)
+        for (int i = 0; i < StaticGroupGuns.Count; i++)
         {
-            StaticGuns[i].Fire();
+            StaticGroupGuns[i].Fire();
         }
    }
 

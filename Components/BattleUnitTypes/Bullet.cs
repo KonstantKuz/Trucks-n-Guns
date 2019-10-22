@@ -44,7 +44,7 @@ public class Bullet : BattleUnitParent
         rayDistance = myData.speed * 0.01f;
         ray.origin = _transform.position;
         ray.direction = _forwardDirection;
-        if(Physics.Raycast(ray, rayDistance))
+        if(Physics.Raycast(ray, rayDistance, myData.interactibleWith))
         {
             SetDamage();
         }

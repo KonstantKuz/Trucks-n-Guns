@@ -8,7 +8,7 @@ public class Truck : MonoCached
     [SerializeField]
     private TruckData truckDataToCopy;
 
-    public TruckData TruckData { get; private set; }
+    public TruckData TruckData { get { return truckDataToCopy; } private set { } }
 
     public FirePoint firePoint { get; set; }
 
@@ -29,6 +29,14 @@ public class Truck : MonoCached
     public Transform _transform { get; private set; }
     public Transform CenterOfMass { get { return centerOfMass; } }
 
+    //private void OnDisable()
+    //{
+    //    if(firePoint!= null)
+    //    {
+    //        TruckData.ReturnObjectsToPool(this);
+    //    }
+    //}
+
     public void SetUpTruck()
     {
         SetUpCash();
@@ -46,9 +54,11 @@ public class Truck : MonoCached
 
     private void SetUpData()
     {
-        TruckData = Instantiate(truckDataToCopy);
-        TruckData.firePointData = Instantiate(TruckData.firePointDataToCopy);
+        TruckData = truckDataToCopy;
+
         trucksCondition.maxCondition = TruckData.maxTrucksCondition;
+        trucksCondition.ResetCurrentCondition(TruckData.maxTrucksCondition);
+
         TruckData.SetUpTruck(this);
         if (firePoint == null)
         {
@@ -99,7 +109,7 @@ public class Truck : MonoCached
         rearWheelsVisual.Add(visual.GetChild(2));
         rearWheelsVisual.Add(visual.GetChild(3));
 
-        if (visual.childCount > 4)
+        if (visual.childCount > 5)
         {
             rearWheelsVisual.Add(visual.GetChild(4));
             rearWheelsVisual.Add(visual.GetChild(5));
@@ -117,10 +127,26 @@ public class Truck : MonoCached
         frontWheels[0].transform.position = frontWheelsVisual[0].position;
         frontWheels[1].transform.position = frontWheelsVisual[1].position;
 
-        frontWheelsVisual[0].transform.parent = frontWheels[0].transform;
-        frontWheelsVisual[1].transform.parent = frontWheels[1].transform;
-        frontWheelsVisual[0].localPosition = Vector3.zero;
-        frontWheelsVisual[1].localPosition = Vector3.zero;
+        rearWheels[0].transform.position = rearWheelsVisual[0].position;
+        rearWheels[1].transform.position = rearWheelsVisual[1].position;
+        //rearWheelsVisual[0].transform.parent = rearWheels[0].transform;
+        //rearWheelsVisual[1].transform.parent = rearWheels[1].transform;
+        //rearWheelsVisual[0].localPosition = Vector3.zero;
+        //rearWheelsVisual[1].localPosition = Vector3.zero;
+        if (rearWheelsVisual.Count > 2)
+        {
+            rearWheels[2].transform.position = rearWheelsVisual[2].position;
+            rearWheels[3].transform.position = rearWheelsVisual[3].position;
+            //rearWheelsVisual[2].transform.parent = rearWheels[2].transform;
+            //rearWheelsVisual[3].transform.parent = rearWheels[3].transform;
+            //rearWheelsVisual[2].localPosition = Vector3.zero;
+            //rearWheelsVisual[3].localPosition = Vector3.zero;
+        }
+
+        //frontWheelsVisual[0].transform.parent = frontWheels[0].transform;
+        //frontWheelsVisual[1].transform.parent = frontWheels[1].transform;
+        //frontWheelsVisual[0].localPosition = Vector3.zero;
+        //frontWheelsVisual[1].localPosition = Vector3.zero;
     }
 
     public void UpdateWheelsVisual()

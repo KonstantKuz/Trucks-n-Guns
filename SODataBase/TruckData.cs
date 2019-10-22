@@ -11,7 +11,7 @@ public class TruckData : Data
 
     public FirePointData firePointDataToCopy;
 
-    public FirePointData firePointData { get; set; }
+    public FirePointData firePointData { get { return firePointDataToCopy; } set { } }
 
     public GameEnums.Truck truckType;
 
@@ -52,27 +52,32 @@ public class TruckData : Data
         owner.SetUpWheelsVisual(truck.transform);
     }
 
+   
+
     public void PermanentSetUpFirePoint(Truck owner)
     {
+        owner.TruckData.firePointData = owner.TruckData.firePointDataToCopy;
         string firePointTypeName = firePointType.ToString();
         GameObject firePoint = objectPoolersHolder.TrucksFirePointPooler.PermanentSpawnFromPool(firePointTypeName);
         firePoint.transform.parent = owner._transform;
         firePoint.transform.localPosition = Vector3.zero;
         firePoint.transform.localEulerAngles = Vector3.zero;
         owner.firePoint = firePoint.GetComponent<FirePoint>();
+
+        owner.firePoint.MergeFirePoints(owner.transform.GetChild(0).transform.GetChild(0).GetComponent<FirePoint>());
+
         owner.TruckData.firePointData.PermanentSetUpFirePoint(owner.firePoint);
     }
 
     public void ReturnObjectsToPool(Truck owner)
     {
-        owner.TruckData.firePointData.ReturnObjectToPool(owner.firePoint, owner.TruckData.firePointData);
+        owner.TruckData.firePointData.ReturnObjectsToPool(owner.firePoint, owner.TruckData.firePointData);
 
-        GameObject firePointToReturn = owner.transform.GetChild(3).gameObject;
-        objectPoolersHolder.TrucksFirePointPooler.ReturnGameObjectToPool(firePointToReturn, firePointType.ToString());
-
-        GameObject truckVisualToReturn = owner.transform.GetChild(0).transform.GetChild(0).gameObject;
-        objectPoolersHolder.TrucksPooler.ReturnGameObjectToPool(truckVisualToReturn, truckType.ToString());
-
+        objectPoolersHolder.TrucksFirePointPooler.ReturnGameObjectToPool(owner.firePoint.gameObject, owner.TruckData.firePointType.ToString());
+        foreach (Transform visualTruck in owner.transform.GetChild(0).transform)
+        {
+            objectPoolersHolder.TrucksPooler.ReturnGameObjectToPool(visualTruck.gameObject, owner.TruckData.truckType.ToString());
+        }
     }
     #endregion
 }

@@ -1,16 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-
+using UnityEditor;
 public static class GameEnums
 {
-
     public enum EnemyFollowType
     {
-        PathFollow,
-        PlayerFollow,
-        PlayerRam,
-        PlayerOverTaking,
-        SingleTest
+        PathFollow = 0,
+        PlayerFollow = 1,
+        //PlayerRam = 2,
+        //PlayerOverTaking = 3,
+        //SingleTest = 4 
     }
     public enum FirePointType
     {

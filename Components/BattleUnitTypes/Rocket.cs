@@ -32,7 +32,6 @@ public class Rocket : BattleUnitParent
         isLaunched = false;
         effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
     }
-   
     public void Launch(TargetData targetData)
     {
         this.targetData = targetData;
@@ -40,9 +39,11 @@ public class Rocket : BattleUnitParent
         isLaunched = true;
 
         trail = effectPooler.SpawnFromPool("RocketTrail", transform.position, transform.rotation);
-        foreach (var item in trail.transform.GetComponentsInChildren<ParticleSystem>())
+        foreach (var effect in trail.transform.GetComponentsInChildren<ParticleSystem>())
         {
-            item.Play();
+            effect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            effect.Play();
         }
         StartCoroutine(AutoDestruct());
     }
@@ -64,8 +65,11 @@ public class Rocket : BattleUnitParent
             _deltaPosition = _forwardDirection * myData.speed;
             _transform.position += _deltaPosition;
 
-            if(myData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody !=null)
-                _transform.rotation = Quaternion.LookRotation(targetData.target_rigidbody.position - _transform.position);
+            if(myData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody !=null && targetData.target_rigidbody.gameObject.activeInHierarchy)
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(targetData.target_rigidbody.position - _transform.position);
+                _transform.rotation = Quaternion.Slerp(_transform.rotation, lookRotation, 0.5f);
+            }
 
             trail.transform.position = _transform.position;
             trail.transform.rotation = _transform.rotation;
@@ -75,7 +79,7 @@ public class Rocket : BattleUnitParent
 
     public override void SearchTargets()
     {
-        if(Physics.CheckSphere(_transform.position, myData.speed/3))
+        if(Physics.CheckSphere(_transform.position, myData.speed/3, myData.interactibleWith))
         {
             Explosion();
         }
@@ -89,7 +93,7 @@ public class Rocket : BattleUnitParent
 
     void Explosion()
     {
-            hits = Physics.OverlapSphere(_transform.position, myData.damageRadius);
+            hits = Physics.OverlapSphere(_transform.position, myData.damageRadius, myData.interactibleWith);
             for (int i = 0; i < hits.Length; i++)
             {
                 SetDamage(hits[i].GetComponent<EntityCondition>());

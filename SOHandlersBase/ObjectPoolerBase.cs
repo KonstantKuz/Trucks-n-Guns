@@ -36,6 +36,11 @@ public class ObjectPoolerBase : ScriptableObject
             for (int i = 0; i < pool.size; i++)
             {
                 GameObject instatObj = Instantiate(pool.prefab, parentInScene);
+
+
+                instatObj.name = instatObj.name.Replace("(Clone)", "");
+
+
                 instatObj.SetActive(false);
                 objectPool.Enqueue(instatObj);
             }
@@ -99,6 +104,10 @@ public class ObjectPoolerBase : ScriptableObject
         {
             Debug.Log($"PoolDictionaty does not contain tag {tag}");
             return;
+        }
+        else
+        {
+            Debug.Log($"{objToReturn.name} was returned to {tag} pool");
         }
         poolDictionary[tag].Enqueue(objToReturn);
 

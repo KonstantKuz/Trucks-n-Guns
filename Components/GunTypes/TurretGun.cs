@@ -22,11 +22,6 @@ public class TurretGun : GunParent
 
     private ObjectPoolerBase effectPooler, battleUnitPooler;
 
-    public override void SetTargetData(TargetData targetData)
-    {
-        this.targetData = targetData;
-    }
-
     private void Awake()
     {
         myData = Instantiate(gunDataToCopy);
@@ -42,6 +37,11 @@ public class TurretGun : GunParent
 
         effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
         battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
+    }
+
+    public override void SetTargetData(TargetData targetData)
+    {
+        this.targetData = targetData;
     }
 
     public override void SetUpAngles(GunAnglesData anglesData)
@@ -62,7 +62,6 @@ public class TurretGun : GunParent
 
         transform.localEulerAngles = new Vector3(0, allowableAngles.StartDirectionAngle, 0);
     }
-
     public override void Fire()
     {
         UpdateTimers();
@@ -76,6 +75,10 @@ public class TurretGun : GunParent
 
         if (myData.timeSinceLastShot <= 0)
         {
+            if(!GetComponent<AudioSource>().isPlaying)
+            {
+                GetComponent<AudioSource>().Play();
+            }
             myData.timeSinceLastShot = myData.rateofFire;
             for (int i = 0; i < gunsBarrels.Length; i++)
             {
@@ -118,7 +121,7 @@ public class TurretGun : GunParent
 
     void UpdateTimers()
     {
-        float randomDifference = Random.Range(0.01f, 0.05f);
+        float randomDifference = Random.Range(0.001f, 0.05f);
         myData.timeElapsed += randomDifference;
         myData.timeSinceLastShot -= randomDifference;
     }

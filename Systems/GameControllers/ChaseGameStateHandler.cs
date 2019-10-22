@@ -39,9 +39,6 @@ public class ChaseGameStateHandler : MonoCached // IState
         roadHandler.InjectPathHandler(pathHandler);
         pathHandler.InjectEnemyHandler(enemyHandler);
         enemyHandler.InjectPathHandler(pathHandler);
-        enemyHandler.InjectNeededPooler(objectPoolersHolder.EnemyPooler);
-        roadHandler.InjectNeededPooler(objectPoolersHolder.RoadPooler);
-        //eventHandler.InjectNeededPooler(objectPoolersHolder.EventPooler);
         #endregion
         #region WorldCreation
 
@@ -62,7 +59,7 @@ public class ChaseGameStateHandler : MonoCached // IState
         //enemyHandler.StartSpawnAllEnemiesEveryPeriod(playerHandler.player_rigidbody);
         //enemyHandler.StartIncrementMaxEnemiesCount(5f);
         roadHandler.StartIncrementRoadTroubleCount();
-        //eventHandler.StartCheckDistance(playerHandler.playerStartPosition, playerHandler.player_rigidbody);
+        eventHandler.StartCheckDistance(playerHandler.playerStartPosition, playerHandler.player_rigidbody);
 
         playerHandler.StartUpdateCamera();
         inputHandler.StartUpdateInputs();

@@ -13,13 +13,13 @@ public static class EnemyStateDictionary
         stateDictionary = new Dictionary<GameEnums.EnemyFollowType, State<Enemy>>(5);
         stateDictionary.Add(GameEnums.EnemyFollowType.PathFollow, PathFollowState.Instance);
         stateDictionary.Add(GameEnums.EnemyFollowType.PlayerFollow, PlayerFollowState.Instance);
-        stateDictionary.Add(GameEnums.EnemyFollowType.PlayerRam, PlayerRamState.Instance);
-        stateDictionary.Add(GameEnums.EnemyFollowType.PlayerOverTaking, PlayerOvertakingState.Instance);
-        stateDictionary.Add(GameEnums.EnemyFollowType.SingleTest, SingleTestState.Instance);
+        //stateDictionary.Add(GameEnums.EnemyFollowType.PlayerRam, PlayerRamState.Instance);
+        //stateDictionary.Add(GameEnums.EnemyFollowType.PlayerOverTaking, PlayerOvertakingState.Instance);
+        //stateDictionary.Add(GameEnums.EnemyFollowType.SingleTest, SingleTestState.Instance);
     }
 }
 
-public class Enemy : MonoCached, INeedTarget
+public class Enemy : MonoCached, INeedTarget, IPoolReturner
 {
     
     public GameEnums.EnemyFollowType followType;
@@ -42,46 +42,41 @@ public class Enemy : MonoCached, INeedTarget
     public int targetIndex { get; set; }
     
     //для стрельбы и преследования игрока
-    public TargetData targetData { get; private set; }
+    public TargetData targetData { get; set; }
 
     public StateMachine<Enemy> followTypeStateController { get; private set; }
 
     #region UnityCallbacks
+    
+    public static void CreateStateDictionary()
+    {
+        EnemyStateDictionary.CreateStateDictionary();
 
-    //private void Awake()
-    //{
-    //    truck = GetComponent<Truck>();
-    //    EnemyStateDictionary.CreateStateDictionary();
-    //    followTypeStateController = new StateMachine<Enemy>(this);
-    //    truck.SetUpTruck();
+        Debug.Log($"<color=black> firepoints {System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length}</color>");
+        Debug.Log($"<color=black> trucks {System.Enum.GetNames(typeof(GameEnums.Truck)).Length}</color>");
 
-    //}
-
+    }
     private void OnEnable()
     {
         allTicks.Add(this);
-
-        //followTypeStateController.ChangeState(EnemyStateDictionary.stateDictionary[followType]);
     }
     private void OnDisable()
     {
         allTicks.Remove(this);
+        if(truck!=null)
+        {
+            truck.trucksCondition.OnZeroCondition -= ReturnObjectsToPool;
+        }
     }
-
-    //private void Start()
-    //{
-    //    sideSensorsOffsetVec = sensorsPosition.right * sideSensorsOffset;
-    //    sensorsStartPos = sensorsPosition.position;
-    //    sensorsRSidePos = sensorsStartPos + sideSensorsOffsetVec;
-    //    sensorsLSidePos = sensorsStartPos - sideSensorsOffsetVec;
-    //}
 
     public void AwakeEnemy()
     {
         truck = GetComponent<Truck>();
-        EnemyStateDictionary.CreateStateDictionary();
+
         followTypeStateController = new StateMachine<Enemy>(this);
         truck.SetUpTruck();
+
+        truck.trucksCondition.OnZeroCondition += ReturnObjectsToPool;
 
         followTypeStateController.ChangeState(EnemyStateDictionary.stateDictionary[followType]);
 
@@ -90,7 +85,23 @@ public class Enemy : MonoCached, INeedTarget
         sensorsRSidePos = sensorsStartPos + sideSensorsOffsetVec;
         sensorsLSidePos = sensorsStartPos - sideSensorsOffsetVec;
     }
-    
+
+    public void ReturnObjectsToPool()
+    {
+        truck.TruckData.ReturnObjectsToPool(truck);
+    }
+
+    public void RandomizeData()
+    {
+        int randomState = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.EnemyFollowType)).Length);
+        followType = (GameEnums.EnemyFollowType)randomState;
+        int randomTruck = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Truck)).Length);
+        truck.TruckData.truckType = (GameEnums.Truck)randomTruck;
+        int randomFirePoint = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length);
+        truck.TruckData.firePointType = (GameEnums.FirePointType)randomFirePoint;
+
+        Debug.Log($"<color=blue> {gameObject.name} has {followType.ToString()} type with {truck.TruckData.truckType.ToString()} and {truck.TruckData.firePointType.ToString()} </color>");
+    }
     #endregion
 
     #region My
@@ -122,7 +133,6 @@ public class Enemy : MonoCached, INeedTarget
   
     public void ReTracePath(List<Node> newPath)
     {
-       
         path = newPath;
         targetIndex = 0;
         if(PathCheck())
@@ -138,7 +148,6 @@ public class Enemy : MonoCached, INeedTarget
 
     public float AvoidForce()
     {
-
         sensorsStartPos = sensorsPosition.position;
         sensorsRSidePos = sensorsStartPos + sideSensorsOffsetVec;
         sensorsLSidePos = sensorsStartPos - sideSensorsOffsetVec;
@@ -165,25 +174,24 @@ public class Enemy : MonoCached, INeedTarget
         }
 
         return avoidForce;
-
     }
     
 
-    private void OnDrawGizmos()
-    {
-        if (path != null)
-        {
-            for (int i = 0; i < path.Count; i++)
-            {
+    //private void OnDrawGizmos()
+    //{
+    //    if (path != null)
+    //    {
+    //        for (int i = 0; i < path.Count; i++)
+    //        {
 
-                Gizmos.color = Color.green;
-                if (path[i].worldPosition == currentNode.worldPosition)
-                {
-                    Gizmos.color = Color.red;
-                }
-                Gizmos.DrawSphere(path[i].worldPosition, 0.7f);
-            }
-        }
-    }
+    //            Gizmos.color = Color.green;
+    //            if (path[i].worldPosition == currentNode.worldPosition)
+    //            {
+    //                Gizmos.color = Color.red;
+    //            }
+    //            Gizmos.DrawSphere(path[i].worldPosition, 0.7f);
+    //        }
+    //    }
+    //}
     #endregion
 }

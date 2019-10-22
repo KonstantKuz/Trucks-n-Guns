@@ -5,9 +5,12 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "PlayerPersistentData", menuName = "Data/PlayerData/PlayerPersistentData")]
 public class PlayerPersistentData : Data
 {
-    private float maxTraveledDistance;
-    private float maxGainedSpeed;
-    private int maxDefeatedEnemiesCount;
+    public FirePointData firePointData;
+    public TruckData truckData;
 
-
+    public void SetPlayerData(TruckData truckData, FirePointData firePointData)
+    {
+        PlayerData.playerFirePointData = firePointData;
+        PlayerData.playerTruckData = truckData;
+    }
 }

@@ -19,6 +19,14 @@ public class RocketGun : GunParent
 
     private ObjectPoolerBase battleUnitPooler;
 
+    private void Awake()
+    {
+        myData = Instantiate(gunDataToCopy);
+        myData.CreateBattleUnitInstance();
+        battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
+        headHolderRoot = headHolder.parent;
+    }
+
     public override void SetTargetData(TargetData targetData)
     {
         switch (myData.battleType)
@@ -31,14 +39,7 @@ public class RocketGun : GunParent
                 break;
         }
     }
-
-    private void Awake()
-    {
-        myData = Instantiate(gunDataToCopy);
-        myData.CreateBattleUnitInstance();
-        battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
-        headHolderRoot = headHolder.parent;
-    }
+    
 
     public override void SetUpAngles(GunAnglesData anglesData)
     {
@@ -70,18 +71,31 @@ public class RocketGun : GunParent
 
         if (myData.timeSinceLastShot <= 0)
         {
+           
             myData.timeSinceLastShot = myData.rateofFire;
 
             for (int i = 0; i < gunsBarrels.Length; i++)
             {
                 battleUnitPooler.SpawnFromPool(myData.battleUnitToCopy.name, gunsBarrels[i].position, gunsBarrels[i].rotation).GetComponent<Rocket>().Launch(targetData);
             }
+
+             if (!GetComponent<AudioSource>().isPlaying)
+            {
+                GetComponent<AudioSource>().Play();
+            }
         }
     }
 
     void LookAtTarget()
     {
-        targetDirection = (targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.5f) - headHolder.position;
+        if(myData.battleUnitToCopy.name.Contains("Static"))
+        {
+            targetDirection = (targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.75f) - headHolder.position;
+        }
+        else
+        {
+            targetDirection = targetData.target_rigidbody.position- headHolder.position;
+        }
 
         targetDirection_XZprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.up);
         targetDirection_ZYprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.right);

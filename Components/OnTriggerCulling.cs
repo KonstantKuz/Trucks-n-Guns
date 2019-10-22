@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class OnTriggerCulling : MonoBehaviour
 {
-    public MeshRenderer[] meshes;
-
+    public GameObject[] gameObjectToDeactivate;
 
     private void OnEnable()
     {
@@ -31,9 +30,9 @@ public class OnTriggerCulling : MonoBehaviour
 
     private void RendererSetActive(bool enabled)
     {
-        for (int i = 0; i < meshes.Length; i++)
+        for (int i = 0; i < gameObjectToDeactivate.Length; i++)
         {
-            meshes[i].enabled = enabled;
+            gameObjectToDeactivate[i].SetActive(enabled);
         }
     }
 

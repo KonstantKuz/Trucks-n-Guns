@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class BattleUnitData : Data
 {
+    public LayerMask interactibleWith;
     public float speed;
     public float damage;
     [Header("RocketOnly")]

@@ -1,11 +1,9 @@
 fileFormatVersion: 2
-guid: 4669e10091b8cb74aa20e8ded3e93554
+guid: cec7561fce3ded440a0cca19ede870a7
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - truckDataToCopy: {instanceID: 0}
-  - centerOfMass: {instanceID: 0}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

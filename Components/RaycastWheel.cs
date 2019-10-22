@@ -28,6 +28,7 @@ public class RaycastWheel : MonoCached {
     public bool IsGrounded { get { return isGrounded; } }
 
 	private RaycastHit hit;
+    public RaycastHit Hit { get { return hit; } }
 
 	private Rigidbody parentRigidbody;
 
@@ -140,7 +141,7 @@ public class RaycastWheel : MonoCached {
 
         visualWheel.position = newVisualPosition;
 
-        visualWheel.Rotate(360 * (speed / wheelCircumference) * Time.deltaTime, 0, 0);
+        visualWheel.Rotate(360 * (-speed / wheelCircumference) * Time.deltaTime, 0, 0);
     }
     void  OnDrawGizmosSelected ()
 	{

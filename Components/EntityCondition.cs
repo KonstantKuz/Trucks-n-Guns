@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class EntityCondition : MonoCached
 {
+    [SerializeField]
+    [Range(1, 10)]
+    private int explosionCount = 1;
+
     public float currentCondition { get; private set; }
 
     public float maxCondition { get; set; }
@@ -17,11 +21,6 @@ public class EntityCondition : MonoCached
 
     private void OnEnable()
     {
-        if(maxCondition == 0)
-        {
-            maxCondition = 100000000;
-        }
-        //truck = GetComponent<Truck>();
         currentCondition = maxCondition;
         effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
     }
@@ -32,8 +31,9 @@ public class EntityCondition : MonoCached
     }
     private void OnCollisionEnter(Collision collision)
     {
-            AddDamage(Mathf.Abs(collision.relativeVelocity.magnitude*100f));
+        AddDamage(Mathf.Abs(collision.relativeVelocity.magnitude*10f));
     }
+
     public void AddHealth(float amount)
     {
         currentCondition += amount;
@@ -48,20 +48,31 @@ public class EntityCondition : MonoCached
     {
         if (currentCondition < 1)
         {
+            ZeroConditionInvoke();
             Death();
         }
 
     }
 
+    public void ZeroConditionInvoke()
+    {
+        OnZeroCondition?.Invoke();
+    }
+
     private void Death()
     {
-        GameObject expl = effectPooler.SpawnFromPool("BigExplosion", transform.position, Quaternion.identity);
-        expl.GetComponent<ParticleSystem>().Play();
-        foreach (var item in expl.transform.GetComponentsInChildren<ParticleSystem>())
+        for (int i = 0; i < explosionCount; i++)
         {
-            item.Play();
+            GameObject expl = effectPooler.SpawnFromPool("BigExplosion", transform.position + new Vector3(Random.Range(-explosionCount/5, explosionCount/5), Random.Range(-explosionCount/1, explosionCount/2),
+                Random.Range(-explosionCount/3, explosionCount/3)), Quaternion.identity);
+            expl.GetComponent<ParticleSystem>().Play();
+            foreach (var item in expl.transform.GetComponentsInChildren<ParticleSystem>())
+            {
+                item.Play();
+            }
         }
         gameObject.SetActive(false);
     }
+
    
 }
