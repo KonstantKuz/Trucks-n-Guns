@@ -15,8 +15,6 @@ From the algorithms, only the path search algorithm was used.
 ![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/%D1%81%D0%BA%D1%80%D0%B8%D0%BD3.png?raw=true)
 ![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/Custom3.png?raw=true)
 
-
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/game4.png?raw=true)
 ![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/game5.png?raw=true)
 ![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/game6.png?raw=true)
 ![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/game7.png?raw=true)
