@@ -17,8 +17,11 @@ public class RoadHandler : MonoCached
     [SerializeField]
     private Vector3 gridOffset;
     
-    public int roadTroubleCount;
-    public int maxRoadTroubleCount;
+    [Range(0,4)]
+    public int obstaclesCount;
+    [Range(0, 4)]
+    public int maxObstaclesCount;
+    [Range(10, 30)]
     public float countIncrementPeriod;
 
     public float playerPosCheckPeriod;
@@ -28,14 +31,16 @@ public class RoadHandler : MonoCached
 
     public Vector3[,] roadMapPoints { get; private set; }
 
-    private List<Collider> obstacleColliders = new List<Collider>(100);
+    private List<Collider> obstacleColliders = new List<Collider>(200);
 
+    private ObjectPoolerBase obstaclePooler;
     private ObjectPoolerBase roadPooler;
 
     private PathHandler pathHandler;
 
     private void Awake()
     {
+        obstaclePooler = ObjectPoolersHolder.Instance.ObstaclePooler;
         roadPooler = ObjectPoolersHolder.Instance.RoadPooler;
         SetUpObstacleHandle();
     }
@@ -57,14 +62,14 @@ public class RoadHandler : MonoCached
 
     public void SetUpObstacleHandle()
     {
-        for (int i = 0; i < roadPooler.pools.Count; i++)
+        for (int i = 0; i < obstaclePooler.pools.Count; i++)
         {
-            if(roadPooler.pools[i].tag == generalRoadNameToSpawn)
+            if(obstaclePooler.pools[i].tag == generalRoadNameToSpawn)
             {
                 continue;
             }
 
-            GameObject[] obstacles = roadPooler.poolDictionary[roadPooler.pools[i].tag].ToArray();
+            GameObject[] obstacles = obstaclePooler.poolDictionary[obstaclePooler.pools[i].tag].ToArray();
             for (int j = 0; j < obstacles.Length; j++)
             {
                 for (int n = 0; n < obstacles[j].GetComponents<Collider>().Length; n++)
@@ -77,7 +82,7 @@ public class RoadHandler : MonoCached
 
     public void SetRoadTroubleCount(int count)
     {
-        roadTroubleCount = count;
+        obstaclesCount = count;
     }
 
     public void StartIncrementRoadTroubleCount()
@@ -87,9 +92,9 @@ public class RoadHandler : MonoCached
     private IEnumerator IncrementRoadTroubleCount(float countIncrementPeriod)
     {
         yield return new WaitForSeconds(countIncrementPeriod*2.5f);
-        if(roadTroubleCount < maxRoadTroubleCount)
+        if(obstaclesCount < maxObstaclesCount)
         {
-            roadTroubleCount++;
+            obstaclesCount++;
         }
         yield return StartCoroutine(IncrementRoadTroubleCount(countIncrementPeriod));
     }
@@ -104,14 +109,14 @@ public class RoadHandler : MonoCached
         if (player_rigidbody.position.z > (allSpawnedRoadLength - distanceFromPlayerToMakeNewRoadComplex))
         {
             MakeNewRoadComplex();
-            ObstacleHandle(player_rigidbody);
+            ObstaclesColliderHandle(player_rigidbody);
         }
 
 
         yield return StartCoroutine(RoadHandle(player_rigidbody, period));
     }
 
-    public void ObstacleHandle(Rigidbody player_rigidbody)
+    public void ObstaclesColliderHandle(Rigidbody player_rigidbody)
     {
         for (int i = 0; i < obstacleColliders.Count; i++)
         {
@@ -130,16 +135,16 @@ public class RoadHandler : MonoCached
 
     private void MakeNewRoadComplex()
     {
-        GameObject generalRoad = TranslateGeeneralRoad();
+        GameObject generalRoad = TranslateGeneralRoad();
         
         TranslateRoadGrid(generalRoad.transform);
-        TranslateRoadTroubles();
+        TranslateObstacles();
         TranslatePathGrid(generalRoad.transform.position);
     }
 
-    private GameObject TranslateGeeneralRoad()
+    private GameObject TranslateGeneralRoad()
     {
-        GameObject generalRoad = roadPooler.SpawnFromPool(generalRoadNameToSpawn);
+        GameObject generalRoad = roadPooler.Spawn(generalRoadNameToSpawn);
         generalRoad.transform.localPosition = Vector3.forward * allSpawnedRoadLength;
         allSpawnedRoadLength += roadLength;
         generalRoad.GetComponent<CanyonElementsRotator>().RotateCanyonElements();
@@ -160,15 +165,14 @@ public class RoadHandler : MonoCached
         }
     }
 
-    private void TranslateRoadTroubles()
+    private void TranslateObstacles()
     {
-    
-        for (int i = 0; i < roadTroubleCount; i++)
+        for (int i = 0; i < obstaclesCount; i++)
         {
             Vector3 randomPosition = roadMapPoints[GetRandomIndex(roadGridSize), GetRandomIndex(roadGridSize)];
-            GameObject roadTrouble = roadPooler.SpawnRandomItemFromPool(randomPosition, Quaternion.identity, 0);
+            GameObject obstacle = obstaclePooler.SpawnWeightedRandom(randomPosition, Quaternion.identity);
 
-            roadTrouble.transform.rotation = Quaternion.AngleAxis(Random.Range(50, 280), transform.up);
+            obstacle.transform.rotation = Quaternion.AngleAxis(Random.Range(50, 280), transform.up);
         }
     }
 

@@ -54,14 +54,20 @@ public class Bullet : BattleUnitParent
     {
         if (Physics.Raycast(ray, out hit, rayDistance))
         {
-            var health = hit.transform.GetComponent<EntityCondition>();
+            var health = hit.transform.gameObject.GetComponentInParent<EntityCondition>();
+            //Debug.Log(hit.transform.gameObject.name + "was hited with bullet");
             SetDamage(health);
         }
     }
 
     public override void SetDamage(EntityCondition targetToHit)
     {
-        base.SetDamage(targetToHit);
+        if (targetToHit != null)
+        {
+            targetToHit.AddDamage(myData.damage );
+        }
+
+        Deactivate();
     }
 
     public override void Deactivate()

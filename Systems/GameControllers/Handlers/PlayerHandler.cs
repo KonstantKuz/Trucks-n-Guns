@@ -82,7 +82,7 @@ public class PlayerHandler : MonoCached
         var playerPos = player_transform.position;
         if(cameraFixedPos == Vector3.zero)
         {
-            camPos = Vector3.Lerp(camPos, new Vector3(camPos.x, camPos.y, playerPos.z), 0.075f);
+            camPos = Vector3.Lerp(camPos, new Vector3(camPos.x, camPos.y, playerPos.z), 0.1f);
             camera_transform.position = camPos;
         }
         else

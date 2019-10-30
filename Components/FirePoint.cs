@@ -20,7 +20,11 @@ public class FirePoint : MonoCached
     public List<GunParent> SecondTrackingGroupGuns { get; set; }
 
     public Dictionary<GameEnums.TrackingGroup, List<GunParent>> TrackingGroupsDictionary { get; set; }
-    
+
+    private void OnEnable()
+    {
+        CreateFirePointsDictionaries();
+    }
 
     public void CreateFirePointsDictionaries()
     {
@@ -48,6 +52,19 @@ public class FirePoint : MonoCached
 
     public void MergeFirePoints(FirePoint firePointToMerge)
     {
+        for (int i = 0; i < firePointToMerge.gunsPoints.Count; i++)
+        {
+            for (int j = 0; j < gunsPoints.Count; j++)
+            {
+                if (gunsPoints[j].locationPath == firePointToMerge.gunsPoints[i].locationPath)
+                {
+                    gunsPoints.Remove(gunsPoints[j]);
+                    GunPointsDictionary.Remove(firePointToMerge.gunsPoints[i].locationPath);
+                }
+            }
+        }
+
+
         List<GunPoint> newGunPoints = new List<GunPoint>(gunsPoints.Count + firePointToMerge.gunsPoints.Count);
         for (int i = 0; i < gunsPoints.Count; i++)
         {

@@ -12,7 +12,8 @@ public class EventHandler : MonoCached
         StoneBlockage,     //завал дороги большим камнем
         //SandStorm,         // песчаная буря под вопросом
         //Blockade,          // живая застава
-        //Helicopter,        // преследующий вертолет
+        Helicopter,        // преследующий вертолет
+        //ShellingHelicopter,  // обстреливающий по полосе вертолет
         //Minefield,         // Минное поле
     }
 
@@ -23,8 +24,10 @@ public class EventHandler : MonoCached
 
     public Vector3 playerPos_fromLastEvent { get; set; }
     public float traveledDistance { get; set; }
-    private IPoolReturner lastEventReturner;
-    private float distanceToRemoveLastEvent = 200f;
+    //private IPoolReturner lastEventReturner;
+    //private IRoadEvent lastEvent;
+    private Transform lastEvent;
+    private float distanceToRemoveLastEvent;
 
     private ObjectPoolerBase eventPooler;
     private float traveledDistaceToGenerateEvent;
@@ -32,6 +35,7 @@ public class EventHandler : MonoCached
     private void Awake()
     {
         eventPooler = ObjectPoolersHolder.Instance.EventPooler;
+        distanceToRemoveLastEvent = offsetFromPlayer.z * 2;
     }
 
     public void StartCheckDistance(Vector3 player_startPos, Rigidbody player_rigidbody)
@@ -39,15 +43,15 @@ public class EventHandler : MonoCached
         StartCoroutine(CheckTraveledDistance(player_startPos, player_rigidbody));
     }
 
-    private IEnumerator CheckTraveledDistance(Vector3 player_startPos, Rigidbody player_rigidbody)
+    private IEnumerator CheckTraveledDistance(Vector3 player_Pos, Rigidbody player_rigidbody)
     {
         if(traveledDistaceToGenerateEvent == 0)
         {
             traveledDistaceToGenerateEvent = Random.Range(traveledDistaceToGenerateEventMinMax.x, traveledDistaceToGenerateEventMinMax.y);
         }
 
-        yield return new WaitForSeconds(5f);
-        playerPos_fromLastEvent = player_startPos;
+        yield return new WaitForSeconds(2f);
+        playerPos_fromLastEvent = player_Pos;
 
         if ((player_rigidbody.position - playerPos_fromLastEvent).magnitude > traveledDistaceToGenerateEvent)
         {
@@ -55,24 +59,32 @@ public class EventHandler : MonoCached
             playerPos_fromLastEvent = player_rigidbody.position;
             traveledDistaceToGenerateEvent = 0;
         }
-
-        if ((player_rigidbody.position - playerPos_fromLastEvent).magnitude > distanceToRemoveLastEvent && lastEventReturner!=null)
+        if(!ReferenceEquals(lastEvent, null))
         {
-            lastEventReturner.ReturnObjectsToPool();
+            if ((player_rigidbody.position - lastEvent.position).magnitude > distanceToRemoveLastEvent && lastEvent.GetComponent<IRoadEvent>().isActive)
+            {
+                lastEvent.GetComponent<IPoolReturner>().ReturnObjectsToPool();
+            }
         }
 
         yield return StartCoroutine(CheckTraveledDistance(playerPos_fromLastEvent, player_rigidbody));
     }
     private void GenerateEvent(Rigidbody player_rigidbody)
     {
-        int randomEventNum = Random.Range(0, System.Enum.GetNames(typeof(EventType)).Length);
-        EventType myType = (EventType)randomEventNum;
-        string randomEventName = myType.ToString();
+        if (!ReferenceEquals(lastEvent, null) && lastEvent.GetComponent<IRoadEvent>().isActive)
+        {
+            return;
+        }
 
-        GameObject eventObject = eventPooler.SpawnFromPool(randomEventName);
+        //int randomEventNum = Random.Range(0, System.Enum.GetNames(typeof(EventType)).Length);
+        //EventType myType = (EventType)randomEventNum;
+        //string randomEventName = myType.ToString();
+
+        //GameObject eventObject = eventPooler.Spawn(randomEventName);
+        GameObject eventObject = eventPooler.SpawnWeightedRandom(Vector3.zero, Quaternion.identity);
         eventObject.transform.position = new Vector3(eventObject.transform.position.x, eventObject.transform.position.y, player_rigidbody.position.z + offsetFromPlayer.z);
         eventObject.GetComponent<IRoadEvent>().AwakeEvent();
-        lastEventReturner = eventObject.GetComponent<IPoolReturner>();
+        lastEvent = eventObject.transform;
     }
 
    

@@ -76,7 +76,7 @@ public class RocketGun : GunParent
 
             for (int i = 0; i < gunsBarrels.Length; i++)
             {
-                battleUnitPooler.SpawnFromPool(myData.battleUnitToCopy.name, gunsBarrels[i].position, gunsBarrels[i].rotation).GetComponent<Rocket>().Launch(targetData);
+                battleUnitPooler.Spawn(myData.battleUnitToCopy.name, gunsBarrels[i].position, gunsBarrels[i].rotation).GetComponent<Rocket>().Launch(targetData);
             }
 
              if (!GetComponent<AudioSource>().isPlaying)
@@ -85,12 +85,14 @@ public class RocketGun : GunParent
             }
         }
     }
-
+    private Vector3 targetPosSpeedBased, targetPosHeightDiffBased;
     void LookAtTarget()
     {
         if(myData.battleUnitToCopy.name.Contains("Static"))
         {
-            targetDirection = (targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.75f) - headHolder.position;
+            targetPosSpeedBased = targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.25f;
+            targetPosHeightDiffBased = headHolderRoot.up * (targetData.target_rigidbody.position.y - headHolderRoot.position.y) * 0.1f;
+            targetDirection = (targetPosSpeedBased + targetPosHeightDiffBased) - headHolder.position;
         }
         else
         {

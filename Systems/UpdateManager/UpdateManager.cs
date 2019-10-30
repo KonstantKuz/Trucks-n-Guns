@@ -1,9 +1,29 @@
 ﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 public class UpdateManager : MonoBehaviour
 {
     private void Awake()
     {
         Application.targetFrameRate = 120;
+        //StartCoroutine(UpdateMonocached());
+    }
+
+    private IEnumerator UpdateMonocached()
+    {
+        yield return new WaitForSecondsRealtime(0.02f);
+
+        for (int i = 0; i < MonoCached.allTicks.Count; i++)
+        {
+            MonoCached.allTicks[i].Tick();
+        }
+
+        for (int i = 0; i < MonoCached.allFixedTicks.Count; i++)
+        {
+            MonoCached.allFixedTicks[i].FixedTick();
+        }
+
+        yield return StartCoroutine(UpdateMonocached());
     }
 
     private void Update()

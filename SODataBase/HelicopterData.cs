@@ -13,7 +13,7 @@ public class HelicopterData : Data
     public void PermanentSetUpHelicopter(Helicopter owner)
     {
         string firePointName = firePointType.ToString();
-        GameObject firePoint = objectPoolersHolder.TrucksFirePointPooler.PermanentSpawnFromPool(firePointName);
+        GameObject firePoint = objectPoolersHolder.HelicoptersFirePointPooler.PermanentSpawn(firePointName);
         firePoint.transform.parent = owner.transform;
         owner.firePoint = firePoint.GetComponent<FirePoint>();
         firePoint.transform.localPosition = Vector3.zero;
@@ -24,9 +24,11 @@ public class HelicopterData : Data
 
     public void ReturnObjectsToPool(Helicopter owner)
     {
-        owner.helicopterData.firePointData.ReturnObjectsToPool(owner.firePoint, owner.helicopterData.firePointData);
+        owner.helicopterData.firePointData.ReturnObjectsToPool(owner.firePoint);
 
         GameObject firePointToReturn = owner.transform.GetChild(2).gameObject;
-        objectPoolersHolder.TrucksFirePointPooler.ReturnGameObjectToPool(firePointToReturn, firePointType.ToString());
+        objectPoolersHolder.HelicoptersFirePointPooler.ReturnToPool(firePointToReturn, firePointToReturn.name);
+
+        objectPoolersHolder.EventPooler.ReturnToPool(owner.gameObject, "Helicopter");
     }
 }

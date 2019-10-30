@@ -29,6 +29,9 @@ public class Truck : MonoCached
     public Transform _transform { get; private set; }
     public Transform CenterOfMass { get { return centerOfMass; } }
 
+    private AudioSource engineSoundSource;
+
+
     //private void OnDisable()
     //{
     //    if(firePoint!= null)
@@ -50,6 +53,7 @@ public class Truck : MonoCached
         _rigidbody = GetComponent<Rigidbody>();
         _rigidbody.centerOfMass = centerOfMass.localPosition;
         trucksCondition = GetComponent<EntityCondition>();
+        engineSoundSource = GetComponent<AudioSource>();
     }
 
     private void SetUpData()
@@ -160,6 +164,14 @@ public class Truck : MonoCached
             rearWheels[i].VisualWheelSync(rearWheelsVisual[i]);
         }
 
+        UpdateEngineSound();
+    }
+
+    private void UpdateEngineSound()
+    {
+        float engineSoundPitch = _rigidbody.velocity.magnitude * 0.05f;
+        engineSoundPitch = Mathf.Clamp(engineSoundPitch, 0.9f, 2f);
+        engineSoundSource.pitch = engineSoundPitch;
     }
 
     public void LaunchTruck()
@@ -169,7 +181,6 @@ public class Truck : MonoCached
 
     public void MoveTruck(float torqueForce)
     {
-        //_rigidbody.drag = Mathf.Abs(CurrentSteerAngle()) * 0.001f;
         foreach (RaycastWheel drivingWheel in drivingWheels)
         {
             drivingWheel.motorTorque = TruckData.maxMotorTorque *( torqueForce - Mathf.Abs(CurrentSteerAngle()) * 0.01f);
@@ -187,21 +198,15 @@ public class Truck : MonoCached
 
     public void SetBoost(float force)
     {
-        _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
-
-        //if (CurrentSpeed()<70f && force>0)
-        //{
-        //    _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
-        //}
-        //if(RelativeVelocity() < 5f && force <0)
-        //{
-        //    _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
-        //}
+        if(CurrentSpeed() < 120f && CurrentSpeed() > -30f)
+        {
+            _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
+        }
     }
 
-    public void StopTruckSlow(float force)
+    public void StopTruck(float force)
     {
-        _rigidbody.drag -= force;
+        _rigidbody.drag = force;
     }
 
     public void StopTruck()
@@ -214,10 +219,9 @@ public class Truck : MonoCached
         }
     }
 
-
     public float CurrentSpeed()
     {
-        return _rigidbody.velocity.magnitude * 3.6f;
+        return _rigidbody.velocity.magnitude * 3.6f * Mathf.Sign(_rigidbody.velocity.z);
     }
     public float RelativeVelocity()
     {

@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using NaughtyAttributes;
 [CreateAssetMenu(fileName = "NewPooler", menuName = "Handlers/ObjectPooler")]
 public class ObjectPoolerBase : ScriptableObject
 {
     [SerializeField]
     private GameObject parentInScenePrefab;
     private Transform parentInScene;
+    private int totalWeight;
 
     [System.Serializable]
     public class Pool
@@ -15,6 +16,9 @@ public class ObjectPoolerBase : ScriptableObject
         public string tag;
         public GameObject prefab;
         public int size;
+
+        [Range(10, 100)]
+        public int weight;
     }
 
     public List<Pool> pools;
@@ -47,8 +51,15 @@ public class ObjectPoolerBase : ScriptableObject
             poolDictionary.Add(pool.tag, objectPool);
             tags.Add(pool.tag);
         }
+
+        totalWeight = 0;
+        for (int i = 0; i < pools.Count; i++)
+        {
+            totalWeight += pools[i].weight;
+        }
     }
-    public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
+
+    public GameObject Spawn(string tag, Vector3 position, Quaternion rotation)
     {
         if (!poolDictionary.ContainsKey(tag))
         {
@@ -66,7 +77,7 @@ public class ObjectPoolerBase : ScriptableObject
         return objToSpawn;
     }
 
-    public GameObject SpawnFromPool(string tag)
+    public GameObject Spawn(string tag)
     {
         if (!poolDictionary.ContainsKey(tag))
         {
@@ -83,7 +94,7 @@ public class ObjectPoolerBase : ScriptableObject
         return objToSpawn;
     }
 
-    public GameObject PermanentSpawnFromPool(string tag)
+    public GameObject PermanentSpawn(string tag)
     {
         if (!poolDictionary.ContainsKey(tag))
         {
@@ -98,33 +109,27 @@ public class ObjectPoolerBase : ScriptableObject
         return objToSpawn;
     }
 
-    public void ReturnGameObjectToPool(GameObject objToReturn, string tag)
+    public void ReturnToPool(GameObject objToReturn, string tag)
     {
         if (!poolDictionary.ContainsKey(tag))
         {
-            Debug.Log($"PoolDictionaty does not contain tag {tag}");
+            Debug.Log($"<color=red> PoolDictionary does not contain tag {tag} </color>");
             return;
         }
-        else
-        {
-            Debug.Log($"{objToReturn.name} was returned to {tag} pool");
-        }
+        //else
+        //{
+        //    Debug.Log($"{objToReturn.name} was returned to {tag} pool");
+        //}
         poolDictionary[tag].Enqueue(objToReturn);
 
         objToReturn.transform.parent = parentInScene;
 
         objToReturn.SetActive(false);
     }
-    /// <summary>
-    /// witout - index of item that cant be spawned
-    /// </summary>
-    /// <param name="position"></param>
-    /// <param name="rotation"></param>
-    /// <param name="withOut"></param>
-    /// <returns></returns>
-    public GameObject SpawnRandomItemFromPool(Vector3 position, Quaternion rotation, int withOut)
+
+    public GameObject SpawnRandom(Vector3 position, Quaternion rotation)
     {
-        int randomIndex = RandomIndexWithOut(withOut);
+        int randomIndex = Random.Range(0, tags.Count);
         string randomTag = tags[randomIndex];
 
         GameObject objToSpawn = poolDictionary[randomTag].Dequeue();
@@ -140,47 +145,33 @@ public class ObjectPoolerBase : ScriptableObject
         return objToSpawn;
     }
 
-    int RandomIndexWithOut(int withOut)
+    public GameObject SpawnWeightedRandom(Vector3 position, Quaternion rotation)
     {
-        int randomIndex = Random.Range(0, tags.Count);
-        if (randomIndex == withOut)
-            return RandomIndexWithOut(withOut);
-        else
-            return randomIndex;
+        int randomValue = Random.Range(0, totalWeight + 1);
+
+        for (int i = 0; i < pools.Count; i++)
+        {
+            if (randomValue <= pools[i].weight)
+            {
+                GameObject objToSpawn = poolDictionary[pools[i].tag].Dequeue();
+
+                objToSpawn.SetActive(true);
+
+                objToSpawn.transform.position = position;
+                objToSpawn.transform.rotation = rotation;
+
+
+                poolDictionary[pools[i].tag].Enqueue(objToSpawn);
+
+                //Debug.Log($"<color=green> {objToSpawn.name} was spawned & its weight is equals to {pools[i].weight} </color>");
+
+                return objToSpawn;
+            }
+
+            randomValue -= pools[i].weight;
+        }
+
+        //Debug.Log("<color=red> Weigted Random was return null </color>");
+        return null;
     }
-    //???
-    //public void AddNewPool(GameObject prefab, int size, string tag)
-    //{
-    //    Pool newPool = new Pool
-    //    {
-    //        prefab = prefab,
-    //        size = size,
-    //        tag = tag
-    //    };
-
-    //    pools.Add(newPool);
-
-    //    Queue<GameObject> newObjectPool = new Queue<GameObject>();
-    //    for (int i = 0; i < newPool.size; i++)
-    //    {
-    //        GameObject instatntObj = Instantiate(newPool.prefab);
-    //        instatntObj.SetActive(false);
-    //        newObjectPool.Enqueue(instatntObj);
-    //    }
-    //    poolDictionary.Add(newPool.tag, newObjectPool);
-    //}
-    //public void RemovePool(string tag)
-    //{
-    //    for (int i = 0; i < pools.Count; i++)
-    //    {
-    //        if (pools[i].tag == tag)
-    //        {
-    //            for (int j = 0; j < pools[i].size; j++)
-    //            {
-    //                Destroy(SpawnFromPool(tag));
-    //            }
-    //            poolDictionary[tag].Clear();
-    //        }
-    //    }
-    //}
 }

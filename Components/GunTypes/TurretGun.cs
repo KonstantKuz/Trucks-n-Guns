@@ -35,6 +35,8 @@ public class TurretGun : GunParent
             gunsBarrelsUpDirections[i] = gunsBarrels[i].transform.up;
         }
 
+        SetUpAngles(null);
+
         effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
         battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
     }
@@ -75,15 +77,15 @@ public class TurretGun : GunParent
 
         if (myData.timeSinceLastShot <= 0)
         {
-            if(!GetComponent<AudioSource>().isPlaying)
+            if (!GetComponent<AudioSource>().isPlaying)
             {
                 GetComponent<AudioSource>().Play();
             }
             myData.timeSinceLastShot = myData.rateofFire;
             for (int i = 0; i < gunsBarrels.Length; i++)
             {
-                battleUnitPooler.SpawnFromPool(myData.battleUnitToCopy.name, gunsBarrels[i].position, bulletSpreadedRotation);
-                effectPooler.SpawnFromPool("TurretFlash", gunsBarrels[i].transform.position, gunsBarrels[i].transform.rotation).GetComponent<ParticleSystem>().Play();
+                battleUnitPooler.Spawn(myData.battleUnitToCopy.name, gunsBarrels[i].position, bulletSpreadedRotation);
+                effectPooler.Spawn("TurretFlash", gunsBarrels[i].transform.position, gunsBarrels[i].transform.rotation).GetComponent<ParticleSystem>().Play();
             }
         }
     }

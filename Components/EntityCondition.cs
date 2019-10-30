@@ -63,7 +63,7 @@ public class EntityCondition : MonoCached
     {
         for (int i = 0; i < explosionCount; i++)
         {
-            GameObject expl = effectPooler.SpawnFromPool("BigExplosion", transform.position + new Vector3(Random.Range(-explosionCount/5, explosionCount/5), Random.Range(-explosionCount/1, explosionCount/2),
+            GameObject expl = effectPooler.Spawn("BigExplosion", transform.position + new Vector3(Random.Range(-explosionCount/5, explosionCount/5), Random.Range(-explosionCount/1, explosionCount/2),
                 Random.Range(-explosionCount/3, explosionCount/3)), Quaternion.identity);
             expl.GetComponent<ParticleSystem>().Play();
             foreach (var item in expl.transform.GetComponentsInChildren<ParticleSystem>())

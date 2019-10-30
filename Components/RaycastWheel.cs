@@ -127,19 +127,19 @@ public class RaycastWheel : MonoCached {
     {
         if(isGrounded)
         {
-            //visualWheel.position = visualWheel.position + (wheelDownDirection * (hit.distance - wheelRadius));
-            newVisualPosition = _transform.position + (wheelDownDirection * (hit.distance - wheelRadius));
+            visualWheel.position = _transform.position + (wheelDownDirection * (hit.distance - wheelRadius));
+            //newVisualPosition = _transform.position + (wheelDownDirection * (hit.distance - wheelRadius));
         }
         else
         {
-            //visualWheel.position = visualWheel.position + (wheelDownDirection * suspensionRange);
-            newVisualPosition = _transform.position + (wheelDownDirection * suspensionRange);
+           visualWheel.position = _transform.position + (wheelDownDirection * suspensionRange);
+            //newVisualPosition = _transform.position + (wheelDownDirection * suspensionRange);
         }
 
-        newVisualPosition.x = visualWheel.position.x;
-        newVisualPosition.z = visualWheel.position.z;
+        //newVisualPosition.x = visualWheel.position.x;
+        //newVisualPosition.z = visualWheel.position.z;
 
-        visualWheel.position = newVisualPosition;
+        //visualWheel.position = newVisualPosition;
 
         visualWheel.Rotate(360 * (-speed / wheelCircumference) * Time.deltaTime, 0, 0);
     }

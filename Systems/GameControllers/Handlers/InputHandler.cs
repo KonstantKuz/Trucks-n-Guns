@@ -45,7 +45,7 @@ public class InputHandler : MonoCached
     public void FindControlsUI()
     {
         moveController = GameObject.Find("MoveCntr").GetComponent<Slider>();
-        fireArea = GameObject.Find("Panel").GetComponent<RectTransform>();
+        fireArea = GameObject.Find("FireArea").GetComponent<RectTransform>();
         forwardBoost = GameObject.Find("ForwardBoost").GetComponent<Button>();
         backwardBoost = GameObject.Find("BackwardBoost").GetComponent<Button>();
         parkingBrake = GameObject.Find("ParkingBrake").GetComponent<Button>();

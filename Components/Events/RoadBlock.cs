@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 {
+    public bool isActive { get { return gameObject.activeInHierarchy; } set { } }
 
     public RoadBlockData roadBlockData;
 
@@ -18,12 +19,15 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
     public void AwakeEvent()
     {
-        if(firePoint!=null)
+        roadBlockData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1);
+
+
+        if (firePoint!=null)
         {
             roadBlockData.ReturnObjectsToPool(this);
         }
         activated = false;
-
+        gameObject.SetActive(true);
         roadBlockData.PermanentSetUpRoadBlock(this);
         StartCoroutine(SetUpRoadBlock());
     }
@@ -45,12 +49,20 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
             other.gameObject.SetActive(false);
         }
 
-        if (other.gameObject.layer == 9 && other.GetComponent<Truck>()!= null)
+        if (other.gameObject.layer == 9 && other.GetComponentInParent<Truck>()!= null)
         {
             StartCoroutine(SetTargets());
         }
-    }
 
+        if(other.gameObject.GetComponentInParent<Enemy>() != null)
+        {
+            StopEnemy(other);
+        }
+    }
+    private void StopEnemy(Collider enemy)
+    {
+        enemy.gameObject.GetComponentInParent<Enemy>();
+    }
     private IEnumerator SetUpRoadBlock()
     {
         SetUpConditions();
@@ -78,10 +90,23 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
         randomBool = Random.value > 0.5f ? true : false;
         transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(randomBool);
 
-        transform.GetChild(0).GetComponent<EntityCondition>().ResetCurrentCondition(2500f);
-        transform.GetChild(1).GetComponent<EntityCondition>().ResetCurrentCondition(2500f);
-    }
+        transform.GetChild(0).GetComponent<EntityCondition>().ResetCurrentCondition(3000f);
+        transform.GetChild(1).GetComponent<EntityCondition>().ResetCurrentCondition(3000f);
 
+        //transform.GetChild(0).GetComponent<EntityCondition>().OnZeroCondition += AutoReturnObjects;
+        //transform.GetChild(1).GetComponent<EntityCondition>().OnZeroCondition += AutoReturnObjects;
+    }
+    private void AutoReturnObjects()
+    {
+        transform.GetChild(0).GetComponent<EntityCondition>().OnZeroCondition -= AutoReturnObjects;
+        transform.GetChild(1).GetComponent<EntityCondition>().OnZeroCondition -= AutoReturnObjects;
+        StartCoroutine(AutoReturnObjects(15f));
+    }
+    private IEnumerator AutoReturnObjects(float delay)
+    {
+        yield return new WaitForSeconds(25f);
+        ReturnObjectsToPool();
+    }
     private void SetUpTargets()
     {
         targets = new TargetData[firePoint.gunsPoints.Count];
@@ -110,9 +135,9 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].GetComponent<Truck>() != null)
+            if (hits[i].GetComponentInParent<Truck>() != null)
             {
-                targets[Random.Range(0, targets.Length)].target_rigidbody = hits[i].GetComponent<Rigidbody>();
+                targets[Random.Range(0, targets.Length)].target_rigidbody = hits[i].GetComponentInParent<Rigidbody>();
             }
         }
         for (int i = 0; i < firePoint.FirstTrackingGroupGuns.Count; i++)
@@ -189,9 +214,9 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
     private void OpenRoad()
     {
-        for (int i = 0; i < 25; i++)
+        for (int i = 0; i < 10; i++)
         {
-            GameObject expl = ObjectPoolersHolder.Instance.EffectPooler.SpawnFromPool("BigExplosion",
+            GameObject expl = ObjectPoolersHolder.Instance.EffectPooler.Spawn("BigExplosion",
                 transform.position + new Vector3(Random.Range(-25, 25), Random.Range(0, 2),
                 Random.Range(-3, 3)), Quaternion.identity);
             expl.GetComponent<ParticleSystem>().Play();
@@ -202,7 +227,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
         }
         for (int i = 0; i < 10; i++)
         {
-            GameObject expl = ObjectPoolersHolder.Instance.EffectPooler.SpawnFromPool("SmallExplosion",
+            GameObject expl = ObjectPoolersHolder.Instance.EffectPooler.Spawn("SmallExplosion",
                 transform.position + new Vector3(Random.Range(-21, 21), Random.Range(0, 2),
                 Random.Range(-3, 3)), Quaternion.identity);
             expl.GetComponent<ParticleSystem>().Play();
@@ -221,6 +246,5 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
     {
         activated = false;
         roadBlockData.ReturnObjectsToPool(this);
-        gameObject.SetActive(false);
     }
 }

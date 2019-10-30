@@ -11,19 +11,32 @@ public class CustomizationHandler : MonoCached
     private Button[] gunButtons;
     private GameObject[] gunButtObj;
     private Button upgradeButton;
+    private Button changeTruckButton;
+    private Button applyAllChanges;
+
+    int firePointTypeCount = 0;
+    int truckTypeCount = 0;
 
     public void InjectPlayerTruck(Truck truck)
     {
-        if(gunButtons != null)
+        if(gunButtObj != null || gunButtons != null)
         {
-            for (int i = 0; i < gunButtons.Length; i++)
+            foreach (var item in gunButtObj)
             {
-                Destroy(gunButtObj[i]);
+                item.SetActive(false);
+                Destroy(item.gameObject);
+            }
+
+            foreach (var item in gunButtons)
+            {
+                item.onClick.RemoveAllListeners();
+                item.gameObject.SetActive(false);
+                Destroy(item.gameObject);
             }
         }
 
         playerTruck = truck;
-        playerFPdata = truck.TruckData.firePointData;
+        playerFPdata = playerTruck.TruckData.firePointData;
         gunButtons = new Button[playerTruck.firePoint.gunsPoints.Count];
         gunButtObj = new GameObject[playerTruck.firePoint.gunsPoints.Count];
 
@@ -37,28 +50,64 @@ public class CustomizationHandler : MonoCached
             gunButtObj[i].GetComponentInChildren<GunChangeButton>().StartListeningGunPoint(playerTruck.firePoint.gunsPoints[i]);
             gunButtObj[i].transform.parent = null;
         }
+        changeTruckButton = GameObject.Find("ChangeTruckButton").GetComponent<Button>();
+        changeTruckButton.onClick.AddListener(() => ChangeTruck());
 
         upgradeButton = GameObject.Find("UpgradeButton").GetComponent<Button>();
         upgradeButton.onClick.AddListener(() => UpgradeTruck());
+
+        applyAllChanges = GameObject.Find("ApplyAll").GetComponent<Button>();
+        applyAllChanges.onClick.AddListener(() => ApplyAllChanges());
     }
 
-    int typeCount = 0;
 
     public void UpgradeTruck()
     {
-        typeCount++;
+        firePointTypeCount++;
 
-        if(typeCount> System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1)
+        if(firePointTypeCount> System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1)
         {
-            typeCount = 0;
+            firePointTypeCount = 0;
         }
 
-        playerTruck.TruckData.firePointType = (GameEnums.FirePointType)typeCount;
+        playerTruck.TruckData.firePointType = (GameEnums.FirePointType)firePointTypeCount;
         playerTruck.TruckData.ReturnObjectsToPool(playerTruck);
         playerTruck.SetUpTruck();
 
         upgradeButton.onClick.RemoveAllListeners();
 
         InjectPlayerTruck(playerTruck);
+    }
+
+    public void ChangeTruck()
+    {
+        truckTypeCount++;
+
+        if (truckTypeCount > System.Enum.GetNames(typeof(GameEnums.Truck)).Length - 1)
+        {
+            truckTypeCount = 0;
+        }
+
+        playerTruck.TruckData.truckType = (GameEnums.Truck)truckTypeCount;
+        playerTruck.TruckData.ReturnObjectsToPool(playerTruck);
+        playerTruck.SetUpTruck();
+
+        changeTruckButton.onClick.RemoveAllListeners();
+
+        InjectPlayerTruck(playerTruck);
+    }
+
+    public void ApplyAllChanges()
+    {
+        for (int i = 0; i < playerTruck.firePoint.gunsPoints.Count; i++)
+        {
+            if (playerTruck.firePoint.gunsPoints[i].gunsLocation.childCount>0)
+            {
+                playerFPdata.gunsConfigurations[i].locationPath = (GameEnums.GunLocation)System.Enum.Parse(typeof(GameEnums.GunLocation), playerTruck.firePoint.gunsPoints[i].locationPath.ToString());
+                playerFPdata.gunsConfigurations[i].gun = (GameEnums.Gun)System.Enum.Parse(typeof(GameEnums.Gun), playerTruck.firePoint.gunsPoints[i].gunsLocation.GetChild(0).name);
+            }
+        }
+
+        applyAllChanges.onClick.RemoveAllListeners();
     }
 }

@@ -8,7 +8,8 @@ public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
     [SerializeField]
     private ObjectPoolerBase 
         battleUnitPooler, 
-        roadPooler, 
+        obstaclePooler, 
+        roadPooler,
         enemyPooler, 
         effectPooler, 
         eventPooler, 
@@ -20,6 +21,8 @@ public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
         stoneBlockagePooler;
 
     public ObjectPoolerBase BattleUnitPooler { get { return battleUnitPooler; } }
+
+    public ObjectPoolerBase ObstaclePooler { get { return obstaclePooler; } }
 
     public ObjectPoolerBase RoadPooler { get { return roadPooler; } }
 
@@ -53,6 +56,7 @@ public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
         
         battleUnitPooler.AwakePooler();
         roadPooler.AwakePooler();
+        obstaclePooler.AwakePooler();
         stoneBlockagePooler.AwakePooler();
         effectPooler.AwakePooler();
         eventPooler.AwakePooler();

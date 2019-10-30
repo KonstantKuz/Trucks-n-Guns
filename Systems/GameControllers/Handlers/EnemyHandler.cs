@@ -102,7 +102,7 @@ public class EnemyHandler : MonoCached
     }
     public void SpawnRandomEnemy(Rigidbody player_rigidbody)
     {
-        GameObject enemy = enemyPooler.SpawnRandomItemFromPool(RandomPositionNearPlayer(player_rigidbody), Quaternion.identity, 100);
+        GameObject enemy = enemyPooler.SpawnRandom(RandomPositionNearPlayer(player_rigidbody), Quaternion.identity);
         SetUpEnemyAndLaunch(enemy, player_rigidbody);
     }
 
@@ -110,7 +110,7 @@ public class EnemyHandler : MonoCached
     {
         for (int i = 0; i < enemiesPoolCount; i++)
         {
-            GameObject enemy = enemyPooler.SpawnFromPool(enemyPooler.tags[i], RandomPositionNearPlayer(player_rigidbody), Quaternion.identity);
+            GameObject enemy = enemyPooler.Spawn(enemyPooler.tags[i], RandomPositionNearPlayer(player_rigidbody), Quaternion.identity);
             SetUpEnemyAndLaunch(enemy, player_rigidbody);
         }
     }
@@ -151,7 +151,7 @@ public class EnemyHandler : MonoCached
 
                 currentSessionEnemies[i].ReTracePath(newPathForEnemy);
 
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForEndOfFrame();
             }
         }
     }

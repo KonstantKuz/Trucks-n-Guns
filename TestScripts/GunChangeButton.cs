@@ -8,11 +8,13 @@ public class GunChangeButton : MonoCached
     
     public FirePoint.GunPoint gunPoint { get; set; }
 
-    private Button setUpGunButton;
+    //private Button setUpGunButton;
     private Button gunChangeButton;
     private Button backButton;
     private Vector3 camStartPos;
     private Quaternion camStartRot;
+    private GameEnums.Gun gunType;
+    private int gunTypeCount;
 
     public void StartListeningGunPoint(FirePoint.GunPoint gunPoint)
     {
@@ -21,7 +23,7 @@ public class GunChangeButton : MonoCached
 
         gunChangeButton = GameObject.Find("RealChangeButton").GetComponent<Button>();
         backButton = GameObject.Find("BackButton").GetComponent<Button>();
-        setUpGunButton = GameObject.Find("SetUpGun").GetComponent<Button>();
+        //setUpGunButton = GameObject.Find("SetUpGun").GetComponent<Button>();
 
         camStartPos = Camera.main.transform.position;
         camStartRot = Camera.main.transform.rotation;
@@ -43,10 +45,21 @@ public class GunChangeButton : MonoCached
     {
         if (gunPoint.gunsLocation.childCount > 0)
         {
-            ObjectPoolersHolder.Instance.GunsPooler.ReturnGameObjectToPool(gunPoint.gunsLocation.GetChild(0).gameObject, gunPoint.gunsLocation.GetChild(0).gameObject.name);
+            ObjectPoolersHolder.Instance.GunsPooler.ReturnToPool(gunPoint.gunsLocation.GetChild(0).gameObject, gunPoint.gunsLocation.GetChild(0).gameObject.name);
         }
 
-        GameObject gun = ObjectPoolersHolder.Instance.GunsPooler.SpawnRandomItemFromPool(gunPoint.gunsLocation.position, Quaternion.identity, 100);
+        gunTypeCount++;
+
+        if (gunTypeCount > System.Enum.GetNames(typeof(GameEnums.Gun)).Length - 1)
+        {
+            gunTypeCount = 0;
+        }
+
+        gunType = (GameEnums.Gun)gunTypeCount;
+
+        GameObject gun = ObjectPoolersHolder.Instance.GunsPooler.Spawn(gunType.ToString(), gunPoint.gunsLocation.position, Quaternion.identity);
+
+        //GameObject gun = ObjectPoolersHolder.Instance.GunsPooler.SpawnRandom(gunPoint.gunsLocation.position, Quaternion.identity);
 
         gun.transform.parent = gunPoint.gunsLocation;
         gun.transform.localPosition = Vector3.zero;
@@ -57,21 +70,23 @@ public class GunChangeButton : MonoCached
             gunComponent.SetUpAngles(gunPoint.allowableAnglesOnPoint);
         }
 
-        setUpGunButton.GetComponent<Image>().enabled = true;
+        //setUpGunButton.GetComponent<Image>().enabled = true;
 
-        setUpGunButton.onClick.AddListener(() => SetUpGun(gun.name));
+        //setUpGunButton.onClick.AddListener(() => SetUpGun(gun.name));
     }
 
-    private void SetUpGun(string newGunName)
-    {
-        for (int i = 0; i < CustomizationHandler.playerFPdata.gunsConfigurations.Length; i++)
-        {
-            if(CustomizationHandler.playerFPdata.gunsConfigurations[i].locationPath.ToString() == gunPoint.locationPath)
-            {
-                CustomizationHandler.playerFPdata.gunsConfigurations[i].gun = (GameEnums.Gun)System.Enum.Parse(typeof(GameEnums.Gun), newGunName);
-            }
-        }
-    }
+    //public void SetUpGun()
+    //{
+    //    for (int i = 0; i < CustomizationHandler.playerFPdata.gunsConfigurations.Length; i++)
+    //    {
+    //        if (CustomizationHandler.playerFPdata.gunsConfigurations[i].locationPath.ToString() == gunPoint.locationPath)
+    //        {
+    //            Debug.Log("gun on" + CustomizationHandler.playerFPdata.gunsConfigurations[i].locationPath + "was" + CustomizationHandler.playerFPdata.gunsConfigurations[i].gun.ToString());
+    //            CustomizationHandler.playerFPdata.gunsConfigurations[i].gun = gunType;
+    //            Debug.Log("and it was replaced to" + CustomizationHandler.playerFPdata.gunsConfigurations[i].locationPath + "with" + CustomizationHandler.playerFPdata.gunsConfigurations[i].gun.ToString());
+    //        }
+    //    }
+    //}
 
     private void BackToMain()
     {
@@ -82,9 +97,9 @@ public class GunChangeButton : MonoCached
 
         gunChangeButton.onClick.RemoveAllListeners();
         backButton.onClick.RemoveAllListeners();
-        setUpGunButton.onClick.RemoveAllListeners();
+        //setUpGunButton.onClick.RemoveAllListeners();
 
-        setUpGunButton.GetComponent<Image>().enabled = false;
+        //setUpGunButton.GetComponent<Image>().enabled = false;
         gunChangeButton.GetComponent<Image>().enabled = false;
         backButton.GetComponent<Image>().enabled = false;
 

@@ -5,30 +5,20 @@ using Singleton;
 
 public class AudioHandler : Singleton<AudioHandler>
 {
-    [System.Serializable]
-    public class AudioIdentity
+    public AudioClip[] music;
+
+    private void Start()
     {
-        public string tag;
-        public AudioClip clip;
+        StartCoroutine(CheckMus(GetComponent<AudioSource>()));
     }
 
-    public AudioSource source;
-
-    public List<AudioIdentity> audioClips;
-
-    private Dictionary<string, AudioClip> audioClipsDict;
-
-    private void Awake()
+    private IEnumerator CheckMus(AudioSource source)
     {
-        audioClipsDict = new Dictionary<string, AudioClip>(audioClips.Count);
-
-        for (int i = 0; i < audioClips.Count; i++)
+        yield return new WaitForSeconds(1f);
+        if(!source.isPlaying)
         {
-            audioClipsDict.Add(audioClips[i].tag, audioClips[i].clip);
+            source.PlayOneShot(music[Random.Range(0, music.Length)]);
         }
-    }
-    public AudioClip GetClip(string tag)
-    {
-        return audioClipsDict[tag];
+        yield return StartCoroutine(CheckMus(source));
     }
 }

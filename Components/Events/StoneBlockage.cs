@@ -6,13 +6,16 @@ public class StoneBlockage : MonoCached, IRoadEvent, IPoolReturner
 {
     private GameObject concreteBlockage;
 
+    public bool isActive { get { return gameObject.activeInHierarchy; } set { } }
+
     public void AwakeEvent()
     {
-        concreteBlockage = ObjectPoolersHolder.Instance.StoneBlockagePooler.SpawnRandomItemFromPool(transform.position, Quaternion.identity, 10);
+        concreteBlockage = ObjectPoolersHolder.Instance.StoneBlockagePooler.SpawnRandom(transform.position, Quaternion.identity);
     }
 
     public void ReturnObjectsToPool()
     {
-        ObjectPoolersHolder.Instance.StoneBlockagePooler.ReturnGameObjectToPool(concreteBlockage, concreteBlockage.name);
+        ObjectPoolersHolder.Instance.StoneBlockagePooler.ReturnToPool(concreteBlockage, concreteBlockage.name);
+        ObjectPoolersHolder.Instance.EventPooler.ReturnToPool(gameObject, "StoneBlockage");
     }
 }

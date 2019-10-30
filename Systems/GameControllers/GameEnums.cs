@@ -69,8 +69,13 @@ public static class GameEnums
 
     public enum Truck
     {
-        Truck_Hard_01,
-        Truck_Light_01,
-        Truck_Light_02
+        APACH,
+        FLATNOSE,
+        GAZ,
+        GMC,
+        KENWORTH,
+        LILMAC,
+        RUBY,
+        ZIL
     }
 }

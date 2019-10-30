@@ -50,7 +50,7 @@ public class Hook : BattleUnitParent
             SetDamage(hits[i].GetComponent<EntityCondition>());
         }
 
-        GameObject expl = effectPooler.SpawnFromPool("SmallExplosion", transform.position, Quaternion.identity);
+        GameObject expl = effectPooler.Spawn("SmallExplosion", transform.position, Quaternion.identity);
         expl.GetComponent<ParticleSystem>().Play();
         foreach (var item in expl.transform.GetComponentsInChildren<ParticleSystem>())
         {

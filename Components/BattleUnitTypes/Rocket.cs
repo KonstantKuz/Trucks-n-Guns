@@ -38,7 +38,7 @@ public class Rocket : BattleUnitParent
         
         isLaunched = true;
 
-        trail = effectPooler.SpawnFromPool("RocketTrail", transform.position, transform.rotation);
+        trail = effectPooler.Spawn("RocketTrail", transform.position, transform.rotation);
         foreach (var effect in trail.transform.GetComponentsInChildren<ParticleSystem>())
         {
             effect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
@@ -62,7 +62,7 @@ public class Rocket : BattleUnitParent
         if(isLaunched == true)
         {
             _forwardDirection = _transform.forward;
-            _deltaPosition = _forwardDirection * myData.speed;
+            _deltaPosition = _forwardDirection * Time.fixedDeltaTime * myData.speed;
             _transform.position += _deltaPosition;
 
             if(myData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody !=null && targetData.target_rigidbody.gameObject.activeInHierarchy)
@@ -79,7 +79,7 @@ public class Rocket : BattleUnitParent
 
     public override void SearchTargets()
     {
-        if(Physics.CheckSphere(_transform.position, myData.speed/3, myData.interactibleWith))
+        if(Physics.CheckSphere(_transform.position, myData.speed * 0.01f, myData.interactibleWith))
         {
             Explosion();
         }
@@ -87,19 +87,20 @@ public class Rocket : BattleUnitParent
 
     private IEnumerator AutoDestruct()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(10f);
         Explosion();
     }
 
     void Explosion()
     {
-            hits = Physics.OverlapSphere(_transform.position, myData.damageRadius, myData.interactibleWith);
-            for (int i = 0; i < hits.Length; i++)
-            {
-                SetDamage(hits[i].GetComponent<EntityCondition>());
-            }
+        hits = Physics.OverlapSphere(_transform.position, myData.damageRadius, myData.interactibleWith);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            SetDamage(hits[i].gameObject.GetComponentInParent<EntityCondition>());
+            //Debug.Log(hits[i].gameObject.name + "was hited with rocket");
+        }
 
-        GameObject expl = effectPooler.SpawnFromPool("SmallExplosion", transform.position, Quaternion.identity);
+        GameObject expl = effectPooler.Spawn("SmallExplosion", transform.position, Quaternion.identity);
         expl.GetComponent<ParticleSystem>().Play();
         foreach (var item in expl.transform.GetComponentsInChildren<ParticleSystem>())
         {
@@ -113,7 +114,13 @@ public class Rocket : BattleUnitParent
 
     public override void SetDamage(EntityCondition targetToHit)
     {
-        base.SetDamage(targetToHit);
+        //base.SetDamage(targetToHit);
+        if (targetToHit != null)
+        {
+            targetToHit.AddDamage(myData.damage - ((_transform.position - targetToHit.transform.position).magnitude*10f));
+            //Debug.Log(myData.damage - ((_transform.position - targetToHit.transform.position).magnitude * 10f));
+        }
+        Deactivate();
     }
 
     public override void Deactivate()

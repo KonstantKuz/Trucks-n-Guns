@@ -77,7 +77,6 @@ public class Player : MonoCached
     public override void OnTick()
     {
         truck.firePoint.StaticAttack();
-
         if(FirstTrackingGroupsTarget.target_rigidbody != null)
         {
             if(FirstTrackingGroupsTarget.target_rigidbody.gameObject.activeInHierarchy == true)

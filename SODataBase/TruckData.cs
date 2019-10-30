@@ -45,7 +45,7 @@ public class TruckData : Data
     public void PermanentSetUpTruck(Truck owner)
     {
         string truckTypeName = truckType.ToString();
-        GameObject truck = objectPoolersHolder.TrucksPooler.PermanentSpawnFromPool(truckTypeName);
+        GameObject truck = objectPoolersHolder.TrucksPooler.PermanentSpawn(truckTypeName);
         truck.transform.parent = owner._transform.GetChild(0);
         truck.transform.localPosition = Vector3.zero;
         truck.transform.localEulerAngles = Vector3.zero;
@@ -58,7 +58,7 @@ public class TruckData : Data
     {
         owner.TruckData.firePointData = owner.TruckData.firePointDataToCopy;
         string firePointTypeName = firePointType.ToString();
-        GameObject firePoint = objectPoolersHolder.TrucksFirePointPooler.PermanentSpawnFromPool(firePointTypeName);
+        GameObject firePoint = objectPoolersHolder.TrucksFirePointPooler.PermanentSpawn(firePointTypeName);
         firePoint.transform.parent = owner._transform;
         firePoint.transform.localPosition = Vector3.zero;
         firePoint.transform.localEulerAngles = Vector3.zero;
@@ -71,12 +71,12 @@ public class TruckData : Data
 
     public void ReturnObjectsToPool(Truck owner)
     {
-        owner.TruckData.firePointData.ReturnObjectsToPool(owner.firePoint, owner.TruckData.firePointData);
+        owner.TruckData.firePointData.ReturnObjectsToPool(owner.firePoint);
 
-        objectPoolersHolder.TrucksFirePointPooler.ReturnGameObjectToPool(owner.firePoint.gameObject, owner.TruckData.firePointType.ToString());
+        objectPoolersHolder.TrucksFirePointPooler.ReturnToPool(owner.firePoint.gameObject, owner.firePoint.gameObject.name);
         foreach (Transform visualTruck in owner.transform.GetChild(0).transform)
         {
-            objectPoolersHolder.TrucksPooler.ReturnGameObjectToPool(visualTruck.gameObject, owner.TruckData.truckType.ToString());
+            objectPoolersHolder.TrucksPooler.ReturnToPool(visualTruck.gameObject, visualTruck.name);
         }
     }
     #endregion
