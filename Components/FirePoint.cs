@@ -64,7 +64,6 @@ public class FirePoint : MonoCached
             }
         }
 
-
         List<GunPoint> newGunPoints = new List<GunPoint>(gunsPoints.Count + firePointToMerge.gunsPoints.Count);
         for (int i = 0; i < gunsPoints.Count; i++)
         {
@@ -76,6 +75,8 @@ public class FirePoint : MonoCached
             newGunPoints.Add(firePointToMerge.gunsPoints[i]);
         }
         gunsPoints = newGunPoints;
+
+        CreateFirePointsDictionaries();
     }
 
     public void SetUpTargets(TargetData targetData, GameEnums.TrackingGroup trackingGroup)

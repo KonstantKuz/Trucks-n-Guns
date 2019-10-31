@@ -41,7 +41,7 @@ public class FirePointData : Data
                 {
 
                     GunParent gunComponent = gun.GetComponent<GunParent>();
-
+                    gunComponent.SetUpAngles(null);
                     gunComponent.SetUpAngles(gunPoint.allowableAnglesOnPoint);
                     firePoint.TrackingGroupsDictionary[gunsConfigurations[i].trackingGroup].Add(gunComponent);
                 }
@@ -55,8 +55,10 @@ public class FirePointData : Data
         {
             if (owner.gunsPoints[i].gunsLocation.childCount > 0)
             {
-                GameObject gunToReturn = owner.gunsPoints[i].gunsLocation.GetChild(0).gameObject;
-                objectPoolersHolder.GunsPooler.ReturnToPool(gunToReturn, gunToReturn.name);
+                foreach (Transform gun in owner.gunsPoints[i].gunsLocation)
+                {
+                    objectPoolersHolder.GunsPooler.ReturnToPool(gun.gameObject, gun.name);
+                }
             }
         }
     }

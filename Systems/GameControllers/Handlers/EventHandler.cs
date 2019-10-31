@@ -9,10 +9,10 @@ public class EventHandler : MonoCached
         //ValleyOfBullets,   //аллея пулеметов
         RoadBlock,           // дорожный боевой блокпост
         //HailOfStones,      //обвал камней рантайм
-        StoneBlockage,     //завал дороги большим камнем
+        //StoneBlockage,     //завал дороги большим камнем
         //SandStorm,         // песчаная буря под вопросом
         //Blockade,          // живая застава
-        Helicopter,        // преследующий вертолет
+        //Helicopter,        // преследующий вертолет
         //ShellingHelicopter,  // обстреливающий по полосе вертолет
         //Minefield,         // Минное поле
     }

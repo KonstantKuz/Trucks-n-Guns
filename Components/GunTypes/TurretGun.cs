@@ -62,6 +62,9 @@ public class TurretGun : GunParent
             allowableAngles = anglesData;
         }
 
+        head.localEulerAngles = Vector3.zero;
+        headHolder.localEulerAngles = Vector3.zero;
+
         transform.localEulerAngles = new Vector3(0, allowableAngles.StartDirectionAngle, 0);
     }
     public override void Fire()
@@ -102,7 +105,7 @@ public class TurretGun : GunParent
 
     void LookAtTarget()
     {
-        targetDirection = (targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.1f) - headHolder.position;
+        targetDirection = (targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.1f - headHolderRoot.up) - headHolder.position;
 
         targetDirection_XZprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.up);
         targetDirection_ZYprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.right);

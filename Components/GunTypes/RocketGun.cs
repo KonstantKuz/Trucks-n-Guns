@@ -57,6 +57,9 @@ public class RocketGun : GunParent
             allowableAngles = anglesData;
         }
 
+        head.localEulerAngles = Vector3.zero;
+        headHolder.localEulerAngles = Vector3.zero;
+
         transform.localEulerAngles = new Vector3(0, allowableAngles.StartDirectionAngle, 0);
     }
 

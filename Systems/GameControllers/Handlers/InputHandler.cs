@@ -70,8 +70,8 @@ public class InputHandler : MonoCached
 
     private void StopPlayer()
     {
-        steeringForce = 0;
-        moveController.value = 0;
+        //steeringForce = 0;
+        //moveController.value = 0;
         player.StopPlayerTruck();
     }
     private void SteeringForceValueChange()
@@ -91,7 +91,7 @@ public class InputHandler : MonoCached
         if(player.seekPoint != null)
         {
             //steeringForce = moveController.value;
-            seekPointPosition.x = steeringForce * 21f;
+            seekPointPosition.x = steeringForce * 24f;
             seekPointPosition.z = player.truck._transform.position.z + 30f;
             player.seekPoint.position = seekPointPosition;
             player.MovePlayerTruck(steeringForce);
@@ -154,7 +154,10 @@ public class InputHandler : MonoCached
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, damageableMask))
         {
-            player.SetUpTargets(hit.rigidbody, trackingGroup);
+            if(hit.rigidbody != null && hit.rigidbody != player.truck._rigidbody)
+            {
+                player.SetUpTargets(hit.rigidbody, trackingGroup);
+            }
         }
     }
     void SetUpPlayersTarget(Touch touch, GameEnums.TrackingGroup trackingGroup)
@@ -163,7 +166,10 @@ public class InputHandler : MonoCached
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, damageableMask))
         {
-            player.SetUpTargets(hit.rigidbody, trackingGroup);
+            if (hit.rigidbody != null && hit.rigidbody != player.truck._rigidbody)
+            {
+                player.SetUpTargets(hit.rigidbody, trackingGroup);
+            }
         }
     }
 }

@@ -44,7 +44,9 @@ public class PlayerHandler : MonoCached
 
         player_rigidbody = playerInstance.GetComponent<Rigidbody>();
 
-        player_rigidbody.AddForce(player_rigidbody.transform.forward * playerStartingForce, ForceMode.VelocityChange);  
+        player_rigidbody.AddForce(player_rigidbody.transform.forward * playerStartingForce, ForceMode.VelocityChange);
+
+        playerInstance.truck.trucksCondition.OnZeroCondition += ReturnToCustomization;
     }
 
     public void CreateCamera()
@@ -101,4 +103,9 @@ public class PlayerHandler : MonoCached
         camera_transform.position = Vector3.Lerp(camPos, pos, 2f);
     }
 
+    public void ReturnToCustomization()
+    {
+        playerInstance.truck.trucksCondition.OnZeroCondition -= ReturnToCustomization;
+        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Customization");
+    }
 }

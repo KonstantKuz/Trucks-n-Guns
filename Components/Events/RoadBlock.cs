@@ -53,15 +53,22 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
         {
             StartCoroutine(SetTargets());
         }
+    }
 
-        if(other.gameObject.GetComponentInParent<Enemy>() != null)
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.GetComponentInParent<Enemy>() != null)
         {
             StopEnemy(other);
         }
     }
+
     private void StopEnemy(Collider enemy)
     {
-        enemy.gameObject.GetComponentInParent<Enemy>();
+        if(enemy.GetComponentInParent<Truck>() != null)
+        {
+            enemy.GetComponentInParent<Truck>().StopTruck(10f);
+        }
     }
     private IEnumerator SetUpRoadBlock()
     {

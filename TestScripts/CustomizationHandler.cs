@@ -17,6 +17,25 @@ public class CustomizationHandler : MonoCached
     int firePointTypeCount = 0;
     int truckTypeCount = 0;
 
+    //private Button startGame;
+    AsyncOperation generalGameScene;
+
+    private void Start()
+    {
+        generalGameScene = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("GeneralGameState", UnityEngine.SceneManagement.LoadSceneMode.Single);
+        generalGameScene.allowSceneActivation = false;
+    }
+
+    //public void StartGame()
+    //{
+    //    GunChangeButton[] oldButtons = FindObjectsOfType<GunChangeButton>();
+    //    foreach (var item in oldButtons)
+    //    {
+    //        Destroy(item.gameObject);
+    //    }
+    //    UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("GeneralGameState");
+    //}
+
     public void InjectPlayerTruck(Truck truck)
     {
         if(gunButtObj != null || gunButtons != null)
@@ -101,13 +120,34 @@ public class CustomizationHandler : MonoCached
     {
         for (int i = 0; i < playerTruck.firePoint.gunsPoints.Count; i++)
         {
-            if (playerTruck.firePoint.gunsPoints[i].gunsLocation.childCount>0)
+            for (int j = 0; j < playerFPdata.gunsConfigurations.Length; j++)
             {
-                playerFPdata.gunsConfigurations[i].locationPath = (GameEnums.GunLocation)System.Enum.Parse(typeof(GameEnums.GunLocation), playerTruck.firePoint.gunsPoints[i].locationPath.ToString());
-                playerFPdata.gunsConfigurations[i].gun = (GameEnums.Gun)System.Enum.Parse(typeof(GameEnums.Gun), playerTruck.firePoint.gunsPoints[i].gunsLocation.GetChild(0).name);
+                if(playerTruck.firePoint.gunsPoints[i].locationPath == playerFPdata.gunsConfigurations[j].locationPath.ToString())
+                {
+                    playerFPdata.gunsConfigurations[j].gun = (GameEnums.Gun)System.Enum.Parse(typeof(GameEnums.Gun), playerTruck.firePoint.gunsPoints[i].gunsLocation.GetChild(0).name);
+                }
             }
         }
 
+        GunChangeButton[] oldButtons = FindObjectsOfType<GunChangeButton>();
+        foreach (var item in oldButtons)
+        {
+            Debug.Log(item.gameObject.name);
+            Destroy(item.gameObject);
+        }
+
         applyAllChanges.onClick.RemoveAllListeners();
+
+        StartCoroutine(UnloadCurrScene());
     }
+
+    private IEnumerator UnloadCurrScene()
+    {
+        UnityEngine.SceneManagement.SceneManager.UnloadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+
+        yield return new WaitForSecondsRealtime(2f);
+
+        generalGameScene.allowSceneActivation = true;
+    }
+
 }

@@ -21,7 +21,7 @@ public class ChaseGameStateHandler : MonoCached // IState
     private ObjectPoolersHolder objectPoolersHolder;
 
 
-    private void OnEnable()
+    private void Start()
     {
         StartGame();
     }

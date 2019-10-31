@@ -17,9 +17,11 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
     public Transform _transform { get; set; }
 
-    private Vector3 followingVector = Vector3.zero;
+    private Vector3 followingVector;
 
     private float targetForwardVelocity, zOffset_withVelocity, xOffset;
+
+    private bool canAttack;
 
     public void AwakeEvent()
     {
@@ -34,6 +36,8 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
         helicopterData.PermanentSetUpHelicopter(this);
 
         InjectNewTargetData(GameObject.Find("PlayerTruckPreset(Clone)").GetComponent<Rigidbody>());
+
+        GameObject.Find("PlayerTruckPreset(Clone)").GetComponent<EntityCondition>().OnZeroCondition += ReturnObjectsToPool;
     }
 
     public void InjectNewTargetData(Rigidbody targetRigidbody)
@@ -51,7 +55,9 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
         UpdatePosition();
 
-        UpdateRotationAndAttack();
+        UpdateRotation();
+
+        Attack();
     }
 
     private void RotateRotors()
@@ -66,10 +72,10 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
         followingVector.z = targetData.target_rigidbody.position.z - helicopterData.offsetFromTarget.z;
         followingVector.y = helicopterData.offsetFromTarget.y;
 
-        _transform.position = Vector3.Lerp(_transform.position, followingVector, 0.02f);
+        _transform.position = Vector3.Lerp(_transform.position, followingVector, Time.deltaTime);
     }
 
-    private void UpdateRotationAndAttack()
+    private void UpdateRotation()
     {
         followingVector = targetData.target_rigidbody.position - _transform.position;
         xOffset = followingVector.x;
@@ -82,16 +88,17 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
         if(targetForwardVelocity > 18f)
         {
             followingVector.x = zOffset_withVelocity * 0.25f;
-            firePoint.FirstTrackingAttack();
+            canAttack = true;
         }
         else if (targetForwardVelocity > -5f && targetForwardVelocity < 18f)
         {
             followingVector.x -= zOffset_withVelocity * 0.05f;
-            firePoint.FirstTrackingAttack();
+            canAttack = true;
         }
         else
         {
             followingVector.x = zOffset_withVelocity * 0.4f;
+            canAttack = false;
         }
 
         followingVector.y = 0;
@@ -101,8 +108,18 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
         _transform.rotation = Quaternion.Lerp(_transform.rotation, Quaternion.Euler(followingVector), Time.deltaTime);
     }
 
+    private void Attack()
+    {
+        if(canAttack)
+        {
+            firePoint.FirstTrackingAttack();
+        }
+    }
+
     public void ReturnObjectsToPool()
     {
+        GameObject.Find("PlayerTruckPreset(Clone)").GetComponent<EntityCondition>().OnZeroCondition -= ReturnObjectsToPool;
+
         allFixedTicks.Remove(this);
         if (condition != null)
         {

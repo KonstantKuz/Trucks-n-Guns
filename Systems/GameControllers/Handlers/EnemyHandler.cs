@@ -11,9 +11,12 @@ public class EnemyHandler : MonoCached
 
 
     public float distanceToDestroyEnemy = 60f;
+    [Range(2,6)]
     public float enemiesPositionsCheckPeriod = 5f;
+    [Range(5, 15)]
     public float enemySpawnEveryPeriodTime = 15f;
-    public int maxCurrentSessionEnemiesCount = 4;
+    [Range(0, 3)]
+    public int maxCurrentSessionEnemiesCount = 3;
     private int enemiesPoolCount;
     private ObjectPoolerBase enemyPooler;
     public int CurrentSessionEnemiesCount
