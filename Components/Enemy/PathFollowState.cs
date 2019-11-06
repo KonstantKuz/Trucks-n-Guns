@@ -58,7 +58,7 @@ public class PathFollowState : State<Enemy>
         else
         {
             _owner.truck.LaunchTruck();
-            movingForce = distanceToTarget*targetForwardVelocity*0.005f;
+            movingForce = distanceToTarget*Mathf.Abs(targetForwardVelocity)*0.005f;
         }
 
         movingForce += distanceToTarget * targetForwardVelocity* 0.00005f;

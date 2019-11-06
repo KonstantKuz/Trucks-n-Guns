@@ -12,6 +12,7 @@ public class RoadBlockData : Data
     public FirePointData firePointData;
 
     public float conditionPerGun = 0;
+    public float conditionPerWall = 0;
 
     public void PermanentSetUpRoadBlock(RoadBlock owner)
     {
@@ -22,12 +23,13 @@ public class RoadBlockData : Data
         block.transform.localPosition = Vector3.zero;
         block.transform.localEulerAngles = Vector3.zero;
 
-        owner.blocksToDestroy = new Transform[5];
-
         for (int i = 0; i < block.transform.GetChild(0).transform.childCount; i++)
         {
-            owner.blocksToDestroy[i] = block.transform.GetChild(0).transform.GetChild(i).transform;
+            bool randomActiveExplosion = Random.value > 0.7f ? true : false;
+            block.transform.GetChild(0).transform.GetChild(i).transform.GetChild(0).gameObject.SetActive(randomActiveExplosion);
+            block.transform.GetChild(0).transform.GetChild(i).GetComponent<EntityCondition>().ResetCurrentCondition(conditionPerWall);
         }
+
         owner.roadBlockData.firePointData.PermanentSetUpFirePoint(owner.firePoint);
     }
 

@@ -28,6 +28,7 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
         helicopterData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1);
 
         allFixedTicks.Add(this);
+        allTicks.Add(this);
         _transform = transform;
         //_transform.position -= Vector3.forward * 150f;
         condition = GetComponent<EntityCondition>();
@@ -35,9 +36,9 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
         condition.OnZeroCondition += ReturnObjectsToPool;
         helicopterData.PermanentSetUpHelicopter(this);
 
-        InjectNewTargetData(GameObject.Find("PlayerTruckPreset(Clone)").GetComponent<Rigidbody>());
+        GameObject player = GameObject.Find("PlayerTruckPreset(Clone)");
 
-        GameObject.Find("PlayerTruckPreset(Clone)").GetComponent<EntityCondition>().OnZeroCondition += ReturnObjectsToPool;
+        InjectNewTargetData(player.GetComponent<Rigidbody>());
     }
 
     public void InjectNewTargetData(Rigidbody targetRigidbody)
@@ -49,15 +50,19 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
             firePoint.FirstTrackingGroupGuns[i].SetTargetData(targetData);
         }
     }
-    public override void OnFixedTick()
+
+    public override void OnTick()
     {
         RotateRotors();
-
-        UpdatePosition();
 
         UpdateRotation();
 
         Attack();
+    }
+
+    public override void OnFixedTick()
+    {
+        UpdatePosition();
     }
 
     private void RotateRotors()
@@ -118,9 +123,8 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
     public void ReturnObjectsToPool()
     {
-        GameObject.Find("PlayerTruckPreset(Clone)").GetComponent<EntityCondition>().OnZeroCondition -= ReturnObjectsToPool;
-
         allFixedTicks.Remove(this);
+        allTicks.Remove(this);
         if (condition != null)
         {
             condition.OnZeroCondition -= ReturnObjectsToPool;

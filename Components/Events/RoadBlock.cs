@@ -9,8 +9,6 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
     public FirePoint firePoint { get; set; }
 
-    public Transform[] blocksToDestroy { get; set; }
-
     private TargetData[] targets;
 
     private float totalStartCondition = 0, conditionToDestroy = 100f;
@@ -20,8 +18,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
     public void AwakeEvent()
     {
         roadBlockData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1);
-
-
+        
         if (firePoint!=null)
         {
             roadBlockData.ReturnObjectsToPool(this);
@@ -30,6 +27,20 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
         gameObject.SetActive(true);
         roadBlockData.PermanentSetUpRoadBlock(this);
         StartCoroutine(SetUpRoadBlock());
+
+        DisableNearestObstacles();
+    }
+
+    private void DisableNearestObstacles()
+    {
+        Collider[] obstacles = Physics.OverlapSphere(transform.position, 40f, 1<<10);
+        for (int i = 0; i < obstacles.Length; i++)
+        {
+            if(!ReferenceEquals(obstacles[i], gameObject.GetComponentInChildren<Collider>()))
+            {
+                obstacles[i].gameObject.SetActive(false);
+            }
+        }
     }
 
     private void OnEnable()
@@ -44,32 +55,25 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == 10)
-        {
-            other.gameObject.SetActive(false);
-        }
-
-        if (other.gameObject.layer == 9 && other.GetComponentInParent<Truck>()!= null)
+        if (other.GetComponentInParent<Truck>()!= null)
         {
             StartCoroutine(SetTargets());
         }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.GetComponentInParent<Enemy>() != null)
+        if (!ReferenceEquals(other.GetComponentInParent<Enemy>(), null))
         {
-            StopEnemy(other);
+            EnemyStopAndLaunch(other.GetComponentInParent<Enemy>());
         }
     }
 
-    private void StopEnemy(Collider enemy)
+    private IEnumerator EnemyStopAndLaunch(Enemy enemy)
     {
-        if(enemy.GetComponentInParent<Truck>() != null)
-        {
-            enemy.GetComponentInParent<Truck>().StopTruck(10f);
-        }
+        StateMachine.State<Enemy> previousState = enemy.followTypeStateController.currentState;
+        enemy.followTypeStateController.ChangeState(IdleState.Instance);
+        yield return new WaitForSeconds(5f);
+        enemy.followTypeStateController.ChangeState(previousState);
+
     }
+
     private IEnumerator SetUpRoadBlock()
     {
         SetUpConditions();
@@ -86,34 +90,8 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
             firePoint.gunsPoints[i].gunsLocation.gameObject.GetComponent<EntityCondition>().ResetCurrentCondition(roadBlockData.conditionPerGun);
             totalStartCondition = firePoint.gunsPoints[i].gunsLocation.gameObject.GetComponent<EntityCondition>().currentCondition;
         }
-
-        transform.GetChild(0).gameObject.SetActive(true);
-        transform.GetChild(1).gameObject.SetActive(true);
-
-        bool randomBool;
-
-        randomBool = Random.value > 0.5f ? true : false;
-        transform.GetChild(0).transform.GetChild(0).gameObject.SetActive(randomBool);
-        randomBool = Random.value > 0.5f ? true : false;
-        transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(randomBool);
-
-        transform.GetChild(0).GetComponent<EntityCondition>().ResetCurrentCondition(3000f);
-        transform.GetChild(1).GetComponent<EntityCondition>().ResetCurrentCondition(3000f);
-
-        //transform.GetChild(0).GetComponent<EntityCondition>().OnZeroCondition += AutoReturnObjects;
-        //transform.GetChild(1).GetComponent<EntityCondition>().OnZeroCondition += AutoReturnObjects;
     }
-    private void AutoReturnObjects()
-    {
-        transform.GetChild(0).GetComponent<EntityCondition>().OnZeroCondition -= AutoReturnObjects;
-        transform.GetChild(1).GetComponent<EntityCondition>().OnZeroCondition -= AutoReturnObjects;
-        StartCoroutine(AutoReturnObjects(15f));
-    }
-    private IEnumerator AutoReturnObjects(float delay)
-    {
-        yield return new WaitForSeconds(25f);
-        ReturnObjectsToPool();
-    }
+
     private void SetUpTargets()
     {
         targets = new TargetData[firePoint.gunsPoints.Count];
@@ -126,7 +104,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
     public override void OnTick()
     {
-        if(firePoint!=null)
+        if(!ReferenceEquals(firePoint, null))
         {
             CheckCondition();
         }
@@ -142,7 +120,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].GetComponentInParent<Truck>() != null)
+            if (!ReferenceEquals(hits[i].GetComponentInParent<Truck>(), null))
             {
                 targets[Random.Range(0, targets.Length)].target_rigidbody = hits[i].GetComponentInParent<Rigidbody>();
             }
@@ -164,7 +142,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
     public TargetData NotNullTarget()
     {
         int randomTargetIndex = Random.Range(0, targets.Length);
-        if (targets[randomTargetIndex].target_rigidbody != null)
+        if (!ReferenceEquals(targets[randomTargetIndex].target_rigidbody, null))
         {
             return targets[randomTargetIndex];
         }
@@ -178,14 +156,14 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
     {
         for (int i = 0; i < targets.Length; i++)
         {
-            if (targets[i].target_rigidbody != null)
+            if (!ReferenceEquals(targets[i].target_rigidbody, null))
             {
-                if (targets[i].target_rigidbody.gameObject.activeInHierarchy == false)
+                if (ReferenceEquals(targets[i].target_rigidbody.gameObject.activeInHierarchy, false))
                 {
                     StartCoroutine(SetTargets());
                 }
             }
-            else if (targets[i].target_rigidbody == null)
+            else if (ReferenceEquals(targets[i].target_rigidbody, null))
             {
                 StartCoroutine(SetTargets());
             }
@@ -226,22 +204,14 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
             GameObject expl = ObjectPoolersHolder.Instance.EffectPooler.Spawn("BigExplosion",
                 transform.position + new Vector3(Random.Range(-25, 25), Random.Range(0, 2),
                 Random.Range(-3, 3)), Quaternion.identity);
-            expl.GetComponent<ParticleSystem>().Play();
-            foreach (var item in expl.GetComponentsInChildren<ParticleSystem>())
-            {
-                item.Play();
-            }
+            expl.GetComponent<CachedParticles>().PlayParticles();
         }
         for (int i = 0; i < 10; i++)
         {
             GameObject expl = ObjectPoolersHolder.Instance.EffectPooler.Spawn("SmallExplosion",
                 transform.position + new Vector3(Random.Range(-21, 21), Random.Range(0, 2),
                 Random.Range(-3, 3)), Quaternion.identity);
-            expl.GetComponent<ParticleSystem>().Play();
-            foreach (var item in expl.GetComponentsInChildren<ParticleSystem>())
-            {
-                item.Play();
-            }
+            expl.GetComponent<CachedParticles>().PlayParticles();
         }
 
         ReturnObjectsToPool();

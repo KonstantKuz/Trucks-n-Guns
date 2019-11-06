@@ -4,9 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 public class Player : MonoCached
 {
-    public Transform seekPoint;
-
     public Truck truck { get; set; }
+    public Transform seekPoint { get; set; }
 
     #region NEWSYSTEM
 
@@ -15,6 +14,9 @@ public class Player : MonoCached
     public TargetData FirstTrackingGroupsTarget { get; set; }
     public TargetData SecondTrackingGroupTarget { get; set; }
     #endregion
+
+    private Vector3 relativeToSeekPoint = Vector3.zero;
+    private float newSteeringForce;
 
     private void Awake()
     {
@@ -33,6 +35,11 @@ public class Player : MonoCached
     {
         allTicks.Add(this);
     }
+    private void OnDisable()
+    {
+        allTicks.Remove(this);
+    }
+
     public void InjectPlayerIntoInput(InputHandler inputHandler)
     {
         inputHandler.player = this;
@@ -58,38 +65,31 @@ public class Player : MonoCached
         TrackingGroupsTargetsDictionary[trackingGroup].target_rigidbody = targetRigidbody;
         truck.firePoint.SetUpTargets(TrackingGroupsTargetsDictionary[trackingGroup], trackingGroup);
     }
-    public void MovePlayerTruck(float steeringForce)
+
+    public void MovePlayerTruck()
     {
-        if(steeringForce!=0)
-        {
-            truck.MoveTruck(1 - Mathf.Abs(steeringForce));
-        }
+        truck.MoveTruck(1);
+
         SteeringWheels();
     }
 
     public void SteeringWheels()
     {
-        Vector3 relativeToSeekPoint = truck._transform.InverseTransformPoint(seekPoint.position);
-        float newsteer = (relativeToSeekPoint.x / relativeToSeekPoint.magnitude);
-        truck.SteeringWheels(newsteer);
+        relativeToSeekPoint = truck._transform.InverseTransformPoint(seekPoint.position);
+        newSteeringForce = (relativeToSeekPoint.x / relativeToSeekPoint.magnitude);
+        truck.SteeringWheels(newSteeringForce);
     }
 
     public override void OnTick()
     {
         truck.firePoint.StaticAttack();
-        if(FirstTrackingGroupsTarget.target_rigidbody != null)
+        if(!ReferenceEquals(FirstTrackingGroupsTarget.target_rigidbody, null) && FirstTrackingGroupsTarget.target_rigidbody.gameObject.activeInHierarchy)
         {
-            if(FirstTrackingGroupsTarget.target_rigidbody.gameObject.activeInHierarchy == true)
-            {
-                truck.firePoint.FirstTrackingAttack();
-            }
+            truck.firePoint.FirstTrackingAttack();
         }
-        if (SecondTrackingGroupTarget.target_rigidbody != null)
+        if (!ReferenceEquals(SecondTrackingGroupTarget.target_rigidbody, null) && SecondTrackingGroupTarget.target_rigidbody.gameObject.activeInHierarchy)
         {
-            if (SecondTrackingGroupTarget.target_rigidbody.gameObject.activeInHierarchy == true)
-            {
-                truck.firePoint.SecondTrackingAttack();
-            }
+            truck.firePoint.SecondTrackingAttack();
         }
     }
 }

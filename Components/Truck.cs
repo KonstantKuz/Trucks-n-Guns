@@ -170,8 +170,7 @@ public class Truck : MonoCached
     private void UpdateEngineSound()
     {
         float engineSoundPitch = _rigidbody.velocity.magnitude * 0.05f;
-        engineSoundPitch = Mathf.Clamp(engineSoundPitch, 0.9f, 2f);
-        engineSoundSource.pitch = engineSoundPitch;
+        engineSoundSource.pitch = Mathf.Clamp(engineSoundPitch, 0.9f, 2f);
     }
 
     public void LaunchTruck()
@@ -183,7 +182,7 @@ public class Truck : MonoCached
     {
         foreach (RaycastWheel drivingWheel in drivingWheels)
         {
-            drivingWheel.motorTorque = TruckData.maxMotorTorque *( torqueForce - Mathf.Abs(CurrentSteerAngle()) * 0.01f);
+            drivingWheel.motorTorque = TruckData.maxMotorTorque *( torqueForce - Mathf.Abs(CurrentSteerAngle()) * 0.05f);
         }
     }
 
@@ -198,7 +197,7 @@ public class Truck : MonoCached
 
     public void SetBoost(float force)
     {
-        if(CurrentSpeed() < 120f && CurrentSpeed() > -30f)
+        if(CurrentSpeed() < 120f && CurrentSpeed() > -30f && drivingWheels[0].IsGrounded)
         {
             _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
         }

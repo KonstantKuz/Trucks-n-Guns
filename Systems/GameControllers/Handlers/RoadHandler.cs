@@ -42,7 +42,7 @@ public class RoadHandler : MonoCached
     {
         obstaclePooler = ObjectPoolersHolder.Instance.ObstaclePooler;
         roadPooler = ObjectPoolersHolder.Instance.RoadPooler;
-        SetUpObstacleHandle();
+        StartCoroutine(SetUpObstacleHandle());
     }
     public void InjectPathHandler(PathHandler pathHandler)
     {
@@ -60,8 +60,10 @@ public class RoadHandler : MonoCached
         roadMapPoints = new Vector3[roadGridSize, roadGridSize];
     }
 
-    public void SetUpObstacleHandle()
+    public IEnumerator SetUpObstacleHandle()
     {
+        yield return new WaitForSeconds(1f);
+
         for (int i = 0; i < obstaclePooler.pools.Count; i++)
         {
             if(obstaclePooler.pools[i].tag == generalRoadNameToSpawn)

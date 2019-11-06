@@ -5,13 +5,13 @@ public class UpdateManager : MonoBehaviour
 {
     private void Awake()
     {
-        Application.targetFrameRate = 120;
+        Application.targetFrameRate = 60;
         //StartCoroutine(UpdateMonocached());
     }
 
     private IEnumerator UpdateMonocached()
     {
-        yield return new WaitForSecondsRealtime(0.02f);
+        yield return new WaitForSeconds(0.016f);
 
         for (int i = 0; i < MonoCached.allTicks.Count; i++)
         {

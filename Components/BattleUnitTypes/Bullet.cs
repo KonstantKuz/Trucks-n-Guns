@@ -17,6 +17,7 @@ public class Bullet : BattleUnitParent
     private GameObject _gameObject;
     private Vector3 _forwardDirection, _deltaPosition;
 
+    private Collider _collider;
     private void Awake()
     {
         myData = Instantiate(battleUnitDataToCopy);
@@ -24,9 +25,19 @@ public class Bullet : BattleUnitParent
         _gameObject = gameObject;
         _deltaPosition = Vector3.zero;
         ray = new Ray();
+
+        rayDistance = myData.speed * 0.01f;
+
+        _collider = GetComponent<Collider>();
     }
 
-    public override void OnFixedTick()
+    private IEnumerator AutoDestruct()
+    {
+        yield return new WaitForSeconds(2f);
+        Deactivate();
+    }
+
+    public override void OnTick()
     {
         Fly();
     }
@@ -41,37 +52,25 @@ public class Bullet : BattleUnitParent
 
     public override void SearchTargets()
     {
-        rayDistance = myData.speed * 0.01f;
         ray.origin = _transform.position;
         ray.direction = _forwardDirection;
-        if(Physics.Raycast(ray, rayDistance, myData.interactibleWith))
+        if (Physics.Raycast(ray, out hit, rayDistance, myData.interactibleWith))
         {
-            SetDamage();
-        }
-    }
-
-    private void SetDamage()
-    {
-        if (Physics.Raycast(ray, out hit, rayDistance))
-        {
-            var health = hit.transform.gameObject.GetComponentInParent<EntityCondition>();
-            //Debug.Log(hit.transform.gameObject.name + "was hited with bullet");
-            SetDamage(health);
+            SetDamage(hit.collider.GetComponentInParent<EntityCondition>());
         }
     }
 
     public override void SetDamage(EntityCondition targetToHit)
     {
-        if (targetToHit != null)
+        if (!ReferenceEquals(targetToHit, null))
         {
-            targetToHit.AddDamage(myData.damage );
+            targetToHit.AddDamage(myData.damage);
         }
-
         Deactivate();
     }
 
     public override void Deactivate()
     {
-        base.Deactivate();
+        _gameObject.SetActive(false);
     }
 }

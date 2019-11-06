@@ -7,7 +7,7 @@ public class EventHandler : MonoCached
     public enum EventType
     {
         //ValleyOfBullets,   //аллея пулеметов
-        RoadBlock,           // дорожный боевой блокпост
+        //RoadBlock,           // дорожный боевой блокпост
         //HailOfStones,      //обвал камней рантайм
         //StoneBlockage,     //завал дороги большим камнем
         //SandStorm,         // песчаная буря под вопросом

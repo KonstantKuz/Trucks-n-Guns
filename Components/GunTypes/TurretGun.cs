@@ -14,13 +14,20 @@ public class TurretGun : GunParent
     public Transform head, headHolder;
     public Transform[] gunsBarrels;
 
+    [SerializeField]
+    private CachedParticles[] fireEffect;
+    
     private Quaternion bulletSpreadedRotation, rotationFromCurve;
     private Vector3[] gunsBarrelsUpDirections;
 
     private Vector3 targetDirection, targetDirection_XZprojection, targetDirection_ZYprojection;
     private Transform headHolderRoot;
 
-    private ObjectPoolerBase effectPooler, battleUnitPooler;
+    private bool canAttack = true;
+
+    private ObjectPoolerBase battleUnitPooler;
+
+    private AudioSource turretShotSource;
 
     private void Awake()
     {
@@ -35,9 +42,10 @@ public class TurretGun : GunParent
             gunsBarrelsUpDirections[i] = gunsBarrels[i].transform.up;
         }
 
+        turretShotSource = GetComponent<AudioSource>();
+
         SetUpAngles(null);
 
-        effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
         battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
     }
 
@@ -78,17 +86,17 @@ public class TurretGun : GunParent
 
         CalculateBulletsSpread();
 
-        if (myData.timeSinceLastShot <= 0)
+        if (myData.timeSinceLastShot <= 0 && canAttack)
         {
-            if (!GetComponent<AudioSource>().isPlaying)
+            if (!turretShotSource.isPlaying)
             {
-                GetComponent<AudioSource>().Play();
+                turretShotSource.Play();
             }
             myData.timeSinceLastShot = myData.rateofFire;
             for (int i = 0; i < gunsBarrels.Length; i++)
             {
                 battleUnitPooler.Spawn(myData.battleUnitToCopy.name, gunsBarrels[i].position, bulletSpreadedRotation);
-                effectPooler.Spawn("TurretFlash", gunsBarrels[i].transform.position, gunsBarrels[i].transform.rotation).GetComponent<ParticleSystem>().Play();
+                fireEffect[i].PlayParticles();
             }
         }
     }
@@ -120,7 +128,16 @@ public class TurretGun : GunParent
             if (angleBtwn_targetDirZY_hhFWD < allowableAngles.HeadMaxAngle && angleBtwn_targetDirZY_hhFWD > allowableAngles.HeadMinAngle)
             {
                 head.rotation = Quaternion.LookRotation(targetDirection_ZYprojection, headHolder.up);
+                canAttack = true;
             }
+            else
+            {
+                canAttack = false;
+            }
+        }
+        else
+        {
+            canAttack = false;
         }
     }
 

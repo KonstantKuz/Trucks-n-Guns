@@ -62,16 +62,9 @@ public class InputHandler : MonoCached
     {
         mainCamera = Camera.main;
     }
-
-    private void Restart()
-    {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
-    }
-
+    
     private void StopPlayer()
     {
-        //steeringForce = 0;
-        //moveController.value = 0;
         player.StopPlayerTruck();
     }
     private void SteeringForceValueChange()
@@ -88,13 +81,12 @@ public class InputHandler : MonoCached
 
         #region unityAndroid
 #if UNITY_ANDROID
-        if(player.seekPoint != null)
+        if(!ReferenceEquals(player.seekPoint, null))
         {
-            //steeringForce = moveController.value;
             seekPointPosition.x = steeringForce * 24f;
             seekPointPosition.z = player.truck._transform.position.z + 30f;
             player.seekPoint.position = seekPointPosition;
-            player.MovePlayerTruck(steeringForce);
+            player.MovePlayerTruck();
         }
 
         foreach (Touch touch in Input.touches)
@@ -154,7 +146,7 @@ public class InputHandler : MonoCached
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, damageableMask))
         {
-            if(hit.rigidbody != null && hit.rigidbody != player.truck._rigidbody)
+            if(!ReferenceEquals(hit.rigidbody, null) && !ReferenceEquals(hit.rigidbody, player.truck._rigidbody))
             {
                 player.SetUpTargets(hit.rigidbody, trackingGroup);
             }
@@ -166,7 +158,7 @@ public class InputHandler : MonoCached
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, damageableMask))
         {
-            if (hit.rigidbody != null && hit.rigidbody != player.truck._rigidbody)
+            if (!ReferenceEquals(hit.rigidbody, null) && !ReferenceEquals(hit.rigidbody, player.truck._rigidbody))
             {
                 player.SetUpTargets(hit.rigidbody, trackingGroup);
             }

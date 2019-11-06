@@ -13,18 +13,29 @@ public class RocketGun : GunParent
     
     public Transform head, headHolder;
     public Transform[] gunsBarrels;
-
-    private Vector3 targetDirection, targetDirection_XZprojection, targetDirection_ZYprojection;
     private Transform headHolderRoot;
 
+    private Vector3 targetDirection, targetPosSpeedBased, targetPosHeightDiffBased, targetDirection_XZprojection, targetDirection_ZYprojection;
+    private bool canAttack = true;
+
     private ObjectPoolerBase battleUnitPooler;
+
+    private AudioSource rocketLaunchSource;
+
+    private string staticRocketName = "RocketStatic";
+
 
     private void Awake()
     {
         myData = Instantiate(gunDataToCopy);
         myData.CreateBattleUnitInstance();
-        battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
         headHolderRoot = headHolder.parent;
+
+        rocketLaunchSource = GetComponent<AudioSource>();
+
+        SetUpAngles(null);
+
+        battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
     }
 
     public override void SetTargetData(TargetData targetData)
@@ -72,9 +83,9 @@ public class RocketGun : GunParent
 
         UpdateTimers();
 
-        if (myData.timeSinceLastShot <= 0)
+        if (myData.timeSinceLastShot <= 0 && canAttack)
         {
-           
+
             myData.timeSinceLastShot = myData.rateofFire;
 
             for (int i = 0; i < gunsBarrels.Length; i++)
@@ -82,16 +93,16 @@ public class RocketGun : GunParent
                 battleUnitPooler.Spawn(myData.battleUnitToCopy.name, gunsBarrels[i].position, gunsBarrels[i].rotation).GetComponent<Rocket>().Launch(targetData);
             }
 
-             if (!GetComponent<AudioSource>().isPlaying)
+            if (!rocketLaunchSource.isPlaying)
             {
-                GetComponent<AudioSource>().Play();
+                rocketLaunchSource.Play();
             }
         }
     }
-    private Vector3 targetPosSpeedBased, targetPosHeightDiffBased;
+
     void LookAtTarget()
     {
-        if(myData.battleUnitToCopy.name.Contains("Static"))
+        if(myData.battleUnitToCopy.name == staticRocketName)
         {
             targetPosSpeedBased = targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.25f;
             targetPosHeightDiffBased = headHolderRoot.up * (targetData.target_rigidbody.position.y - headHolderRoot.position.y) * 0.1f;
@@ -115,7 +126,16 @@ public class RocketGun : GunParent
             if (angleBtwn_targetDirZY_hhFWD < allowableAngles.HeadMaxAngle && angleBtwn_targetDirZY_hhFWD > allowableAngles.HeadMinAngle)
             {
                 head.rotation = Quaternion.LookRotation(targetDirection_ZYprojection, headHolder.up);
+                canAttack = true;
             }
+            else
+            {
+                canAttack = false;
+            }
+        }
+        else
+        {
+            canAttack = false;
         }
     }
 

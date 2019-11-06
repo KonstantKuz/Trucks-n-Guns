@@ -8,9 +8,8 @@ public class PlayerPersistentData : Data
     public FirePointData firePointData;
     public TruckData truckData;
 
-    public void SetPlayerData(TruckData truckData, FirePointData firePointData)
-    {
-        PlayerData.playerFirePointData = firePointData;
-        PlayerData.playerTruckData = truckData;
-    }
+    public int coins;
+    public int maxTraveledDistance;
+    public int defeatedEnemiesCount;
+    public int defeatedPlayersCount;
 }

@@ -5,6 +5,10 @@ using StateMachine;
 
 public class PlayerFollowState : State<Enemy>
 {
+    private float movingForce, distanceToTarget, targetForwardVelocity;
+    private float currentSpeedClamped, newSteeringForce;
+    private Vector3 relativeToCurrentNode, relativeToPlayer;
+
     public static PlayerFollowState _instance;
 
 
@@ -44,7 +48,7 @@ public class PlayerFollowState : State<Enemy>
     
     public float SteeringForceOnDistanceBased(Enemy _owner)
     {
-        float distanceToTarget = _owner.targetData.target_rigidbody.position.z - _owner.truck._transform.position.z;
+        distanceToTarget = _owner.targetData.target_rigidbody.position.z - _owner.truck._transform.position.z;
         if(distanceToTarget > 30 || distanceToTarget < 0)
         {
             return PathFollowSteeringForce(_owner);
@@ -57,16 +61,16 @@ public class PlayerFollowState : State<Enemy>
 
     public float PlayerFollowSteeringForce(Enemy _owner)
     {
-        Vector3 relativeToPlayer = _owner.truck._transform.InverseTransformPoint(_owner.targetData.target_rigidbody.position - 10 * _owner.truck._transform.forward);
-        float newsteer = (relativeToPlayer.x / relativeToPlayer.magnitude);
-        return newsteer;
+        relativeToPlayer = _owner.truck._transform.InverseTransformPoint(_owner.targetData.target_rigidbody.position - 10 * _owner.truck._transform.forward);
+        newSteeringForce = (relativeToPlayer.x / relativeToPlayer.magnitude);
+        return newSteeringForce;
     }
 
     public float PathFollowSteeringForce(Enemy _owner)
     {
         if (_owner.PathCheck())
         {
-            float currentSpeedClamped = _owner.truck.CurrentSpeed();
+            currentSpeedClamped = _owner.truck.CurrentSpeed();
 
             currentSpeedClamped = Mathf.Clamp(currentSpeedClamped, 0, 10);
 
@@ -82,39 +86,28 @@ public class PlayerFollowState : State<Enemy>
                 }
             }
 
-            Vector3 relativeToCurrentNode = _owner.truck._transform.InverseTransformPoint(_owner.currentNode.worldPosition);
-            float newsteer = (relativeToCurrentNode.x / relativeToCurrentNode.magnitude);
-            return newsteer;
+            relativeToCurrentNode = _owner.truck._transform.InverseTransformPoint(_owner.currentNode.worldPosition);
+            newSteeringForce = (relativeToCurrentNode.x / relativeToCurrentNode.magnitude);
+            return newSteeringForce;
 
         }
         else return 0;
     }
     public float MovingForce(Enemy _owner)
     {
-        float movingForce = 0;
-        float distanceToTarget = (_owner.targetData.target_rigidbody.position.z - 10 * _owner.truck._transform.forward.z) - _owner.truck._transform.position.z;
-        float targetForwardVelocity = _owner.targetData.target_rigidbody.velocity.z;
+        movingForce = 0;
+        distanceToTarget = (_owner.targetData.target_rigidbody.position.z - 10 * _owner.truck._transform.forward.z) - _owner.truck._transform.position.z;
+        targetForwardVelocity = _owner.targetData.target_rigidbody.velocity.z;
 
         if (distanceToTarget < 5)
         {
-            _owner.truck.StopTruck(/*distanceToTarget * 0.0005f*/-(distanceToTarget - targetForwardVelocity) * 0.005f);
-
-
-            //if (targetForwardVelocity > 0)
-            //{
-            //    _owner.truck.StopTruck(distanceToTarget * 0.00005f * targetForwardVelocity);
-            //    movingForce = 1;
-            //}
-            //else
-            //{
-            //    _owner.truck.StopTruck(distanceToTarget * 0.00005f);
-            //    movingForce = 0;
-            //}
+            _owner.truck.StopTruck(-(distanceToTarget - targetForwardVelocity) * 0.005f);
         }
         else
         {
             _owner.truck.LaunchTruck();
-            movingForce = distanceToTarget * targetForwardVelocity * 0.005f;
+
+            movingForce = distanceToTarget * Mathf.Abs(targetForwardVelocity) * 0.005f;
         }
         return movingForce;
     }

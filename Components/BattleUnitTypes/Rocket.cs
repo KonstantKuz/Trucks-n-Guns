@@ -21,6 +21,9 @@ public class Rocket : BattleUnitParent
     
     private ObjectPoolerBase effectPooler;
 
+    private string smallExplosionName = "SmallExplosion";
+    private string rocketTrailName = "RocketTrail";
+
     private void Awake()
     {
         myData = Instantiate(battleUnitDataToCopy);
@@ -38,21 +41,13 @@ public class Rocket : BattleUnitParent
         
         isLaunched = true;
 
-        trail = effectPooler.Spawn("RocketTrail", transform.position, transform.rotation);
-        foreach (var effect in trail.transform.GetComponentsInChildren<ParticleSystem>())
-        {
-            effect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        trail = effectPooler.Spawn(rocketTrailName, transform.position, transform.rotation);
+        trail.GetComponent<CachedParticles>().PlayParticles();
 
-            effect.Play();
-        }
         StartCoroutine(AutoDestruct());
     }
 
-    //private IEnumerator LateLaunch()
-    //{
-    //}
-
-    public override void OnFixedTick()
+    public override void OnTick()
     {
         Fly();
     }
@@ -87,45 +82,34 @@ public class Rocket : BattleUnitParent
 
     private IEnumerator AutoDestruct()
     {
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(3f);
         Explosion();
     }
 
-    void Explosion()
+    private void Explosion()
     {
-        hits = Physics.OverlapSphere(_transform.position, myData.damageRadius, myData.interactibleWith);
+        hits = Physics.OverlapSphere(_transform.position, myData.damageRadius, myData.damageable);
         for (int i = 0; i < hits.Length; i++)
         {
-            SetDamage(hits[i].gameObject.GetComponentInParent<EntityCondition>());
-            //Debug.Log(hits[i].gameObject.name + "was hited with rocket");
+            SetDamage(hits[i].GetComponentInParent<EntityCondition>());
         }
 
-        GameObject expl = effectPooler.Spawn("SmallExplosion", transform.position, Quaternion.identity);
-        expl.GetComponent<ParticleSystem>().Play();
-        foreach (var item in expl.transform.GetComponentsInChildren<ParticleSystem>())
-        {
-            item.Play();
-        }
-        if(hits.Length == 0)
-        {
-            Deactivate();
-        }
+        Deactivate();
+
+        effectPooler.Spawn(smallExplosionName, transform.position, Quaternion.identity).GetComponent<CachedParticles>().PlayParticles();
     }
 
     public override void SetDamage(EntityCondition targetToHit)
     {
-        //base.SetDamage(targetToHit);
-        if (targetToHit != null)
+        if (!ReferenceEquals(targetToHit, null))
         {
             targetToHit.AddDamage(myData.damage - ((_transform.position - targetToHit.transform.position).magnitude*10f));
-            //Debug.Log(myData.damage - ((_transform.position - targetToHit.transform.position).magnitude * 10f));
         }
-        Deactivate();
     }
 
     public override void Deactivate()
     {
-        base.Deactivate();
+        _gameObject.SetActive(false);
     }
 
     private void OnDrawGizmos()

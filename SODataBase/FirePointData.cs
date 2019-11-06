@@ -11,6 +11,7 @@ public class FirePointData : Data
         public GameEnums.Gun gun;
         public GameEnums.GunLocation locationPath;
         public GameEnums.TrackingGroup trackingGroup;
+        public GunData gunDataToSet;
     }
 
     //public GameEnums.FirePointType firePointType;
@@ -43,6 +44,10 @@ public class FirePointData : Data
                     GunParent gunComponent = gun.GetComponent<GunParent>();
                     gunComponent.SetUpAngles(null);
                     gunComponent.SetUpAngles(gunPoint.allowableAnglesOnPoint);
+                    if(!ReferenceEquals(gunsConfigurations[i].gunDataToSet, null))
+                    {
+                        gunComponent.myData = gunsConfigurations[i].gunDataToSet;
+                    }
                     firePoint.TrackingGroupsDictionary[gunsConfigurations[i].trackingGroup].Add(gunComponent);
                 }
             }

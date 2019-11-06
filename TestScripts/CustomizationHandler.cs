@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
 public class CustomizationHandler : MonoCached
 {
-    public static FirePointData playerFPdata;
-
     private Truck playerTruck;
     public GameObject gunButtonPrefab;
     private Button[] gunButtons;
@@ -22,10 +21,15 @@ public class CustomizationHandler : MonoCached
 
     private void Start()
     {
+        StartCoroutine(AsyncLoadGeneralScene());
+    }
+
+    private IEnumerator AsyncLoadGeneralScene()
+    {
+        yield return new WaitForSeconds(1f);
         generalGameScene = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("GeneralGameState", UnityEngine.SceneManagement.LoadSceneMode.Single);
         generalGameScene.allowSceneActivation = false;
     }
-
     //public void StartGame()
     //{
     //    GunChangeButton[] oldButtons = FindObjectsOfType<GunChangeButton>();
@@ -55,7 +59,7 @@ public class CustomizationHandler : MonoCached
         }
 
         playerTruck = truck;
-        playerFPdata = playerTruck.TruckData.firePointData;
+        playerTruck._rigidbody.useGravity = false;
         gunButtons = new Button[playerTruck.firePoint.gunsPoints.Count];
         gunButtObj = new GameObject[playerTruck.firePoint.gunsPoints.Count];
 
@@ -120,11 +124,11 @@ public class CustomizationHandler : MonoCached
     {
         for (int i = 0; i < playerTruck.firePoint.gunsPoints.Count; i++)
         {
-            for (int j = 0; j < playerFPdata.gunsConfigurations.Length; j++)
+            for (int j = 0; j < playerTruck.TruckData.firePointData.gunsConfigurations.Length; j++)
             {
-                if(playerTruck.firePoint.gunsPoints[i].locationPath == playerFPdata.gunsConfigurations[j].locationPath.ToString())
+                if(playerTruck.firePoint.gunsPoints[i].locationPath == playerTruck.TruckData.firePointData.gunsConfigurations[j].locationPath.ToString() && playerTruck.firePoint.gunsPoints[i].gunsLocation.childCount>0)
                 {
-                    playerFPdata.gunsConfigurations[j].gun = (GameEnums.Gun)System.Enum.Parse(typeof(GameEnums.Gun), playerTruck.firePoint.gunsPoints[i].gunsLocation.GetChild(0).name);
+                    playerTruck.TruckData.firePointData.gunsConfigurations[j].gun = (GameEnums.Gun)System.Enum.Parse(typeof(GameEnums.Gun), playerTruck.firePoint.gunsPoints[i].gunsLocation.GetChild(0).name);
                 }
             }
         }
@@ -132,7 +136,6 @@ public class CustomizationHandler : MonoCached
         GunChangeButton[] oldButtons = FindObjectsOfType<GunChangeButton>();
         foreach (var item in oldButtons)
         {
-            Debug.Log(item.gameObject.name);
             Destroy(item.gameObject);
         }
 
@@ -147,7 +150,19 @@ public class CustomizationHandler : MonoCached
 
         yield return new WaitForSecondsRealtime(2f);
 
-        generalGameScene.allowSceneActivation = true;
+        StartCoroutine(ActivateGeneralScene());
     }
 
+    private IEnumerator ActivateGeneralScene()
+    {
+        yield return new WaitForSeconds(1f);
+        if (!ReferenceEquals(generalGameScene, null))
+        {
+            generalGameScene.allowSceneActivation = true;
+        }
+        else
+        {
+            yield return StartCoroutine(ActivateGeneralScene());
+        }
+    }
 }

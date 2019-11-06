@@ -6,6 +6,7 @@ using UnityEngine;
 public class BattleUnitData : Data
 {
     public LayerMask interactibleWith;
+    public LayerMask damageable;
     public float speed;
     public float damage;
     [Header("RocketOnly")]

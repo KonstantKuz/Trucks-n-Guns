@@ -8,6 +8,8 @@ public class RaycastWheel : MonoCached {
     public float motorTorque {get; set;}
     public float steerAngle { get; set; }
 
+    public LayerMask interactibleWith;
+
 	public float wheelRadius  = 0.5f;
 	public float suspensionRange  = 0.10f;
 	public float suspensionForce  = 0.00f;
@@ -41,22 +43,24 @@ public class RaycastWheel : MonoCached {
 
     public Transform _transform { get; set; }
 
-    private void OnEnable()
-    {
-        allFixedTicks.Add(this);
-    }
-    private void OnDisable()
-    {
-        allFixedTicks.Remove(this);
-    }
+    private float compression, forwardDifference, newForwardFriction, sidewaysDifference, newSideFriction;
+
+    //private void OnEnable()
+    //{
+    //    allTicks.Add(this);
+    //}
+    //private void OnDisable()
+    //{
+    //    allTicks.Remove(this);
+    //}
     void Start ()
 	{
 		wheelCircumference = wheelRadius * Mathf.PI * 2;
         _transform = transform;
-        parentRigidbody = _transform.parent.parent.GetComponent<Rigidbody>();
+        parentRigidbody = _transform.GetComponentInParent<Rigidbody>();
     }
 
-    public override void OnFixedTick()
+    public override void OnTick()
     {
         _transform.localRotation = Quaternion.AngleAxis(steerAngle, _transform.up);
 
@@ -64,12 +68,12 @@ public class RaycastWheel : MonoCached {
 
         wheelDownDirection = -_transform.up; 
 
-		if(Physics.Raycast (_transform.position, wheelDownDirection, out hit, suspensionRange + wheelRadius) && !ReferenceEquals(hit.transform.root, _transform.root))
+		if(Physics.Raycast (_transform.position, wheelDownDirection, out hit, suspensionRange + wheelRadius, interactibleWith) && !ReferenceEquals(hit.transform.root, _transform.root))
 		{
             isGrounded = true;
 			wheelPointVelocity = parentRigidbody.GetPointVelocity(hit.point);
 
-			float compression = hit.distance / (suspensionRange + wheelRadius);
+			compression = hit.distance / (suspensionRange + wheelRadius);
 			compression = -compression + 1;
 
 			relativeSuspensionForce = -wheelDownDirection * compression * suspensionForce;
@@ -81,20 +85,20 @@ public class RaycastWheel : MonoCached {
 			shockDrag = _transform.TransformDirection(wheelPointInversedVelocity) * -suspensionDamp;
             // __________________z-friction__________________
 
-            float forwardDifference = _transform.InverseTransformDirection(wheelPointVelocity).z - speed;
+            forwardDifference = _transform.InverseTransformDirection(wheelPointVelocity).z - speed;
             forwardDifferenceDirection.z = -forwardDifference;
 
-            float newForwardFriction = forwardFriction;
+            newForwardFriction = forwardFriction;
             
 			newForwardFriction = Mathf.Lerp(newForwardFriction, newForwardFriction * compression * 1, compressionFrictionFactor);
 
 			forwardForce = _transform.TransformDirection(forwardDifferenceDirection) * newForwardFriction;
             // __________________x-friction__________________
 
-            float sidewaysDifference = _transform.InverseTransformDirection(wheelPointVelocity).x;
+            sidewaysDifference = _transform.InverseTransformDirection(wheelPointVelocity).x;
             sideDifferenceDirection.x = -sidewaysDifference;
 
-			float newSideFriction = sidewaysFriction ;
+			newSideFriction = sidewaysFriction ;
 			newSideFriction = Mathf.Lerp(newSideFriction, newSideFriction * compression * 1, compressionFrictionFactor);
             
 
@@ -140,7 +144,7 @@ public class RaycastWheel : MonoCached {
         //newVisualPosition.z = visualWheel.position.z;
 
         //visualWheel.position = newVisualPosition;
-
+        visualWheel.localEulerAngles = - wheelDownDirection * steerAngle;
         visualWheel.Rotate(360 * (-speed / wheelCircumference) * Time.deltaTime, 0, 0);
     }
     void  OnDrawGizmosSelected ()
