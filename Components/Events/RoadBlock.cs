@@ -15,8 +15,10 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
     private bool activated = false;
 
-    public void AwakeEvent()
+    public void AwakeEvent(Vector3 playerPosition)
     {
+
+        transform.position = new Vector3(0,0, playerPosition.z + roadBlockData.zSpawnOffset);
         roadBlockData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1);
         
         if (firePoint!=null)
@@ -98,7 +100,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
         for (int i = 0; i < targets.Length; i++)
         {
-            targets[i] = new TargetData(null);
+            targets[i] = new TargetData(null, null);
         }
     }
 
@@ -185,7 +187,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
                 currentTotalCondition += firePoint.gunsPoints[i].gunsLocation.GetComponent<EntityCondition>().currentCondition;
                 if (firePoint.gunsPoints[i].gunsLocation.GetComponent<EntityCondition>().currentCondition < 50)
                 {
-                    firePoint.RemoveGun(firePoint.gunsPoints[i].gunsLocation.GetChild(0).GetComponent<GunParent>());
+                    firePoint.RemoveGun(firePoint.gunsPoints[i].gunsLocation.GetChild(0).GetComponent<Gun>());
                 }
             }
         }

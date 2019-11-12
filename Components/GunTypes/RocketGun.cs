@@ -2,21 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RocketGun : GunParent
+public class RocketGun : MonoCached, Gun
 {
-    [SerializeField]
-    private GunData gunDataToCopy;
-
-    public override GunData myData { get; set; }
-    public override TargetData targetData { get; set; }
-    public override GunAnglesData allowableAngles { get; set; }
+    public GunData gunData { get; set; }
+    public TargetData targetData { get; set; }
+    public GunAnglesData allowableAngles { get; set; }
     
     public Transform head, headHolder;
     public Transform[] gunsBarrels;
     private Transform headHolderRoot;
 
     private Vector3 targetDirection, targetPosSpeedBased, targetPosHeightDiffBased, targetDirection_XZprojection, targetDirection_ZYprojection;
-    private bool canAttack = true;
+    private bool targetIsVisible = true;
+    private float fireTimer;
 
     private ObjectPoolerBase battleUnitPooler;
 
@@ -27,20 +25,23 @@ public class RocketGun : GunParent
 
     private void Awake()
     {
-        myData = Instantiate(gunDataToCopy);
-        myData.CreateBattleUnitInstance();
         headHolderRoot = headHolder.parent;
 
         rocketLaunchSource = GetComponent<AudioSource>();
 
-        SetUpAngles(null);
+        SetAnglesData(null);
 
         battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
     }
 
-    public override void SetTargetData(TargetData targetData)
+    public void SetGunData(GameEnums.GunDataType gunData)
     {
-        switch (myData.battleType)
+        this.gunData = DataReturnersHolder.Instance.RocketGunDataReturner.GetData(gunData.ToString()) as GunData;
+    }
+
+    public void SetTargetData(TargetData targetData)
+    {
+        switch (gunData.battleType)
         {
             case GameEnums.BattleType.Tracking:
                 this.targetData = targetData;
@@ -49,10 +50,10 @@ public class RocketGun : GunParent
                 this.targetData = null;
                 break;
         }
+        targetIsVisible = true;
     }
-    
 
-    public override void SetUpAngles(GunAnglesData anglesData)
+    public void SetAnglesData(GunAnglesData anglesData)
     {
         if (anglesData == null)
         {
@@ -74,35 +75,31 @@ public class RocketGun : GunParent
         transform.localEulerAngles = new Vector3(0, allowableAngles.StartDirectionAngle, 0);
     }
 
-    public override void Fire()
+    public void Fire()
     {
-        if (myData.battleType == GameEnums.BattleType.Tracking)
+        if (Time.time >= fireTimer && targetIsVisible)
         {
-            LookAtTarget();
-        }
-
-        UpdateTimers();
-
-        if (myData.timeSinceLastShot <= 0 && canAttack)
-        {
-
-            myData.timeSinceLastShot = myData.rateofFire;
+            fireTimer = Time.time + gunData.rateofFire;
 
             for (int i = 0; i < gunsBarrels.Length; i++)
             {
-                battleUnitPooler.Spawn(myData.battleUnitToCopy.name, gunsBarrels[i].position, gunsBarrels[i].rotation).GetComponent<Rocket>().Launch(targetData);
+                battleUnitPooler.Spawn(gunData.battleUnit, gunsBarrels[i].position, gunsBarrels[i].rotation).GetComponent<Rocket>().Launch(targetData);
             }
-
             if (!rocketLaunchSource.isPlaying)
             {
                 rocketLaunchSource.Play();
             }
         }
+
+        if (gunData.battleType == GameEnums.BattleType.Tracking)
+        {
+            LookAtTarget();
+        }
     }
 
     void LookAtTarget()
     {
-        if(myData.battleUnitToCopy.name == staticRocketName)
+        if(gunData.battleUnit == staticRocketName)
         {
             targetPosSpeedBased = targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.25f;
             targetPosHeightDiffBased = headHolderRoot.up * (targetData.target_rigidbody.position.y - headHolderRoot.position.y) * 0.1f;
@@ -126,22 +123,16 @@ public class RocketGun : GunParent
             if (angleBtwn_targetDirZY_hhFWD < allowableAngles.HeadMaxAngle && angleBtwn_targetDirZY_hhFWD > allowableAngles.HeadMinAngle)
             {
                 head.rotation = Quaternion.LookRotation(targetDirection_ZYprojection, headHolder.up);
-                canAttack = true;
+                targetIsVisible = true;
             }
             else
             {
-                canAttack = false;
+                targetIsVisible = false;
             }
         }
         else
         {
-            canAttack = false;
+            targetIsVisible = false;
         }
-    }
-
-    void UpdateTimers()
-    {
-        myData.timeElapsed += 0.01f;
-        myData.timeSinceLastShot -= Time.fixedDeltaTime + Random.Range(0.0001f, 0.0005f);
     }
 }

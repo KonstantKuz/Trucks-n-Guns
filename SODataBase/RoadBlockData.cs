@@ -11,13 +11,14 @@ public class RoadBlockData : Data
     public GameEnums.FirePointType firePointType;
     public FirePointData firePointData;
 
+    public int zSpawnOffset;
     public float conditionPerGun = 0;
     public float conditionPerWall = 0;
 
     public void PermanentSetUpRoadBlock(RoadBlock owner)
     {
         string firePointName = firePointType.ToString();
-        GameObject block = objectPoolersHolder.RoadBlocksFirePointPooler.PermanentSpawn(firePointName);
+        GameObject block = ObjectPoolersHolder.RoadBlocksFirePointPooler.PermanentSpawn(firePointName);
         block.transform.parent = owner.transform;
         owner.firePoint = block.GetComponent<FirePoint>();
         block.transform.localPosition = Vector3.zero;
@@ -37,8 +38,8 @@ public class RoadBlockData : Data
     {
         owner.roadBlockData.firePointData.ReturnObjectsToPool(owner.firePoint);
         GameObject firePointToReturn = owner.firePoint.gameObject;
-        objectPoolersHolder.RoadBlocksFirePointPooler.ReturnToPool(firePointToReturn, firePointToReturn.name);
-        objectPoolersHolder.EventPooler.ReturnToPool(owner.gameObject, "RoadBlock");
+        ObjectPoolersHolder.RoadBlocksFirePointPooler.ReturnToPool(firePointToReturn, firePointToReturn.name);
+        ObjectPoolersHolder.EventPooler.ReturnToPool(owner.gameObject, "RoadBlock");
     }
 
 }

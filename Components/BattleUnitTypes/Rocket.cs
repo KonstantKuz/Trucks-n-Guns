@@ -31,7 +31,7 @@ public class Rocket : BattleUnitParent
         _transform = transform;
         _gameObject = gameObject;
         _deltaPosition = Vector3.zero;
-        targetData = new TargetData(null);
+        targetData = new TargetData(null, null);
         isLaunched = false;
         effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
     }

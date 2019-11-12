@@ -4,28 +4,12 @@ using UnityEngine;
 
 public class EventHandler : MonoCached
 {
-    public enum EventType
-    {
-        //ValleyOfBullets,   //аллея пулеметов
-        //RoadBlock,           // дорожный боевой блокпост
-        //HailOfStones,      //обвал камней рантайм
-        //StoneBlockage,     //завал дороги большим камнем
-        //SandStorm,         // песчаная буря под вопросом
-        //Blockade,          // живая застава
-        //Helicopter,        // преследующий вертолет
-        //ShellingHelicopter,  // обстреливающий по полосе вертолет
-        //Minefield,         // Минное поле
-    }
-
     [SerializeField]
     private Vector2 traveledDistaceToGenerateEventMinMax;
-    [SerializeField]
-    private Vector3 offsetFromPlayer;
 
     public Vector3 playerPos_fromLastEvent { get; set; }
     public float traveledDistance { get; set; }
-    //private IPoolReturner lastEventReturner;
-    //private IRoadEvent lastEvent;
+
     private Transform lastEvent;
     private float distanceToRemoveLastEvent;
 
@@ -35,7 +19,8 @@ public class EventHandler : MonoCached
     private void Awake()
     {
         eventPooler = ObjectPoolersHolder.Instance.EventPooler;
-        distanceToRemoveLastEvent = offsetFromPlayer.z * 2;
+        distanceToRemoveLastEvent = 300;
+        traveledDistance = 0;
     }
 
     public void StartCheckDistance(Vector3 player_startPos, Rigidbody player_rigidbody)
@@ -55,6 +40,7 @@ public class EventHandler : MonoCached
 
         if ((player_rigidbody.position - playerPos_fromLastEvent).magnitude > traveledDistaceToGenerateEvent)
         {
+            PlayerHandler.IncreaseTraveledDistance((int)traveledDistaceToGenerateEvent);
             GenerateEvent(player_rigidbody);
             playerPos_fromLastEvent = player_rigidbody.position;
             traveledDistaceToGenerateEvent = 0;
@@ -76,14 +62,8 @@ public class EventHandler : MonoCached
             return;
         }
 
-        //int randomEventNum = Random.Range(0, System.Enum.GetNames(typeof(EventType)).Length);
-        //EventType myType = (EventType)randomEventNum;
-        //string randomEventName = myType.ToString();
-
-        //GameObject eventObject = eventPooler.Spawn(randomEventName);
         GameObject eventObject = eventPooler.SpawnWeightedRandom(Vector3.zero, Quaternion.identity);
-        eventObject.transform.position = new Vector3(eventObject.transform.position.x, eventObject.transform.position.y, player_rigidbody.position.z + offsetFromPlayer.z);
-        eventObject.GetComponent<IRoadEvent>().AwakeEvent();
+        eventObject.GetComponent<IRoadEvent>().AwakeEvent(player_rigidbody.position);
         lastEvent = eventObject.transform;
     }
 

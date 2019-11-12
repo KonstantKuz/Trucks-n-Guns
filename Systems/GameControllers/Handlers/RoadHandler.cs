@@ -149,7 +149,7 @@ public class RoadHandler : MonoCached
         GameObject generalRoad = roadPooler.Spawn(generalRoadNameToSpawn);
         generalRoad.transform.localPosition = Vector3.forward * allSpawnedRoadLength;
         allSpawnedRoadLength += roadLength;
-        generalRoad.GetComponent<CanyonElementsRotator>().RotateCanyonElements();
+        generalRoad.GetComponent<RandomPlantsActivator>().ReplacePlants();
 
         return generalRoad;
     }

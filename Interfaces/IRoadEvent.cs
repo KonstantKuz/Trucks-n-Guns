@@ -1,6 +1,7 @@
-﻿
+﻿using UnityEngine;
+
 public interface IRoadEvent
 {
     bool isActive { get; set; }
-    void AwakeEvent();
+    void AwakeEvent(Vector3 playerPosition);
 }

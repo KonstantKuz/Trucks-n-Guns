@@ -34,7 +34,6 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
 
     //для объезда препятствий
     private Vector3 sensorsStartPos, sensorsRSidePos, sensorsLSidePos, sideSensorsOffsetVec;
-
     private bool avoiding = false;
 
     public List<Node> path { get; set; }
@@ -93,18 +92,22 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
         truck.TruckData.truckType = (GameEnums.Truck)randomTruck;
         int randomFirePoint = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length);
         truck.TruckData.firePointType = (GameEnums.FirePointType)randomFirePoint;
+        int[] gunDataTypes = { 00, 01, 02, 10, 11, 12, 20, 21, 22 };
+        for (int i = 0; i < truck.TruckData.firePointData.gunsConfigurations.Length; i++)
+        {
+            int randomGun = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
+            int randomGunData = Random.Range(0, gunDataTypes.Length);
+            truck.TruckData.firePointData.gunsConfigurations[i].gunType = (GameEnums.Gun)randomGun;
+            truck.TruckData.firePointData.gunsConfigurations[i].gunDataType = (GameEnums.GunDataType)gunDataTypes[randomGunData];
+        }
     }
 
     #region My
 
     public void InjectNewTargetData(Rigidbody targetRigidbody)
     {
-        targetData = new TargetData(targetRigidbody);
-
-        for (int i = 0; i < truck.firePoint.FirstTrackingGroupGuns.Count; i++)
-        {
-            truck.firePoint.FirstTrackingGroupGuns[i].SetTargetData(targetData);
-        }
+        targetData = new TargetData(targetRigidbody, null);
+        truck.firePoint.SetUpTargets(targetData, GameEnums.TrackingGroup.FirstTrackingGroup);
     }
 
     public override void OnTick()
@@ -115,7 +118,7 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
 
     public void AttackTarget()
     {
-        if((targetData.target_rigidbody.position - truck._transform.position).magnitude < 40f)
+        if((targetData.target_rigidbody.position - truck._transform.position).magnitude < 50f)
         {
             truck.firePoint.FirstTrackingAttack();
             truck.firePoint.StaticAttack();
@@ -143,26 +146,39 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
         sensorsRSidePos = sensorsStartPos + sideSensorsOffsetVec;
         sensorsLSidePos = sensorsStartPos - sideSensorsOffsetVec;
         float avoidForce = 0;
-        RaycastHit hit;
 
-        for (int i = 0; i <2 ; i++)
+        if (Physics.Raycast(sensorsRSidePos, Quaternion.AngleAxis(sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, sensorsLength))
         {
-            if (Physics.Raycast(sensorsRSidePos, Quaternion.AngleAxis(sensorsAngle + i * sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, out hit, sensorsLength))
-            {
-                avoiding = true;
-                Debug.DrawLine(sensorsRSidePos, hit.point, Color.red);
-                avoidForce -= 0.2f;
-            }
-            else { avoiding = false; }
-
-            if (Physics.Raycast(sensorsLSidePos, Quaternion.AngleAxis(- sensorsAngle + i * -sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, out hit, sensorsLength))
-            {
-                avoiding = true;
-                Debug.DrawLine(sensorsLSidePos, hit.point, Color.red);
-                avoidForce += 0.2f;
-            }
-            else { avoiding = false; }
+            avoiding = true;
+            avoidForce -= 0.2f;
         }
+        else { avoiding = false; }
+
+        if (Physics.Raycast(sensorsLSidePos, Quaternion.AngleAxis(-sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, sensorsLength))
+        {
+            avoiding = true;
+            avoidForce += 0.2f;
+        }
+        else { avoiding = false; }
+
+        //for (int i = 0; i <2 ; i++)
+        //{
+        //    if (Physics.Raycast(sensorsRSidePos, Quaternion.AngleAxis(sensorsAngle + i * sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, out hit, sensorsLength))
+        //    {
+        //        avoiding = true;
+        //        Debug.DrawLine(sensorsRSidePos, hit.point, Color.red);
+        //        avoidForce -= 0.2f;
+        //    }
+        //    else { avoiding = false; }
+
+        //    if (Physics.Raycast(sensorsLSidePos, Quaternion.AngleAxis(- sensorsAngle + i * -sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, out hit, sensorsLength))
+        //    {
+        //        avoiding = true;
+        //        Debug.DrawLine(sensorsLSidePos, hit.point, Color.red);
+        //        avoidForce += 0.2f;
+        //    }
+        //    else { avoiding = false; }
+        //}
 
         return avoidForce;
     }

@@ -4,77 +4,45 @@ using UnityEngine;
 using Singleton;
 public class ObjectPoolersHolder : Singleton<ObjectPoolersHolder>
 {
+        public ObjectPoolerBase 
+        BattleUnitPooler, 
+        ObstaclePooler, 
+        RoadPooler,
+        EnemyPooler, 
+        EffectPooler, 
+        EventPooler, 
+        TrucksFirePointPooler, 
+        RoadBlocksFirePointPooler, 
+        HelicoptersFirePointPooler, 
+        GunsPooler, 
+        TrucksPooler,
+        StoneBlockagePooler;
     
-    [SerializeField]
-    private ObjectPoolerBase 
-        battleUnitPooler, 
-        obstaclePooler, 
-        roadPooler,
-        enemyPooler, 
-        effectPooler, 
-        eventPooler, 
-        trucksFirePointPooler, 
-        roadBlocksFirePointPooler, 
-        helicoptersFirePointPooler, 
-        gunsPooler, 
-        trucksPooler,
-        stoneBlockagePooler;
-
-    public ObjectPoolerBase BattleUnitPooler { get { return battleUnitPooler; } }
-
-    public ObjectPoolerBase ObstaclePooler { get { return obstaclePooler; } }
-
-    public ObjectPoolerBase RoadPooler { get { return roadPooler; } }
-
-    public ObjectPoolerBase EnemyPooler{ get { return enemyPooler; } }
-
-    public ObjectPoolerBase EffectPooler { get { return effectPooler; } }
-
-    public ObjectPoolerBase EventPooler { get { return eventPooler; } }
-
-    public ObjectPoolerBase TrucksFirePointPooler { get { return trucksFirePointPooler; } }
-
-    public ObjectPoolerBase GunsPooler { get { return gunsPooler; } }
-
-    public ObjectPoolerBase TrucksPooler { get { return trucksPooler; } }
-
-    public ObjectPoolerBase RoadBlocksFirePointPooler { get { return roadBlocksFirePointPooler; } }
-
-    public ObjectPoolerBase HelicoptersFirePointPooler { get { return helicoptersFirePointPooler; } }
-
-    public ObjectPoolerBase StoneBlockagePooler { get { return stoneBlockagePooler; } }
-
-
-    private void OnEnable()
-    {
-        //AwakeGeneralGameStatePoolers();
-    }
-
     public void AwakeGeneralGameStatePoolers()
     {
-        Data.objectPoolersHolder = this;
+        Data.ObjectPoolersHolder = this;
         
-        battleUnitPooler.AwakePooler();
-        roadPooler.AwakePooler();
-        obstaclePooler.AwakePooler();
-        stoneBlockagePooler.AwakePooler();
-        effectPooler.AwakePooler();
-        eventPooler.AwakePooler();
-        trucksFirePointPooler.AwakePooler();
-        roadBlocksFirePointPooler.AwakePooler();
-        helicoptersFirePointPooler.AwakePooler();
-        gunsPooler.AwakePooler();
-        trucksPooler.AwakePooler();
-        enemyPooler.AwakePooler();
+        BattleUnitPooler.AwakePooler();
+        RoadPooler.AwakePooler();
+        ObstaclePooler.AwakePooler();
+        StoneBlockagePooler.AwakePooler();
+        EffectPooler.AwakePooler();
+        EventPooler.AwakePooler();
+        TrucksFirePointPooler.AwakePooler();
+        RoadBlocksFirePointPooler.AwakePooler();
+        HelicoptersFirePointPooler.AwakePooler();
+        GunsPooler.AwakePooler();
+        TrucksPooler.AwakePooler();
+        EnemyPooler.AwakePooler();
     }
 
     public void AwakeCustomizationGameStatePooler()
     {
-        Data.objectPoolersHolder = this;
+        Data.ObjectPoolersHolder = this;
 
-        trucksFirePointPooler.AwakePooler();
-        gunsPooler.AwakePooler();
-        trucksPooler.AwakePooler();
+        TrucksFirePointPooler.AwakePooler();
+        GunsPooler.AwakePooler();
+        TrucksPooler.AwakePooler();
     }
 
     // [System.Serializable]

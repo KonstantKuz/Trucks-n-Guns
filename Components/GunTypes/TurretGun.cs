@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TurretGun : GunParent
+public class TurretGun : MonoCached, Gun
 {
-    [SerializeField]
-    private GunData gunDataToCopy;
-
-    public override GunData myData { get; set; }
-    public override TargetData targetData { get; set; }
-    public override GunAnglesData allowableAngles { get; set; }
+    public GunData gunData { get; set; }
+    public TargetData targetData { get; set; }
+    public GunAnglesData allowableAngles { get; set; }
 
     public Transform head, headHolder;
     public Transform[] gunsBarrels;
@@ -23,7 +20,10 @@ public class TurretGun : GunParent
     private Vector3 targetDirection, targetDirection_XZprojection, targetDirection_ZYprojection;
     private Transform headHolderRoot;
 
-    private bool canAttack = true;
+    private bool targetIsVisible = true;
+    private float fireTimer;
+
+    private float nextSpreadStep;
 
     private ObjectPoolerBase battleUnitPooler;
 
@@ -31,9 +31,6 @@ public class TurretGun : GunParent
 
     private void Awake()
     {
-        myData = Instantiate(gunDataToCopy);
-        myData.CreateBattleUnitInstance();
-
         headHolderRoot = headHolder.parent;
 
         gunsBarrelsUpDirections = new Vector3[gunsBarrels.Length];
@@ -44,17 +41,23 @@ public class TurretGun : GunParent
 
         turretShotSource = GetComponent<AudioSource>();
 
-        SetUpAngles(null);
+        SetAnglesData(null);
 
         battleUnitPooler = ObjectPoolersHolder.Instance.BattleUnitPooler;
     }
 
-    public override void SetTargetData(TargetData targetData)
+    public void SetGunData(GameEnums.GunDataType gunData)
     {
-        this.targetData = targetData;
+        this.gunData = DataReturnersHolder.Instance.TurretGunDataReturner.GetData(gunData.ToString()) as GunData;
     }
 
-    public override void SetUpAngles(GunAnglesData anglesData)
+    public void SetTargetData(TargetData targetData)
+    {
+        this.targetData = targetData;
+        targetIsVisible = true;
+    }
+
+    public void SetAnglesData(GunAnglesData anglesData)
     {
         if (anglesData == null)
         {
@@ -75,35 +78,35 @@ public class TurretGun : GunParent
 
         transform.localEulerAngles = new Vector3(0, allowableAngles.StartDirectionAngle, 0);
     }
-    public override void Fire()
-    {
-        UpdateTimers();
 
-        if (myData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody != null)
+    public void Fire()
+    {
+        if(Time.time >= fireTimer && targetIsVisible)
+        {
+            fireTimer = Time.time + gunData.rateofFire + Random.Range(0.01f, 0.05f);
+
+            for (int i = 0; i < gunsBarrels.Length; i++)
+            {
+                battleUnitPooler.Spawn(gunData.battleUnit, gunsBarrels[i].position, bulletSpreadedRotation);
+                fireEffect[i].PlayParticles();
+            }
+            if (!turretShotSource.isPlaying)
+            {
+                turretShotSource.Play();
+            }
+        }
+
+        if (gunData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody != null)
         {
             LookAtTarget();
         }
 
         CalculateBulletsSpread();
-
-        if (myData.timeSinceLastShot <= 0 && canAttack)
-        {
-            if (!turretShotSource.isPlaying)
-            {
-                turretShotSource.Play();
-            }
-            myData.timeSinceLastShot = myData.rateofFire;
-            for (int i = 0; i < gunsBarrels.Length; i++)
-            {
-                battleUnitPooler.Spawn(myData.battleUnitToCopy.name, gunsBarrels[i].position, bulletSpreadedRotation);
-                fireEffect[i].PlayParticles();
-            }
-        }
     }
 
     void CalculateBulletsSpread()
     {
-        float nextSpreadStep = myData.spreadCurve.Evaluate(myData.timeElapsed) * myData.spreadForce;
+        nextSpreadStep = gunData.spreadCurve.Evaluate(fireTimer) * gunData.spreadForce;
         for (int i = 0; i < gunsBarrels.Length; i++)
         {
             rotationFromCurve = Quaternion.AngleAxis(nextSpreadStep, gunsBarrelsUpDirections[i]);
@@ -128,24 +131,17 @@ public class TurretGun : GunParent
             if (angleBtwn_targetDirZY_hhFWD < allowableAngles.HeadMaxAngle && angleBtwn_targetDirZY_hhFWD > allowableAngles.HeadMinAngle)
             {
                 head.rotation = Quaternion.LookRotation(targetDirection_ZYprojection, headHolder.up);
-                canAttack = true;
+                targetIsVisible = true;
             }
             else
             {
-                canAttack = false;
+                targetIsVisible = false;
             }
         }
         else
         {
-            canAttack = false;
+            targetIsVisible = false;
         }
     }
 
-    void UpdateTimers()
-    {
-        float randomDifference = Random.Range(0.001f, 0.05f);
-        myData.timeElapsed += randomDifference;
-        myData.timeSinceLastShot -= randomDifference;
-    }
-   
 }

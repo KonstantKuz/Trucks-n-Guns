@@ -8,7 +8,7 @@ public class Truck : MonoCached
     [SerializeField]
     private TruckData truckDataToCopy;
 
-    public TruckData TruckData { get { return truckDataToCopy; } private set { } }
+    public TruckData TruckData { get; set; }
 
     public FirePoint firePoint { get; set; }
 
@@ -31,15 +31,6 @@ public class Truck : MonoCached
 
     private AudioSource engineSoundSource;
 
-
-    //private void OnDisable()
-    //{
-    //    if(firePoint!= null)
-    //    {
-    //        TruckData.ReturnObjectsToPool(this);
-    //    }
-    //}
-
     public void SetUpTruck()
     {
         SetUpCash();
@@ -58,7 +49,10 @@ public class Truck : MonoCached
 
     private void SetUpData()
     {
-        TruckData = truckDataToCopy;
+        if(!ReferenceEquals(truckDataToCopy, null))
+        {
+            TruckData = truckDataToCopy;
+        }
 
         trucksCondition.maxCondition = TruckData.maxTrucksCondition;
         trucksCondition.ResetCurrentCondition(TruckData.maxTrucksCondition);

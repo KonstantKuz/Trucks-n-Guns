@@ -15,11 +15,11 @@ public class FirePoint : MonoCached
 
     public Dictionary<string, GunPoint> GunPointsDictionary { get; private set; }
 
-    public List<GunParent> StaticGroupGuns { get; set; }
-    public List<GunParent> FirstTrackingGroupGuns { get; set; }
-    public List<GunParent> SecondTrackingGroupGuns { get; set; }
+    public List<Gun> StaticGroupGuns { get; set; }
+    public List<Gun> FirstTrackingGroupGuns { get; set; }
+    public List<Gun> SecondTrackingGroupGuns { get; set; }
 
-    public Dictionary<GameEnums.TrackingGroup, List<GunParent>> TrackingGroupsDictionary { get; set; }
+    public Dictionary<GameEnums.TrackingGroup, List<Gun>> TrackingGroupsDictionary { get; set; }
 
     private void OnEnable()
     {
@@ -40,11 +40,11 @@ public class FirePoint : MonoCached
             }
         }
 
-        StaticGroupGuns = new List<GunParent>();
-        FirstTrackingGroupGuns = new List<GunParent>();
-        SecondTrackingGroupGuns = new List<GunParent>();
+        StaticGroupGuns = new List<Gun>();
+        FirstTrackingGroupGuns = new List<Gun>();
+        SecondTrackingGroupGuns = new List<Gun>();
 
-        TrackingGroupsDictionary = new Dictionary<GameEnums.TrackingGroup, List<GunParent>>(3);
+        TrackingGroupsDictionary = new Dictionary<GameEnums.TrackingGroup, List<Gun>>(3);
         TrackingGroupsDictionary.Add(GameEnums.TrackingGroup.FirstTrackingGroup, FirstTrackingGroupGuns);
         TrackingGroupsDictionary.Add(GameEnums.TrackingGroup.SecondTrackingGroup, SecondTrackingGroupGuns);
         TrackingGroupsDictionary.Add(GameEnums.TrackingGroup.StaticGroup, StaticGroupGuns);
@@ -87,7 +87,7 @@ public class FirePoint : MonoCached
         }
     }
 
-    public void RemoveGun(GunParent gunToRemove)
+    public void RemoveGun(Gun gunToRemove)
     {
         if(FirstTrackingGroupGuns.Contains(gunToRemove))
         {
@@ -102,14 +102,14 @@ public class FirePoint : MonoCached
             StaticGroupGuns.Remove(gunToRemove);
         }
     }
- 
-   public void StaticAttack()
-   {
+
+    public void StaticAttack()
+    {
         for (int i = 0; i < StaticGroupGuns.Count; i++)
         {
             StaticGroupGuns[i].Fire();
         }
-   }
+    }
 
     public void FirstTrackingAttack()
     {

@@ -23,10 +23,10 @@ public class PlayerHandler : MonoCached
     public Transform player_transform { get; private set; }
     public Rigidbody player_rigidbody { get; private set; }
 
-
     public Vector3 playerStartPosition { get; private set; }
 
-  
+    public static PlayerSessionData currentSessionData;
+
     public void CreatePlayer(InputHandler inputHandler)
     {
         GameObject seekPnt = Instantiate(playerSeekPoint);
@@ -35,7 +35,6 @@ public class PlayerHandler : MonoCached
         player = pl;
         playerInstance = player.GetComponent<Player>();
         playerInstance.seekPoint = seekPnt.transform;
-
         playerInstance.InjectPlayerIntoInput(inputHandler);
 
         player_transform = playerInstance.transform;
@@ -46,7 +45,9 @@ public class PlayerHandler : MonoCached
 
         player_rigidbody.AddForce(player_rigidbody.transform.forward * playerStartingForce, ForceMode.VelocityChange);
 
-        playerInstance.truck.trucksCondition.OnZeroCondition += ReturnToCustomization;
+        player.GetComponent<EntityCondition>().OnZeroCondition += ReturnToCustomization;
+
+        currentSessionData = new PlayerSessionData(0, 0);
     }
 
     public void CreateCamera()
@@ -55,20 +56,6 @@ public class PlayerHandler : MonoCached
         playerCamera = cam.GetComponent<Camera>();
         camera_transform = playerCamera.transform;
         cameraFixedPos = Vector3.zero;
-    }
-
-    public void CreateEnemyPlayer(EnemyHandler enemyHandler)
-    {
-        GameObject pl = Instantiate(playerPreafab, GameObject.Find("Scene").transform);
-        player = pl;
-        enemyHandler.AddEnemyPlayerToCurrentSession(pl.GetComponent<Enemy>());
-        player_transform = pl.transform;
-
-        playerStartPosition = player_transform.position;
-
-        player_rigidbody = pl.GetComponent<Rigidbody>();
-
-        player_rigidbody.AddForce(player_rigidbody.transform.forward * playerStartingForce, ForceMode.VelocityChange);
     }
 
     public void StartUpdateCamera()
@@ -82,7 +69,7 @@ public class PlayerHandler : MonoCached
 
         var camPos = camera_transform.position;
         var playerPos = player_transform.position;
-        if(cameraFixedPos == Vector3.zero)
+        if (cameraFixedPos == Vector3.zero)
         {
             camPos = Vector3.Lerp(camPos, new Vector3(camPos.x, camPos.y, playerPos.z), 0.1f);
             camera_transform.position = camPos;
@@ -96,16 +83,33 @@ public class PlayerHandler : MonoCached
 
         yield return StartCoroutine(UpdateCamera());
     }
-   
-    public void FixCamera(Vector3 pos)
+
+    public static void IncreaseDefeatedEnemiesOnThisSession()
     {
-        var camPos = camera_transform.position;
-        camera_transform.position = Vector3.Lerp(camPos, pos, 2f);
+        currentSessionData.defeatedEnemies++;
+        Debug.Log($"<color=green> Enemies count = {currentSessionData.defeatedEnemies} </color>");
     }
 
-    public void ReturnToCustomization()
+    public static void IncreaseTraveledDistance(int traveledDistance)
     {
-        playerInstance.truck.trucksCondition.OnZeroCondition -= ReturnToCustomization;
+        currentSessionData.traveledDistance += traveledDistance;
+        Debug.Log($"<color=green> Traveled distance = {currentSessionData.traveledDistance} </color>");
+    }
+
+    private void ReturnToCustomization()
+    {
+        player.GetComponent<EntityCondition>().OnZeroCondition -= ReturnToCustomization;
+        playerInstance.StopListenTargetCondition();
+        PersistentPlayerDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, PlayerStaticRunTimeData.playerFirePointData, currentSessionData);
+
+        StartCoroutine(LoadCustomiz());
+    }
+
+    private IEnumerator LoadCustomiz()
+    {
+        yield return new WaitForSeconds(0.5f);
+        PlayerStaticRunTimeData.LoadData();
+        yield return new WaitForSeconds(1f);
         UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Customization");
     }
 }

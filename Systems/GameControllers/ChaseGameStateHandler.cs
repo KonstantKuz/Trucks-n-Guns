@@ -19,7 +19,8 @@ public class ChaseGameStateHandler : MonoCached // IState
     private EventHandler eventHandler;
     [SerializeField]
     private ObjectPoolersHolder objectPoolersHolder;
-
+    [SerializeField]
+    private DataReturnersHolder dataReturnersHolder;
 
     private void Start()
     {
@@ -31,7 +32,7 @@ public class ChaseGameStateHandler : MonoCached // IState
         allTicks.Add(this);
 
         objectPoolersHolder.AwakeGeneralGameStatePoolers();
-
+        dataReturnersHolder.AwakeDataReturners();
         inputHandler.FindControlsUI();
         
 

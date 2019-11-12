@@ -47,13 +47,11 @@ public static class GameEnums
         RearWheelDrive,
         AllWheelDrive
     }
-
     public enum BattleType
     {
         Tracking,
         Static
     }
-
     public enum Gun
     {
         None,
@@ -66,7 +64,6 @@ public static class GameEnums
         RocketLauncher1,
         RocketLauncher2
     }
-
     public enum Truck
     {
         APACH,
@@ -77,5 +74,26 @@ public static class GameEnums
         LILMAC,
         RUBY,
         ZIL
+    }
+
+    public enum GunDataType
+    {
+        LrLd = 00,
+        LrMd = 01,
+        LrHd = 02,
+        MrLd = 10,
+        MrMd = 11,
+        MrHd = 12,
+        HrLd = 20,
+        HrMd = 21,
+        HrHd = 22
+    }
+
+    public enum ShopItemType
+    {
+        Truck,
+        FirePoint,
+        Gun,
+        GunLevel
     }
 }

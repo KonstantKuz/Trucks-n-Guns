@@ -8,8 +8,9 @@ public class StoneBlockage : MonoCached, IRoadEvent, IPoolReturner
 
     public bool isActive { get { return gameObject.activeInHierarchy; } set { } }
 
-    public void AwakeEvent()
+    public void AwakeEvent(Vector3 playerPosition)
     {
+        transform.position = new Vector3(0,0,playerPosition.z + 150);
         concreteBlockage = ObjectPoolersHolder.Instance.StoneBlockagePooler.SpawnWeightedRandom(transform.position, Quaternion.identity);
         DisableNearestObstacles();
     }

@@ -23,13 +23,15 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
     private bool canAttack;
 
-    public void AwakeEvent()
+    public void AwakeEvent(Vector3 playerPosition)
     {
+
         helicopterData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1);
 
         allFixedTicks.Add(this);
         allTicks.Add(this);
         _transform = transform;
+        _transform.position = playerPosition - new Vector3(0,0, helicopterData.zSpawnOffset);
         //_transform.position -= Vector3.forward * 150f;
         condition = GetComponent<EntityCondition>();
         condition.ResetCurrentCondition(helicopterData.maxCondition);
@@ -43,12 +45,9 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
     public void InjectNewTargetData(Rigidbody targetRigidbody)
     {
-        targetData = new TargetData(targetRigidbody);
+        targetData = new TargetData(targetRigidbody, null);
 
-        for (int i = 0; i < firePoint.FirstTrackingGroupGuns.Count; i++)
-        {
-            firePoint.FirstTrackingGroupGuns[i].SetTargetData(targetData);
-        }
+        firePoint.SetUpTargets(targetData, GameEnums.TrackingGroup.FirstTrackingGroup);
     }
 
     public override void OnTick()
@@ -89,13 +88,8 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
         targetForwardVelocity = targetData.target_rigidbody.velocity.z;
         zOffset_withVelocity = ((targetData.target_rigidbody.position.z + targetForwardVelocity) - _transform.position.z);
-
-        if(targetForwardVelocity > 18f)
-        {
-            followingVector.x = zOffset_withVelocity * 0.25f;
-            canAttack = true;
-        }
-        else if (targetForwardVelocity > -5f && targetForwardVelocity < 18f)
+        
+        if (targetForwardVelocity > 5f)
         {
             followingVector.x -= zOffset_withVelocity * 0.05f;
             canAttack = true;

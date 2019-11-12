@@ -4,44 +4,27 @@ using UnityEngine;
 
 public class HookGun : MonoCached, Gun
 {
-    [SerializeField]
-    private GunData gunDataToCopy;
+    public GunData gunData { get ; set ; }
+    public TargetData targetData { get ; set ; }
+    public GunAnglesData allowableAngles { get ; set ; }
 
-    public GunData myData { get; set; }
-    public TargetData targetData { get; set; }
-
-    public int HeadHolderMaxAngle { get; set; }
-    public int HeadMaxAngle { get; set; }
-    public int HeadMinAngle { get; set; }
-
-    public Transform rotationPoint;
-    public Transform gunsMouth;
-
-    private void Awake()
-    {
-        myData = Instantiate(gunDataToCopy);
-        myData.CreateBattleUnitInstance();
-    }
-    public void SetTargetData(TargetData targetData)
-    {
-        this.targetData = targetData;
-    }
     public void Fire()
     {
-        //rotationPoint.LookAt(target);
-
-        //if (myData.timeSinceLastShot <= 0)
-        //{
-        //    GameObject bullet = ObjectPooler.Instance.SpawnFromPool(myData.nameOfBattleUnit, gunsMouth.position, gunsMouth.rotation);
-        //    Debug.Log(myData.nameOfThisGun + string.Empty + gameObject.name);
-        //}
+        throw new System.NotImplementedException();
     }
 
-    public void SetAllowableAngles(int headHolderMaxAngle, int headMaxAngle, int headMinAngle)
+    public void SetTargetData(TargetData targetData)
     {
+        throw new System.NotImplementedException();
     }
 
-    public void SetStandardAllowableAngles()
+    public void SetAnglesData(GunAnglesData anglesData)
     {
+        throw new System.NotImplementedException();
+    }
+
+    public void SetGunData(GameEnums.GunDataType gunData)
+    {
+        throw new System.NotImplementedException();
     }
 }
