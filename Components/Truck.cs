@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Truck : MonoCached
 {
-
     [SerializeField]
     private TruckData truckDataToCopy;
 
@@ -29,7 +28,18 @@ public class Truck : MonoCached
     public Transform _transform { get; private set; }
     public Transform CenterOfMass { get { return centerOfMass; } }
 
+    private Quaternion clampedRotation;
+
     private AudioSource engineSoundSource;
+
+    public override void CustomUpdate()
+    {
+        clampedRotation = _transform.rotation;
+        clampedRotation.x = Mathf.Clamp(clampedRotation.x, -0.15f, 0.15f);
+        clampedRotation.y = Mathf.Clamp(clampedRotation.y, -0.4f, 0.4f);
+        clampedRotation.z = Mathf.Clamp(clampedRotation.z, -0.15f, 0.15f);
+        _transform.rotation = clampedRotation;
+    }
 
     public void SetUpTruck()
     {
@@ -146,41 +156,22 @@ public class Truck : MonoCached
         //frontWheelsVisual[0].localPosition = Vector3.zero;
         //frontWheelsVisual[1].localPosition = Vector3.zero;
     }
-
-    public void UpdateWheelsVisual()
-    {
-        for (int i = 0; i < frontWheelsVisual.Count; i++)
-        {
-            frontWheels[i].VisualWheelSync(frontWheelsVisual[i]);
-        }
-        for (int i = 0; i < rearWheelsVisual.Count; i++)
-        {
-            rearWheels[i].VisualWheelSync(rearWheelsVisual[i]);
-        }
-
-        UpdateEngineSound();
-    }
-
-    private void UpdateEngineSound()
-    {
-        float engineSoundPitch = _rigidbody.velocity.magnitude * 0.05f;
-        engineSoundSource.pitch = Mathf.Clamp(engineSoundPitch, 0.9f, 2f);
-    }
-
+    
     public void LaunchTruck()
     {
         _rigidbody.drag = 0.05f;
     }
 
-    public void MoveTruck(float torqueForce)
+    public void Moving(float torqueForce)
     {
         foreach (RaycastWheel drivingWheel in drivingWheels)
         {
             drivingWheel.motorTorque = TruckData.maxMotorTorque *( torqueForce - Mathf.Abs(CurrentSteerAngle()) * 0.05f);
         }
+        UpdateEngineSound();
     }
 
-    public void SteeringWheels(float steeringForce)
+    public void Steering(float steeringForce)
     {
         foreach (RaycastWheel frontWheel in frontWheels)
         {
@@ -191,10 +182,22 @@ public class Truck : MonoCached
 
     public void SetBoost(float force)
     {
-        if(CurrentSpeed() < 120f && CurrentSpeed() > -30f && drivingWheels[0].IsGrounded)
+        if(drivingWheels[0].IsGrounded || drivingWheels[1].IsGrounded)
         {
-            _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
+            if (force > 0 && CurrentSpeed() < 120f)
+            {
+                _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
+            }
+            if (force < 0 && CurrentSpeed() > -30f)
+            {
+                _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
+            }
         }
+       
+        //if (CurrentSpeed() < 120f && CurrentSpeed() > -30f && drivingWheels[0].IsGrounded)
+        //{
+        //    _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
+        //}
     }
 
     public void StopTruck(float force)
@@ -212,6 +215,24 @@ public class Truck : MonoCached
         }
     }
 
+    public void UpdateWheelsVisual()
+    {
+        for (int i = 0; i < frontWheelsVisual.Count; i++)
+        {
+            frontWheels[i].VisualWheelSync(frontWheelsVisual[i]);
+        }
+        for (int i = 0; i < rearWheelsVisual.Count; i++)
+        {
+            rearWheels[i].VisualWheelSync(rearWheelsVisual[i]);
+        }
+    }
+
+    private void UpdateEngineSound()
+    {
+        float engineSoundPitch = _rigidbody.velocity.magnitude * 0.05f;
+        engineSoundSource.pitch = Mathf.Clamp(engineSoundPitch, 0.9f, 2f);
+    }
+
     public float CurrentSpeed()
     {
         return _rigidbody.velocity.magnitude * 3.6f * Mathf.Sign(_rigidbody.velocity.z);
@@ -224,7 +245,6 @@ public class Truck : MonoCached
     {
        return frontWheels[0].steerAngle;
     }
-    
     public float CurrentXAcceleration()
     {
         return _rigidbody.velocity.x /Time.deltaTime;

@@ -28,4 +28,10 @@ public class PlayerDataAssigner : MonoBehaviour
 
         UnityEngine.SceneManagement.SceneManager.LoadScene("Customization");
     }
+
+    [ContextMenu("ApplicatoinDataPath")]
+    public void DebugPersistentDataPath()
+    {
+        Debug.Log(Application.persistentDataPath);
+    }
 }

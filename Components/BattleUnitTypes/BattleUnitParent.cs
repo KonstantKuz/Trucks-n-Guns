@@ -2,25 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class BattleUnitParent : MonoCached
+public interface BattleUnit
 {
-    public abstract BattleUnitData myData { get; set; }
+    BattleUnitData battleUnitData { get; set; }
     
-    public abstract void Fly();
+    void Fly();
 
-    public abstract void SearchTargets();
+    void SearchTargets();
 
-    public virtual void SetDamage(EntityCondition targetToHit)
-    {
-        if(targetToHit!=null)
-        {
-            targetToHit.AddDamage(myData.damage);
-        }
-            Deactivate();
-    }
+    void SetDamage(EntityCondition targetToHit);
 
-    public virtual void Deactivate()
-    {
-        gameObject.SetActive(false);
-    }
+    void Deactivate();
 }

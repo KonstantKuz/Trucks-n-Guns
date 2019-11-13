@@ -13,14 +13,14 @@ public class UpdateManager : MonoBehaviour
     {
         yield return new WaitForSeconds(0.016f);
 
-        for (int i = 0; i < MonoCached.allTicks.Count; i++)
+        for (int i = 0; i < MonoCached.customUpdates.Count; i++)
         {
-            MonoCached.allTicks[i].Tick();
+            MonoCached.customUpdates[i].CustomUpdatesCall();
         }
 
-        for (int i = 0; i < MonoCached.allFixedTicks.Count; i++)
+        for (int i = 0; i < MonoCached.customFixedUpdates.Count; i++)
         {
-            MonoCached.allFixedTicks[i].FixedTick();
+            MonoCached.customFixedUpdates[i].CustomFixedUpdatesCall();
         }
 
         yield return StartCoroutine(UpdateMonocached());
@@ -28,25 +28,25 @@ public class UpdateManager : MonoBehaviour
 
     private void Update()
     {
-        for (int i = 0; i < MonoCached.allTicks.Count; i++)
+        for (int i = 0; i < MonoCached.customUpdates.Count; i++)
         {
-            MonoCached.allTicks[i].Tick();
+            MonoCached.customUpdates[i].CustomUpdatesCall();
         }
     }
 
     private void FixedUpdate()
     {
-        for (int i = 0; i < MonoCached.allFixedTicks.Count; i++)
+        for (int i = 0; i < MonoCached.customFixedUpdates.Count; i++)
         {
-            MonoCached.allFixedTicks[i].FixedTick();
+            MonoCached.customFixedUpdates[i].CustomFixedUpdatesCall();
         }
     }
 
     private void LateUpdate()
     {
-        for (int i = 0; i < MonoCached.allLateTicks.Count; i++)
+        for (int i = 0; i < MonoCached.customLateUpdates.Count; i++)
         {
-            MonoCached.allLateTicks[i].LateTick();
+            MonoCached.customLateUpdates[i].CustomLateUpdatesCall();
         }
     }
 }

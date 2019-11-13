@@ -7,6 +7,7 @@ public interface Gun
     GunData gunData { get; set; }
     TargetData targetData { get; set; }
     GunAnglesData allowableAngles { get; set; }
+    GameEnums.BattleType battleType { get; set; }
 
     void SetGunData(GameEnums.GunDataType gunData);
     void SetAnglesData(GunAnglesData anglesData);

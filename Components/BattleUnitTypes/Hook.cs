@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Hook : BattleUnitParent
+public class Hook : MonoCached, BattleUnit
 {
     [SerializeField]
     private BattleUnitData battleUnitDataToCopy;
 
-    public override BattleUnitData myData { get; set; }
+    public BattleUnitData battleUnitData { get; set; }
 
     private Ray ray;
     private RaycastHit hit;
@@ -20,7 +20,7 @@ public class Hook : BattleUnitParent
 
     private void Awake()
     {
-        myData = Instantiate(battleUnitDataToCopy);
+        battleUnitData = Instantiate(battleUnitDataToCopy);
         _transform = transform;
         _gameObject = gameObject;
         _deltaPosition = Vector3.zero;
@@ -33,38 +33,23 @@ public class Hook : BattleUnitParent
         Explosion();
     }
 
-    public override void Fly()
+    public void Fly()
     {
-        throw new System.Exception("Снаряды ловушек не исполняют поведения Fly()");
     }
-    public override void SearchTargets()
+    public void SearchTargets()
     {
-        throw new System.Exception("Снаряды ловушек не исполняют поведения SearchTargets()");
     }
 
     void Explosion()
     {
-        hits = Physics.OverlapSphere(_transform.position, myData.damageRadius);
-        for (int i = 0; i < hits.Length; i++)
-        {
-            SetDamage(hits[i].GetComponent<EntityCondition>());
-        }
-
-        GameObject expl = effectPooler.Spawn("SmallExplosion", transform.position, Quaternion.identity);
-        expl.GetComponent<ParticleSystem>().Play();
-        foreach (var item in expl.transform.GetComponentsInChildren<ParticleSystem>())
-        {
-            item.Play();
-        }
+       
     }
 
-    public override void SetDamage(EntityCondition targetToHit)
+    public void SetDamage(EntityCondition targetToHit)
     {
-        base.SetDamage(targetToHit);
     }
 
-    public override void Deactivate()
+    public void Deactivate()
     {
-        base.Deactivate();
     }
 }

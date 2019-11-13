@@ -20,11 +20,11 @@ public class Player : MonoCached
 
     private void OnEnable()
     {
-        allTicks.Add(this);
+        customUpdates.Add(this);
     }
     private void OnDisable()
     {
-        allTicks.Remove(this);
+        customUpdates.Remove(this);
     }
 
     private void Awake()
@@ -68,22 +68,31 @@ public class Player : MonoCached
         TrackingGroupsTargetsDictionary[trackingGroup].target_rigidbody = targetRigidbody;
         TrackingGroupsTargetsDictionary[trackingGroup].target_condition = targetRigidbody.GetComponent<EntityCondition>();
         truck.firePoint.SetUpTargets(TrackingGroupsTargetsDictionary[trackingGroup], trackingGroup);
-        StartListenTarget();
+        StartListenTarget(trackingGroup);
     }
 
-    private void StartListenTarget()
+    private void StartListenTarget(GameEnums.TrackingGroup trackingGroup)
     {
-        if(!ReferenceEquals(TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_rigidbody, null))
+        if(!ReferenceEquals(TrackingGroupsTargetsDictionary[trackingGroup].target_condition, null))
         {
-            TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_condition.OnZeroCondition -= StopListenTargetCondition;
-            TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_condition.OnZeroCondition -= PlayerHandler.IncreaseDefeatedEnemiesOnThisSession;
-
-
-            TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_condition =
-                TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_rigidbody.GetComponent<EntityCondition>();
-            TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_condition.OnZeroCondition += PlayerHandler.IncreaseDefeatedEnemiesOnThisSession;
-            TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_condition.OnZeroCondition += StopListenTargetCondition;
-            Debug.Log($"Player starts listen to {TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_rigidbody.name}");
+            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition -= StopListenTargetCondition;
+            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition -= PlayerHandler.IncreaseDefeatedEnemiesOnThisSession;
+        }
+        EntityCondition targetCondition = TrackingGroupsTargetsDictionary[trackingGroup].target_rigidbody.GetComponent<EntityCondition>();
+        if(!ReferenceEquals(targetCondition, null))
+        {
+            TrackingGroupsTargetsDictionary[trackingGroup].target_condition = targetCondition;
+        }
+        else
+        {
+            targetCondition = TrackingGroupsTargetsDictionary[trackingGroup].target_rigidbody.GetComponentInParent<EntityCondition>();
+        }
+        if(!ReferenceEquals(targetCondition, null))
+        {
+            TrackingGroupsTargetsDictionary[trackingGroup].target_condition = targetCondition;
+            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition += PlayerHandler.IncreaseDefeatedEnemiesOnThisSession;
+            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition += StopListenTargetCondition;
+            Debug.Log($"Player starts listen to {TrackingGroupsTargetsDictionary[trackingGroup].target_rigidbody.name}");
         }
     }
 
@@ -95,7 +104,7 @@ public class Player : MonoCached
     }
     public void MovePlayerTruck()
     {
-        truck.MoveTruck(1);
+        truck.Moving(1);
 
         SteeringWheels();
     }
@@ -104,10 +113,10 @@ public class Player : MonoCached
     {
         relativeToSeekPoint = truck._transform.InverseTransformPoint(seekPoint.position);
         newSteeringForce = (relativeToSeekPoint.x / relativeToSeekPoint.magnitude);
-        truck.SteeringWheels(newSteeringForce);
+        truck.Steering(newSteeringForce);
     }
 
-    public override void OnTick()
+    public override void CustomUpdate()
     {
         truck.firePoint.StaticAttack();
         if(!ReferenceEquals(FirstTrackingGroupsTarget.target_rigidbody, null) && FirstTrackingGroupsTarget.target_rigidbody.gameObject.activeInHierarchy)

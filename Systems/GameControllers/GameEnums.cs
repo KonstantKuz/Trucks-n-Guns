@@ -33,7 +33,9 @@ public static class GameEnums
         ContainerLeft,
         ContainerTopForward,
         ContainerTopBackward,
-        ContainerCenterBackward
+        BodyRight,
+        BodyLeft,
+        BodyBack
     }
     public enum TrackingGroup
     {

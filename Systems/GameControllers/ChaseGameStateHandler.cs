@@ -28,8 +28,8 @@ public class ChaseGameStateHandler : MonoCached // IState
     }
     void StartGame()
     {
-        allFixedTicks.Add(this);
-        allTicks.Add(this);
+        customFixedUpdates.Add(this);
+        customUpdates.Add(this);
 
         objectPoolersHolder.AwakeGeneralGameStatePoolers();
         dataReturnersHolder.AwakeDataReturners();

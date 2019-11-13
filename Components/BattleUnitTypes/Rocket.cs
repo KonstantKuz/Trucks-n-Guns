@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Rocket : BattleUnitParent
+public class Rocket : MonoCached, BattleUnit
 {
     [SerializeField]
     private BattleUnitData battleUnitDataToCopy;
 
-    public override BattleUnitData myData { get; set; }
+    public BattleUnitData battleUnitData { get; set; }
     
     private Transform _transform;
     private GameObject _gameObject;
@@ -26,7 +26,7 @@ public class Rocket : BattleUnitParent
 
     private void Awake()
     {
-        myData = Instantiate(battleUnitDataToCopy);
+        battleUnitData = Instantiate(battleUnitDataToCopy);
 
         _transform = transform;
         _gameObject = gameObject;
@@ -35,6 +35,7 @@ public class Rocket : BattleUnitParent
         isLaunched = false;
         effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
     }
+
     public void Launch(TargetData targetData)
     {
         this.targetData = targetData;
@@ -44,23 +45,29 @@ public class Rocket : BattleUnitParent
         trail = effectPooler.Spawn(rocketTrailName, transform.position, transform.rotation);
         trail.GetComponent<CachedParticles>().PlayParticles();
 
-        StartCoroutine(AutoDestruct());
+        StartCoroutine(AutoDestruction());
     }
 
-    public override void OnTick()
+    public IEnumerator AutoDestruction()
+    {
+        yield return new WaitForSeconds(3f);
+        Explosion();
+    }
+
+    public override void CustomUpdate()
     {
         Fly();
     }
 
-    public override void Fly()
+    public void Fly()
     {
         if(isLaunched == true)
         {
             _forwardDirection = _transform.forward;
-            _deltaPosition = _forwardDirection * Time.fixedDeltaTime * myData.speed;
+            _deltaPosition = _forwardDirection * Time.fixedDeltaTime * battleUnitData.speed;
             _transform.position += _deltaPosition;
 
-            if(myData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody !=null && targetData.target_rigidbody.gameObject.activeInHierarchy)
+            if(battleUnitData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody !=null && targetData.target_rigidbody.gameObject.activeInHierarchy)
             {
                 Quaternion lookRotation = Quaternion.LookRotation(targetData.target_rigidbody.position - _transform.position);
                 _transform.rotation = Quaternion.Slerp(_transform.rotation, lookRotation, 0.5f);
@@ -72,23 +79,19 @@ public class Rocket : BattleUnitParent
         }
     }
 
-    public override void SearchTargets()
+    public void SearchTargets()
     {
-        if(Physics.CheckSphere(_transform.position, myData.speed * 0.01f, myData.interactibleWith))
+        if(Physics.CheckSphere(_transform.position, battleUnitData.speed * 0.01f, battleUnitData.interactibleWith))
         {
             Explosion();
         }
     }
 
-    private IEnumerator AutoDestruct()
-    {
-        yield return new WaitForSeconds(3f);
-        Explosion();
-    }
+   
 
     private void Explosion()
     {
-        hits = Physics.OverlapSphere(_transform.position, myData.damageRadius, myData.damageable);
+        hits = Physics.OverlapSphere(_transform.position, battleUnitData.damageRadius, battleUnitData.damageable);
         for (int i = 0; i < hits.Length; i++)
         {
             SetDamage(hits[i].GetComponentInParent<EntityCondition>());
@@ -99,15 +102,15 @@ public class Rocket : BattleUnitParent
         effectPooler.Spawn(smallExplosionName, transform.position, Quaternion.identity).GetComponent<CachedParticles>().PlayParticles();
     }
 
-    public override void SetDamage(EntityCondition targetToHit)
+    public void SetDamage(EntityCondition targetToHit)
     {
         if (!ReferenceEquals(targetToHit, null))
         {
-            targetToHit.AddDamage(myData.damage - ((_transform.position - targetToHit.transform.position).magnitude*10f));
+            targetToHit.AddDamage(battleUnitData.damage - ((_transform.position - targetToHit.transform.position).magnitude*10f));
         }
     }
 
-    public override void Deactivate()
+    public void Deactivate()
     {
         _gameObject.SetActive(false);
     }

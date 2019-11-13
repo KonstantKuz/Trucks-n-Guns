@@ -41,8 +41,8 @@ public class PlayerFollowState : State<Enemy>
 
     public override void UpdateState(Enemy _owner)
     {
-        _owner.truck.MoveTruck(MovingForce(_owner));
-        _owner.truck.SteeringWheels(SteeringForceOnDistanceBased(_owner) + _owner.AvoidForce());
+        _owner.truck.Moving(MovingForce(_owner));
+        _owner.truck.Steering(SteeringForceOnDistanceBased(_owner) + _owner.AvoidForce());
     }
 
     
@@ -99,16 +99,31 @@ public class PlayerFollowState : State<Enemy>
         distanceToTarget = (_owner.targetData.target_rigidbody.position.z - 10 * _owner.truck._transform.forward.z) - _owner.truck._transform.position.z;
         targetForwardVelocity = _owner.targetData.target_rigidbody.velocity.z;
 
-        if (distanceToTarget < 5)
+
+        if (distanceToTarget < 5f)
         {
-            _owner.truck.StopTruck(-(distanceToTarget - targetForwardVelocity) * 0.005f);
+            _owner.truck.StopTruck((targetForwardVelocity - distanceToTarget) * 0.005f);
         }
-        else
+        else if (distanceToTarget > 5f)
         {
             _owner.truck.LaunchTruck();
-
-            movingForce = distanceToTarget * Mathf.Abs(targetForwardVelocity) * 0.005f;
+            movingForce = Mathf.Abs(distanceToTarget * targetForwardVelocity) * 0.005f;
         }
+        else if (distanceToTarget < -5f)
+        {
+            _owner.truck.StopTruck();
+        }
+
+        //if (distanceToTarget < 5)
+        //{
+        //    _owner.truck.StopTruck(-(distanceToTarget - targetForwardVelocity) * 0.005f);
+        //}
+        //else
+        //{
+        //    _owner.truck.LaunchTruck();
+
+        //    movingForce = distanceToTarget * Mathf.Abs(targetForwardVelocity) * 0.005f;
+        //}
         return movingForce;
     }
 }

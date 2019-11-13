@@ -37,7 +37,7 @@ public class IdleState : State<Enemy>
 
     public override void UpdateState(Enemy _owner)
     {
-        _owner.truck.StopTruck();
+        _owner.truck.StopTruck(2f);
     }
 
 }

@@ -20,11 +20,8 @@ public class GunChangeButton : MonoCached
     private GameObject rateOfFireStat;
     private GameObject damageStat;
 
-    public void StartListeningGunPoint(FirePoint.GunPoint gunPoint)
+    private void Awake()
     {
-        this.gunPoint = gunPoint;
-        GetComponent<Button>().onClick.AddListener(() => SelectGun());
-        
         backButton = GameObject.Find("Back").GetComponent<Button>();
         buyButton = GameObject.Find("Buy").GetComponent<Button>();
         changeGunButton = GameObject.Find("ChangeGun").GetComponent<Button>();
@@ -34,6 +31,12 @@ public class GunChangeButton : MonoCached
 
         camStartPos = Camera.main.transform.position;
         camStartRot = Camera.main.transform.rotation;
+    }
+
+    public void StartListeningGunPoint(FirePoint.GunPoint gunPoint)
+    {
+        this.gunPoint = gunPoint;
+        GetComponent<Button>().onClick.AddListener(() => SelectGun());
     }
 
     private void SelectGun()
@@ -161,8 +164,8 @@ public class GunChangeButton : MonoCached
         damageStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
         rateOfFireStat.GetComponent<Slider>().value = 0;
         damageStat.GetComponent<Slider>().value = 0;
-        //rateOfFireStat.SetActive(false);
-        //damageStat.SetActive(false);
+        rateOfFireStat.SetActive(false);
+        damageStat.SetActive(false);
         buyButton.onClick.RemoveAllListeners();
         backButton.onClick.RemoveAllListeners();
         //backButton.onClick.AddListener(() => CustomizationHandler.BackToMenu());

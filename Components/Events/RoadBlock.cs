@@ -47,23 +47,26 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
     private void OnEnable()
     {
-        allTicks.Add(this);
+        customUpdates.Add(this);
        
     }
     private void OnDisable()
     {
-        allTicks.Remove(this);
+        customUpdates.Remove(this);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponentInParent<Truck>()!= null)
+        Truck other_truck = other.GetComponentInParent<Truck>();
+        Enemy other_enemy = other.GetComponentInParent<Enemy>();
+
+        if (!ReferenceEquals(other_truck, null))
         {
             StartCoroutine(SetTargets());
         }
-        if (!ReferenceEquals(other.GetComponentInParent<Enemy>(), null))
+        if (!ReferenceEquals(other_enemy, null))
         {
-            EnemyStopAndLaunch(other.GetComponentInParent<Enemy>());
+            StartCoroutine(EnemyStopAndLaunch(other_enemy));
         }
     }
 
@@ -71,9 +74,9 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
     {
         StateMachine.State<Enemy> previousState = enemy.followTypeStateController.currentState;
         enemy.followTypeStateController.ChangeState(IdleState.Instance);
-        yield return new WaitForSeconds(5f);
+        Debug.Log($"<color=black> {enemy.followTypeStateController.currentState} </color>");
+        yield return new WaitForSeconds(10f);
         enemy.followTypeStateController.ChangeState(previousState);
-
     }
 
     private IEnumerator SetUpRoadBlock()
@@ -104,7 +107,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
         }
     }
 
-    public override void OnTick()
+    public override void CustomUpdate()
     {
         if(!ReferenceEquals(firePoint, null))
         {

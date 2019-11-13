@@ -38,8 +38,8 @@ public class SingleTestState : State<Enemy>
 
     public override void UpdateState(Enemy _owner)
     {
-        _owner.truck.MoveTruck(1);
-        _owner.truck.SteeringWheels(PathFollowSteeringForce(_owner) + _owner.AvoidForce());
+        _owner.truck.Moving(1);
+        _owner.truck.Steering(PathFollowSteeringForce(_owner) + _owner.AvoidForce());
     }
 
     public float PathFollowSteeringForce(Enemy _owner)

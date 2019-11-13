@@ -41,8 +41,8 @@ public class PathFollowState : State<Enemy>
 
     public override void UpdateState(Enemy _owner)
     {
-        _owner.truck.MoveTruck(MovingForce(_owner));
-        _owner.truck.SteeringWheels(PathFollowSteeringForce(_owner) + _owner.AvoidForce());
+        _owner.truck.Moving(MovingForce(_owner));
+        _owner.truck.Steering(PathFollowSteeringForce(_owner) + _owner.AvoidForce());
     }
 
     public float MovingForce(Enemy _owner)
@@ -53,12 +53,16 @@ public class PathFollowState : State<Enemy>
 
         if (distanceToTarget < 10f)
         {
-            _owner.truck.StopTruck(-(distanceToTarget - targetForwardVelocity) * 0.005f);
+            _owner.truck.StopTruck((targetForwardVelocity - distanceToTarget) * 0.005f);
         }
-        else
+        else if(distanceToTarget > 10f)
         {
             _owner.truck.LaunchTruck();
-            movingForce = distanceToTarget*Mathf.Abs(targetForwardVelocity)*0.005f;
+            movingForce = Mathf.Abs(distanceToTarget * targetForwardVelocity)*0.005f;
+        }
+        else if(distanceToTarget < -10f)
+        {
+            _owner.truck.StopTruck();
         }
 
         movingForce += distanceToTarget * targetForwardVelocity* 0.00005f;

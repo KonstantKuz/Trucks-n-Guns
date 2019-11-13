@@ -10,6 +10,7 @@ public class FirePointData : Data
     public class GunConfiguration
     {
         public GameEnums.Gun gunType;
+        public GameEnums.BattleType battleType;
         public GameEnums.GunLocation locationPath;
         public GameEnums.TrackingGroup trackingGroup;
         public GameEnums.GunDataType gunDataType;
@@ -38,6 +39,7 @@ public class FirePointData : Data
                 gun.transform.localPosition = Vector3.zero;
 
                 Gun gunComponent = gun.GetComponent<Gun>();
+                gunComponent.battleType = gunsConfigurations[i].battleType;
                 gunComponent.SetAnglesData(null);
                 gunComponent.SetAnglesData(gunPoint.allowableAnglesOnPoint);
                 gunComponent.SetGunData(gunsConfigurations[i].gunDataType);
@@ -65,6 +67,84 @@ public class FirePointData : Data
         for (int i = 0; i < gunsConfigurations.Length; i++)
         {
             gunsConfigurations[i] = dataToCopy.gunsConfigurations[i];
+        }
+    }
+
+    [ContextMenu("ResetData")]
+    public void ResetData()
+    {
+        int locationPath = 0;
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            locationPath = i;
+            gunsConfigurations[i].gunDataType = GameEnums.GunDataType.LrLd;
+            gunsConfigurations[i].gunType = GameEnums.Gun.None;
+            gunsConfigurations[i].locationPath = (GameEnums.GunLocation)locationPath;
+            gunsConfigurations[i].trackingGroup = GameEnums.TrackingGroup.FirstTrackingGroup;
+        }
+    }
+    [ContextMenu("SetAllToFirstTrackingGroup")]
+    public void SetAllToFirstTrackingGroup()
+    {
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            gunsConfigurations[i].trackingGroup = GameEnums.TrackingGroup.FirstTrackingGroup;
+        }
+    }
+    [ContextMenu("SetAllToSecondTrackingGroup")]
+    public void SetAllToSecondTrackingGroup()
+    {
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            gunsConfigurations[i].trackingGroup = GameEnums.TrackingGroup.SecondTrackingGroup;
+        }
+    }
+    [ContextMenu("SetAllToRandomTrackingGroup")]
+    public void SetAllToRandomTrackingGroup()
+    {
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            int randomTrackingGroupNumber = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.TrackingGroup)).Length);
+            GameEnums.TrackingGroup randomTrackingGroup = (GameEnums.TrackingGroup)randomTrackingGroupNumber;
+            gunsConfigurations[i].trackingGroup = randomTrackingGroup;
+            if(gunsConfigurations[i].trackingGroup == GameEnums.TrackingGroup.StaticGroup)
+            {
+                gunsConfigurations[i].battleType = GameEnums.BattleType.Static;
+            }
+        }
+    }
+    [ContextMenu("SetAllGunsToStatic")]
+    public void SetAllGunsToStatic()
+    {
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            gunsConfigurations[i].battleType = GameEnums.BattleType.Static;
+        }
+    }
+    [ContextMenu("SetAllGunsToTracking")]
+    public void SetAllGunsToTracking()
+    {
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            gunsConfigurations[i].battleType = GameEnums.BattleType.Tracking;
+        }
+    }
+    [ContextMenu("SetAllGunsToNone")]
+    public void SetAllGunsToNone()
+    {
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            gunsConfigurations[i].gunType = GameEnums.Gun.None;
+        }
+    }
+    [ContextMenu("SetAllGunsToRandom")]
+    public void SetAllGunsToRandom()
+    {
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            int randomGunNumber = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
+            GameEnums.Gun randomGun = (GameEnums.Gun)randomGunNumber;
+            gunsConfigurations[i].gunType = randomGun;
         }
     }
 }

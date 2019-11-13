@@ -37,8 +37,8 @@ public class PlayerRamState : State<Enemy>
 
     public override void UpdateState(Enemy _owner)
     {
-        _owner.truck.MoveTruck(MovingForce(_owner));
-        _owner.truck.SteeringWheels(SteeringForceOnDistanceBased(_owner) + _owner.AvoidForce());
+        _owner.truck.Moving(MovingForce(_owner));
+        _owner.truck.Steering(SteeringForceOnDistanceBased(_owner) + _owner.AvoidForce());
     }
 
 

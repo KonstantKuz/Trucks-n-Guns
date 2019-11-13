@@ -8,7 +8,7 @@ public class SpeedKMH : MonoCached
     Truck truck;
 
     // Update is called once per frame
-    public override void OnTick()
+    public override void CustomUpdate()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;

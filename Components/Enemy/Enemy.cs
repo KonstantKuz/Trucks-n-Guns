@@ -51,11 +51,11 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
     }
     private void OnEnable()
     {
-        allTicks.Add(this);
+        customUpdates.Add(this);
     }
     private void OnDisable()
     {
-        allTicks.Remove(this);
+        customUpdates.Remove(this);
         if(truck!=null)
         {
             truck.trucksCondition.OnZeroCondition -= ReturnObjectsToPool;
@@ -110,7 +110,7 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
         truck.firePoint.SetUpTargets(targetData, GameEnums.TrackingGroup.FirstTrackingGroup);
     }
 
-    public override void OnTick()
+    public override void CustomUpdate()
     {
         followTypeStateController.UpdateMachine();
         AttackTarget();

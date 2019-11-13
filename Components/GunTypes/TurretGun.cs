@@ -7,6 +7,7 @@ public class TurretGun : MonoCached, Gun
     public GunData gunData { get; set; }
     public TargetData targetData { get; set; }
     public GunAnglesData allowableAngles { get; set; }
+    public GameEnums.BattleType battleType { get; set; }
 
     public Transform head, headHolder;
     public Transform[] gunsBarrels;
@@ -90,13 +91,15 @@ public class TurretGun : MonoCached, Gun
                 battleUnitPooler.Spawn(gunData.battleUnit, gunsBarrels[i].position, bulletSpreadedRotation);
                 fireEffect[i].PlayParticles();
             }
+
+            //turretShotSource.PlayOneShot(turretShotSource.clip);
             if (!turretShotSource.isPlaying)
             {
                 turretShotSource.Play();
             }
         }
 
-        if (gunData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody != null)
+        if (battleType == GameEnums.BattleType.Tracking)
         {
             LookAtTarget();
         }

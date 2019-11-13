@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public class Bullet : BattleUnitParent
+public class Bullet : MonoCached, BattleUnit
 {
     [SerializeField]
     private BattleUnitData battleUnitDataToCopy;
 
-    public override BattleUnitData myData { get; set; }
+    public BattleUnitData battleUnitData { get; set; }
 
     private Ray ray;
     private RaycastHit hit;
@@ -17,59 +17,56 @@ public class Bullet : BattleUnitParent
     private GameObject _gameObject;
     private Vector3 _forwardDirection, _deltaPosition;
 
-    private Collider _collider;
     private void Awake()
     {
-        myData = Instantiate(battleUnitDataToCopy);
+        battleUnitData = Instantiate(battleUnitDataToCopy);
         _transform = transform;
         _gameObject = gameObject;
         _deltaPosition = Vector3.zero;
         ray = new Ray();
 
-        rayDistance = myData.speed * 0.01f;
-
-        _collider = GetComponent<Collider>();
+        rayDistance = battleUnitData.speed * 0.01f;
     }
 
-    private IEnumerator AutoDestruct()
+    private IEnumerator AutoDestruction()
     {
         yield return new WaitForSeconds(2f);
         Deactivate();
     }
 
-    public override void OnTick()
+    public override void CustomUpdate()
     {
         Fly();
     }
 
-    public override void Fly()
+    public void Fly()
     {
         _forwardDirection = _transform.forward;
-        _deltaPosition = _forwardDirection * Time.fixedDeltaTime * myData.speed;
+        _deltaPosition = _forwardDirection * Time.fixedDeltaTime * battleUnitData.speed;
         _transform.position += _deltaPosition;
         SearchTargets();
     }
 
-    public override void SearchTargets()
+    public void SearchTargets()
     {
         ray.origin = _transform.position;
         ray.direction = _forwardDirection;
-        if (Physics.Raycast(ray, out hit, rayDistance, myData.interactibleWith))
+        if (Physics.Raycast(ray, out hit, rayDistance, battleUnitData.interactibleWith))
         {
             SetDamage(hit.collider.GetComponentInParent<EntityCondition>());
         }
     }
 
-    public override void SetDamage(EntityCondition targetToHit)
+    public void SetDamage(EntityCondition targetToHit)
     {
         if (!ReferenceEquals(targetToHit, null))
         {
-            targetToHit.AddDamage(myData.damage);
+            targetToHit.AddDamage(battleUnitData.damage);
         }
         Deactivate();
     }
 
-    public override void Deactivate()
+    public void Deactivate()
     {
         _gameObject.SetActive(false);
     }

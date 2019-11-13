@@ -8,9 +8,9 @@ using UnityEngine.Serialization;
 public class TruckData : Data
 {
 
-    public FirePointData firePointDataToCopy;
+    public FirePointData firePointData;
 
-    public FirePointData firePointData { get { return firePointDataToCopy; } set { } }
+    //public FirePointData firePointData { get { return firePointDataToCopy; } set { } }
 
     public GameEnums.Truck truckType;
 
@@ -48,7 +48,7 @@ public class TruckData : Data
 
     public void PermanentSetUpFirePoint(Truck owner)
     {
-        owner.TruckData.firePointData = owner.TruckData.firePointDataToCopy;
+        //owner.TruckData.firePointData = owner.TruckData.firePointDataToCopy;
         string firePointTypeName = firePointType.ToString();
         GameObject firePoint = ObjectPoolersHolder.TrucksFirePointPooler.PermanentSpawn(firePointTypeName);
         firePoint.transform.parent = owner._transform;

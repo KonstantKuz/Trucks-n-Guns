@@ -7,7 +7,8 @@ public class RocketGun : MonoCached, Gun
     public GunData gunData { get; set; }
     public TargetData targetData { get; set; }
     public GunAnglesData allowableAngles { get; set; }
-    
+    public GameEnums.BattleType battleType { get; set; }
+
     public Transform head, headHolder;
     public Transform[] gunsBarrels;
     private Transform headHolderRoot;
@@ -21,7 +22,6 @@ public class RocketGun : MonoCached, Gun
     private AudioSource rocketLaunchSource;
 
     private string staticRocketName = "RocketStatic";
-
 
     private void Awake()
     {
@@ -41,15 +41,7 @@ public class RocketGun : MonoCached, Gun
 
     public void SetTargetData(TargetData targetData)
     {
-        switch (gunData.battleType)
-        {
-            case GameEnums.BattleType.Tracking:
-                this.targetData = targetData;
-                break;
-            case GameEnums.BattleType.Static:
-                this.targetData = null;
-                break;
-        }
+        this.targetData = targetData;
         targetIsVisible = true;
     }
 
@@ -91,7 +83,7 @@ public class RocketGun : MonoCached, Gun
             }
         }
 
-        if (gunData.battleType == GameEnums.BattleType.Tracking)
+        if (battleType == GameEnums.BattleType.Tracking)
         {
             LookAtTarget();
         }

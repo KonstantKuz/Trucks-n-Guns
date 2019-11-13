@@ -28,8 +28,8 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
         helicopterData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1);
 
-        allFixedTicks.Add(this);
-        allTicks.Add(this);
+        customFixedUpdates.Add(this);
+        customUpdates.Add(this);
         _transform = transform;
         _transform.position = playerPosition - new Vector3(0,0, helicopterData.zSpawnOffset);
         //_transform.position -= Vector3.forward * 150f;
@@ -50,7 +50,7 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
         firePoint.SetUpTargets(targetData, GameEnums.TrackingGroup.FirstTrackingGroup);
     }
 
-    public override void OnTick()
+    public override void CustomUpdate()
     {
         RotateRotors();
 
@@ -59,7 +59,7 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
         Attack();
     }
 
-    public override void OnFixedTick()
+    public override void CustomFixedUpdate()
     {
         UpdatePosition();
     }
@@ -117,8 +117,8 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
     public void ReturnObjectsToPool()
     {
-        allFixedTicks.Remove(this);
-        allTicks.Remove(this);
+        customFixedUpdates.Remove(this);
+        customUpdates.Remove(this);
         if (condition != null)
         {
             condition.OnZeroCondition -= ReturnObjectsToPool;

@@ -3,51 +3,51 @@ using UnityEngine;
 
 public class MonoCached : MonoBehaviour
 {
-    public static List<MonoCached> allTicks = new List<MonoCached>(1000);
-    public static List<MonoCached> allFixedTicks = new List<MonoCached>(1000);
-    public static List<MonoCached> allLateTicks = new List<MonoCached>(1000);
+    public static List<MonoCached> customUpdates = new List<MonoCached>(1000);
+    public static List<MonoCached> customFixedUpdates = new List<MonoCached>(1000);
+    public static List<MonoCached> customLateUpdates = new List<MonoCached>(1000);
 
     private void OnEnable()
     {
-        allTicks.Add(this);
-        allFixedTicks.Add(this);
-        allLateTicks.Add(this);
+        customUpdates.Add(this);
+        customFixedUpdates.Add(this);
+        customLateUpdates.Add(this);
     }
 
     private void OnDisable()
     {
-        allTicks.Remove(this);
-        allFixedTicks.Remove(this);
-        allLateTicks.Remove(this);
+        customUpdates.Remove(this);
+        customFixedUpdates.Remove(this);
+        customLateUpdates.Remove(this);
     }
     
 
-    public void Tick()
+    public void CustomUpdatesCall()
     {
-        OnTick();
+        CustomUpdate();
     }
 
-    public void FixedTick()
+    public void CustomFixedUpdatesCall()
     {
-        OnFixedTick();
+        CustomFixedUpdate();
     }
 
-    public void LateTick()
+    public void CustomLateUpdatesCall()
     {
-        OnLateTick();
+        CustomLateUpdate();
     }
 
-    public virtual void OnTick()
-    {
-
-    }
-
-    public virtual void OnFixedTick()
+    public virtual void CustomUpdate()
     {
 
     }
 
-    public virtual void OnLateTick()
+    public virtual void CustomFixedUpdate()
+    {
+
+    }
+
+    public virtual void CustomLateUpdate()
     {
 
     }
