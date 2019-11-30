@@ -33,10 +33,41 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
         DisableNearestObstacles();
     }
 
+    public void RandomizeData()
+    {
+        int playersFirePointType = (int)PlayerHandler.playerInstance.truck.TruckData.firePointType;
+
+        int randomFirePoint = Random.Range(playersFirePointType - 2, playersFirePointType + 3);
+        if (randomFirePoint < (int)GameEnums.FirePointType.D_FPType)
+        {
+            randomFirePoint = (int)GameEnums.FirePointType.D_FPType;
+        }
+        if (randomFirePoint > (int)GameEnums.FirePointType.DCMP_FPType)
+        {
+            randomFirePoint = (int)GameEnums.FirePointType.DCMP_FPType;
+        }
+        roadBlockData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length);
+        int[] gunDataTypes = { 11, 12, 13, 21, 22, 23, 31, 32, 33 };
+        for (int i = 0; i < roadBlockData.firePointData.gunsConfigurations.Length; i++)
+        {
+            int randomGun = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
+            int randomGunData = Random.Range(0, gunDataTypes.Length);
+            roadBlockData.firePointData.gunsConfigurations[i].gunType = (GameEnums.Gun)randomGun;
+            roadBlockData.firePointData.gunsConfigurations[i].gunDataType = (GameEnums.GunDataType)gunDataTypes[randomGunData];
+        }
+    }
     private void DisableNearestObstacles()
     {
-        Collider[] obstacles = Physics.OverlapSphere(transform.position, 40f, 1<<10);
-        for (int i = 0; i < obstacles.Length; i++)
+        List<Collider> obstacles = new List<Collider>();
+        for (int i = 0; i < 4; i++)
+        {
+            Collider[] obstaclesArray = Physics.OverlapSphere(transform.position + Vector3.right * i, 20f, 1 << 10);
+            for (int j = 0; j < obstaclesArray.Length; j++)
+            {
+                obstacles.Add(obstaclesArray[j]);
+            }
+        }
+        for (int i = 0; i < obstacles.Count; i++)
         {
             if(!ReferenceEquals(obstacles[i], gameObject.GetComponentInChildren<Collider>()))
             {
@@ -74,8 +105,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
     {
         StateMachine.State<Enemy> previousState = enemy.followTypeStateController.currentState;
         enemy.followTypeStateController.ChangeState(IdleState.Instance);
-        Debug.Log($"<color=black> {enemy.followTypeStateController.currentState} </color>");
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(1f);
         enemy.followTypeStateController.ChangeState(previousState);
     }
 

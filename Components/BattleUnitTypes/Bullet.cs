@@ -27,7 +27,15 @@ public class Bullet : MonoCached, BattleUnit
 
         rayDistance = battleUnitData.speed * 0.01f;
     }
-
+    private void OnEnable()
+    {
+        customUpdates.Add(this);
+        StartCoroutine(AutoDestruction());
+    }
+    private void OnDisable()
+    {
+        customUpdates.Remove(this);
+    }
     private IEnumerator AutoDestruction()
     {
         yield return new WaitForSeconds(2f);

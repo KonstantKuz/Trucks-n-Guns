@@ -24,12 +24,12 @@ public class RoadBlockData : Data
         block.transform.localPosition = Vector3.zero;
         block.transform.localEulerAngles = Vector3.zero;
 
-        for (int i = 0; i < block.transform.GetChild(0).transform.childCount; i++)
-        {
-            bool randomActiveExplosion = Random.value > 0.7f ? true : false;
-            block.transform.GetChild(0).transform.GetChild(i).transform.GetChild(0).gameObject.SetActive(randomActiveExplosion);
-            block.transform.GetChild(0).transform.GetChild(i).GetComponent<EntityCondition>().ResetCurrentCondition(conditionPerWall);
-        }
+        //for (int i = 0; i < block.transform.GetChild(0).transform.childCount; i++)
+        //{
+        //    bool randomActiveExplosion = Random.value > 0.7f ? true : false;
+        //    block.transform.GetChild(0).transform.GetChild(i).transform.GetChild(0).gameObject.SetActive(randomActiveExplosion);
+        //    block.transform.GetChild(0).transform.GetChild(i).GetComponent<EntityCondition>().ResetCurrentCondition(conditionPerWall);
+        //}
 
         owner.roadBlockData.firePointData.PermanentSetUpFirePoint(owner.firePoint);
     }

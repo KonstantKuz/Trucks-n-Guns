@@ -90,9 +90,20 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
         followType = (GameEnums.EnemyFollowType)randomState;
         int randomTruck = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Truck)).Length);
         truck.TruckData.truckType = (GameEnums.Truck)randomTruck;
-        int randomFirePoint = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length);
+
+        int playersFirePointType = (int)PlayerHandler.playerInstance.truck.TruckData.firePointType;
+
+        int randomFirePoint = Random.Range(playersFirePointType-2, playersFirePointType+2);
+        if(randomFirePoint < (int)GameEnums.FirePointType.D_FPType)
+        {
+            randomFirePoint = (int)GameEnums.FirePointType.D_FPType;
+        }
+        if(randomFirePoint > (int)GameEnums.FirePointType.DCMP_FPType)
+        {
+            randomFirePoint = (int)GameEnums.FirePointType.DCMP_FPType;
+        }
         truck.TruckData.firePointType = (GameEnums.FirePointType)randomFirePoint;
-        int[] gunDataTypes = { 00, 01, 02, 10, 11, 12, 20, 21, 22 };
+        int[] gunDataTypes = { 11, 12, 13, 21, 22, 23, 31, 32, 33 };
         for (int i = 0; i < truck.TruckData.firePointData.gunsConfigurations.Length; i++)
         {
             int randomGun = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
@@ -161,44 +172,8 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
         }
         else { avoiding = false; }
 
-        //for (int i = 0; i <2 ; i++)
-        //{
-        //    if (Physics.Raycast(sensorsRSidePos, Quaternion.AngleAxis(sensorsAngle + i * sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, out hit, sensorsLength))
-        //    {
-        //        avoiding = true;
-        //        Debug.DrawLine(sensorsRSidePos, hit.point, Color.red);
-        //        avoidForce -= 0.2f;
-        //    }
-        //    else { avoiding = false; }
-
-        //    if (Physics.Raycast(sensorsLSidePos, Quaternion.AngleAxis(- sensorsAngle + i * -sensorsAngle, sensorsPosition.up) * sensorsPosition.forward, out hit, sensorsLength))
-        //    {
-        //        avoiding = true;
-        //        Debug.DrawLine(sensorsLSidePos, hit.point, Color.red);
-        //        avoidForce += 0.2f;
-        //    }
-        //    else { avoiding = false; }
-        //}
-
         return avoidForce;
     }
     
-
-    //private void OnDrawGizmos()
-    //{
-    //    if (path != null)
-    //    {
-    //        for (int i = 0; i < path.Count; i++)
-    //        {
-
-    //            Gizmos.color = Color.green;
-    //            if (path[i].worldPosition == currentNode.worldPosition)
-    //            {
-    //                Gizmos.color = Color.red;
-    //            }
-    //            Gizmos.DrawSphere(path[i].worldPosition, 0.7f);
-    //        }
-    //    }
-    //}
     #endregion
 }

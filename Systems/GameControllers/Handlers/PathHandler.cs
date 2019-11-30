@@ -10,7 +10,7 @@ public class PathHandler : MonoCached
     private Vector3 gridOffset;
 
     public int pathGridLength;
-    public int nodeRadius;
+    public float nodeRadius;
     public int pathGridWidth { get; set; }
     public float roadLength { get; set; }
     public Node[,] grid { get; private set; }

@@ -32,7 +32,7 @@ public class RaycastWheel : MonoCached {
 	private RaycastHit hit;
     public RaycastHit Hit { get { return hit; } }
 
-	private Rigidbody parentRigidbody;
+	public Rigidbody parentRigidbody { get; set; }
 
 	private float wheelCircumference = 0.00f;
 
@@ -57,7 +57,7 @@ public class RaycastWheel : MonoCached {
 	{
 		wheelCircumference = wheelRadius * Mathf.PI * 2;
         _transform = transform;
-        parentRigidbody = _transform.GetComponentInParent<Rigidbody>();
+        //parentRigidbody = _transform.GetComponentInParent<Rigidbody>();
     }
 
     public override void CustomUpdate()
@@ -132,20 +132,13 @@ public class RaycastWheel : MonoCached {
         if(isGrounded)
         {
             visualWheel.position = _transform.position + (wheelDownDirection * (hit.distance - wheelRadius));
-            //newVisualPosition = _transform.position + (wheelDownDirection * (hit.distance - wheelRadius));
         }
         else
         {
            visualWheel.position = _transform.position + (wheelDownDirection * suspensionRange);
-            //newVisualPosition = _transform.position + (wheelDownDirection * suspensionRange);
         }
-
-        //newVisualPosition.x = visualWheel.position.x;
-        //newVisualPosition.z = visualWheel.position.z;
-
-        //visualWheel.position = newVisualPosition;
         visualWheel.localEulerAngles = - wheelDownDirection * steerAngle;
-        visualWheel.Rotate(360 * (-speed / wheelCircumference) * Time.deltaTime, 0, 0);
+        //visualWheel.Rotate(360 * (-speed / wheelCircumference) * Time.deltaTime, 0, 0);
     }
     void  OnDrawGizmosSelected ()
 	{

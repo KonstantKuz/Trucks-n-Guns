@@ -144,7 +144,7 @@ public class InputHandler : MonoCached
     {
         Ray ray = mainCamera.ScreenPointToRay(mousePosition);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, damageableMask))
+        if (Physics.Raycast(ray, out hit, 200, damageableMask))
         {
             if(!ReferenceEquals(hit.rigidbody, null) && !ReferenceEquals(hit.rigidbody, player.truck._rigidbody))
             {
@@ -156,7 +156,7 @@ public class InputHandler : MonoCached
     {
         Ray ray = mainCamera.ScreenPointToRay(touch.position);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, damageableMask))
+        if (Physics.Raycast(ray, out hit, 200, damageableMask))
         {
             if (!ReferenceEquals(hit.rigidbody, null) && !ReferenceEquals(hit.rigidbody, player.truck._rigidbody))
             {

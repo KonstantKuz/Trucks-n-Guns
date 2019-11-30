@@ -104,6 +104,15 @@ public class Truck : MonoCached
                 }
                 break;
         }
+
+        for (int i = 0; i < frontWheels.Length; i++)
+        {
+            frontWheels[i].parentRigidbody = _rigidbody;
+        }
+        for (int i = 0; i < rearWheels.Length; i++)
+        {
+            rearWheels[i].parentRigidbody = _rigidbody;
+        }
     }
 
     public void SetUpWheelsVisual(Transform visual)
@@ -182,22 +191,20 @@ public class Truck : MonoCached
 
     public void SetBoost(float force)
     {
-        if(drivingWheels[0].IsGrounded || drivingWheels[1].IsGrounded)
+        for (int i = 0; i < drivingWheels.Count; i++)
         {
-            if (force > 0 && CurrentSpeed() < 120f)
+            if(drivingWheels[i].IsGrounded)
             {
-                _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
-            }
-            if (force < 0 && CurrentSpeed() > -30f)
-            {
-                _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
+                if (force > 0 && CurrentSpeed() < 100f)
+                {
+                    _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
+                }
+                if (force < 0 && CurrentSpeed() > -30f)
+                {
+                    _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
+                }
             }
         }
-       
-        //if (CurrentSpeed() < 120f && CurrentSpeed() > -30f && drivingWheels[0].IsGrounded)
-        //{
-        //    _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
-        //}
     }
 
     public void StopTruck(float force)
@@ -207,7 +214,7 @@ public class Truck : MonoCached
 
     public void StopTruck()
     {
-        _rigidbody.drag = 2f;
+        _rigidbody.drag = 10f;
 
         foreach (RaycastWheel drivingWheel in drivingWheels)
         {

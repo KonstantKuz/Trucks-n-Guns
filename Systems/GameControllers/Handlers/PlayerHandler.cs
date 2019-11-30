@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Singleton;
+using UnityEngine.UI;
+
 public class PlayerHandler : MonoCached
 {
     [SerializeField]
@@ -16,16 +17,14 @@ public class PlayerHandler : MonoCached
 
     private Camera playerCamera;
     public Transform camera_transform { get; set; }
-    public Vector3 cameraFixedPos { get; set; }
+    private Vector3 newCamPos;
 
-    public Player playerInstance { get; private set; }
+    public static Player playerInstance { get; private set; }
     public GameObject player { get; private set; }
     public Transform player_transform { get; private set; }
     public Rigidbody player_rigidbody { get; private set; }
 
     public Vector3 playerStartPosition { get; private set; }
-
-    public static PlayerSessionData currentSessionData;
 
     public void CreatePlayer(InputHandler inputHandler)
     {
@@ -46,8 +45,7 @@ public class PlayerHandler : MonoCached
         player_rigidbody.AddForce(player_rigidbody.transform.forward * playerStartingForce, ForceMode.VelocityChange);
 
         player.GetComponent<EntityCondition>().OnZeroCondition += ReturnToCustomization;
-
-        currentSessionData = new PlayerSessionData(0, 0);
+       
     }
 
     public void CreateCamera()
@@ -55,7 +53,7 @@ public class PlayerHandler : MonoCached
         GameObject cam = Instantiate(cameraPrefab, GameObject.Find("Scene").transform);
         playerCamera = cam.GetComponent<Camera>();
         camera_transform = playerCamera.transform;
-        cameraFixedPos = Vector3.zero;
+        newCamPos = Vector3.zero;
     }
 
     public void StartUpdateCamera()
@@ -69,38 +67,20 @@ public class PlayerHandler : MonoCached
 
         var camPos = camera_transform.position;
         var playerPos = player_transform.position;
-        if (cameraFixedPos == Vector3.zero)
-        {
-            camPos = Vector3.Lerp(camPos, new Vector3(camPos.x, camPos.y, playerPos.z), 0.1f);
-            camera_transform.position = camPos;
-        }
-        else
-        {
-            camPos = Vector3.Lerp(camPos, cameraFixedPos, 5f);
-            //camera_transform.LookAt(cameraFixedPos + Vector3.down * 2f);
-            camera_transform.position = camPos;
-        }
+        newCamPos.x = Mathf.Clamp(playerPos.x-20, -26, -18);
+        
+        newCamPos.y = camPos.y;
+        newCamPos.z = playerPos.z;
 
+        camPos = Vector3.Lerp(camPos, newCamPos, 0.1f);
+        camera_transform.position = camPos;
+        //camera_transform.LookAt(playerPos);
         yield return StartCoroutine(UpdateCamera());
-    }
-
-    public static void IncreaseDefeatedEnemiesOnThisSession()
-    {
-        currentSessionData.defeatedEnemies++;
-        Debug.Log($"<color=green> Enemies count = {currentSessionData.defeatedEnemies} </color>");
-    }
-
-    public static void IncreaseTraveledDistance(int traveledDistance)
-    {
-        currentSessionData.traveledDistance += traveledDistance;
-        Debug.Log($"<color=green> Traveled distance = {currentSessionData.traveledDistance} </color>");
     }
 
     private void ReturnToCustomization()
     {
         player.GetComponent<EntityCondition>().OnZeroCondition -= ReturnToCustomization;
-        playerInstance.StopListenTargetCondition();
-        PersistentPlayerDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, PlayerStaticRunTimeData.playerFirePointData, currentSessionData);
 
         StartCoroutine(LoadCustomiz());
     }

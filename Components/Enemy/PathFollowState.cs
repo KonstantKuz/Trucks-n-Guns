@@ -53,19 +53,20 @@ public class PathFollowState : State<Enemy>
 
         if (distanceToTarget < 10f)
         {
-            _owner.truck.StopTruck((targetForwardVelocity - distanceToTarget) * 0.005f);
+            _owner.truck.StopTruck(Mathf.Abs(targetForwardVelocity - distanceToTarget) * 0.01f);
         }
         else if(distanceToTarget > 10f)
         {
             _owner.truck.LaunchTruck();
-            movingForce = Mathf.Abs(distanceToTarget * targetForwardVelocity)*0.005f;
+            movingForce = Mathf.Abs(distanceToTarget * targetForwardVelocity)*0.01f;
+            _owner.truck.SetBoost(movingForce*2);
         }
         else if(distanceToTarget < -10f)
         {
             _owner.truck.StopTruck();
         }
 
-        movingForce += distanceToTarget * targetForwardVelocity* 0.00005f;
+        movingForce += distanceToTarget * targetForwardVelocity* 0.0001f;
         return movingForce;
     }
 

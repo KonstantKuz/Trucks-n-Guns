@@ -9,8 +9,6 @@ using UnityEngine;
 public class RoadHandler : MonoCached
 {
     [SerializeField]
-    private string generalRoadNameToSpawn;
-    [SerializeField]
     private float roadLength;
     [SerializeField]
     private int roadGridSize;
@@ -66,11 +64,6 @@ public class RoadHandler : MonoCached
 
         for (int i = 0; i < obstaclePooler.pools.Count; i++)
         {
-            if(obstaclePooler.pools[i].tag == generalRoadNameToSpawn)
-            {
-                continue;
-            }
-
             GameObject[] obstacles = obstaclePooler.poolDictionary[obstaclePooler.pools[i].tag].ToArray();
             for (int j = 0; j < obstacles.Length; j++)
             {
@@ -111,7 +104,7 @@ public class RoadHandler : MonoCached
         if (player_rigidbody.position.z > (allSpawnedRoadLength - distanceFromPlayerToMakeNewRoadComplex))
         {
             MakeNewRoadComplex();
-            ObstaclesColliderHandle(player_rigidbody);
+            //ObstaclesColliderHandle(player_rigidbody);
         }
 
 
@@ -120,18 +113,18 @@ public class RoadHandler : MonoCached
 
     public void ObstaclesColliderHandle(Rigidbody player_rigidbody)
     {
-        for (int i = 0; i < obstacleColliders.Count; i++)
-        {
-            float distance = player_rigidbody.position.z - obstacleColliders[i].transform.position.z;
-            if (distance > 50)
-            {
-                obstacleColliders[i].enabled = false;
-            }
-            else
-            {
-                obstacleColliders[i].enabled = true;
-            }
-        }
+        //for (int i = 0; i < obstacleColliders.Count; i++)
+        //{
+        //    float distance = player_rigidbody.position.z - obstacleColliders[i].transform.position.z;
+        //    if (distance > 50)
+        //    {
+        //        obstacleColliders[i].enabled = false;
+        //    }
+        //    else
+        //    {
+        //        obstacleColliders[i].enabled = true;
+        //    }
+        //}
 
     }
 
@@ -139,17 +132,30 @@ public class RoadHandler : MonoCached
     {
         GameObject generalRoad = TranslateGeneralRoad();
         
-        TranslateRoadGrid(generalRoad.transform);
-        TranslateObstacles();
+        //TranslateRoadGrid(generalRoad.transform);
+        //TranslateObstacles();
         TranslatePathGrid(generalRoad.transform.position);
     }
+    private RoadTile previousRoadTile;
 
     private GameObject TranslateGeneralRoad()
     {
-        GameObject generalRoad = roadPooler.Spawn(generalRoadNameToSpawn);
+        GameObject generalRoad;
+        if (previousRoadTile == null)
+        {
+            generalRoad = roadPooler.Spawn("TDR_Begin_1",Vector3.zero, Quaternion.identity);
+        }
+        else
+        {
+            generalRoad = roadPooler.Spawn(previousRoadTile.NextRoadTileCapabilitiesHolder.NextWeightedRandomTile());
+        }
+        previousRoadTile = generalRoad.GetComponent<RoadTile>();
+        previousRoadTile.ResetEnv(allSpawnedRoadLength);
         generalRoad.transform.localPosition = Vector3.forward * allSpawnedRoadLength;
+        //int[] angles = { 0, 180 };
+        //generalRoad.transform.localRotation = Quaternion.AngleAxis(angles[Random.Range(0, 2)], generalRoad.transform.up); 
         allSpawnedRoadLength += roadLength;
-        generalRoad.GetComponent<RandomPlantsActivator>().ReplacePlants();
+        //generalRoad.GetComponent<RandomPlantsActivator>().ReplacePlants();
 
         return generalRoad;
     }

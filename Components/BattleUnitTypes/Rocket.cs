@@ -81,13 +81,11 @@ public class Rocket : MonoCached, BattleUnit
 
     public void SearchTargets()
     {
-        if(Physics.CheckSphere(_transform.position, battleUnitData.speed * 0.01f, battleUnitData.interactibleWith))
+        if(Physics.CheckSphere(_transform.position, battleUnitData.speed * 0.005f, battleUnitData.interactibleWith))
         {
             Explosion();
         }
     }
-
-   
 
     private void Explosion()
     {

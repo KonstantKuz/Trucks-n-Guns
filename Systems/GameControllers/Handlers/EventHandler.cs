@@ -40,7 +40,6 @@ public class EventHandler : MonoCached
 
         if ((player_rigidbody.position - playerPos_fromLastEvent).magnitude > traveledDistaceToGenerateEvent)
         {
-            PlayerHandler.IncreaseTraveledDistance((int)traveledDistaceToGenerateEvent);
             GenerateEvent(player_rigidbody);
             playerPos_fromLastEvent = player_rigidbody.position;
             traveledDistaceToGenerateEvent = 0;

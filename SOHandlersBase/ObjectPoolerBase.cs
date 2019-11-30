@@ -32,14 +32,15 @@ public class ObjectPoolerBase : ScriptableObject
 
         poolDictionary = new Dictionary<string, Queue<GameObject>>();
         tags = new List<string>();
-        foreach (Pool pool in pools)
+        for (int i = 0; i < pools.Count; i++)
         {
             Queue<GameObject> objectPool = new Queue<GameObject>();
 
-            for (int i = 0; i < pool.size; i++)
+            for (int j = 0; j < pools[i].size; j++)
             {
-                GameObject instatObj = Instantiate(pool.prefab, parentInScene);
+                pools[i].tag = pools[i].prefab.name;
 
+                GameObject instatObj = Instantiate(pools[i].prefab, parentInScene);
 
                 instatObj.name = instatObj.name.Replace("(Clone)", "");
 
@@ -47,9 +48,27 @@ public class ObjectPoolerBase : ScriptableObject
                 instatObj.SetActive(false);
                 objectPool.Enqueue(instatObj);
             }
-            poolDictionary.Add(pool.tag, objectPool);
-            tags.Add(pool.tag);
+            poolDictionary.Add(pools[i].tag, objectPool);
+            tags.Add(pools[i].tag);
+
         }
+        //foreach (Pool pool in pools)
+        //{
+        //    Queue<GameObject> objectPool = new Queue<GameObject>();
+
+        //    for (int i = 0; i < pool.size; i++)
+        //    {
+        //        GameObject instatObj = Instantiate(pool.prefab, parentInScene);
+
+        //        instatObj.name = instatObj.name.Replace("(Clone)", "");
+
+
+        //        instatObj.SetActive(false);
+        //        objectPool.Enqueue(instatObj);
+        //    }
+        //    poolDictionary.Add(pool.tag, objectPool);
+        //    tags.Add(pool.tag);
+        //}
 
         totalWeight = 0;
         for (int i = 0; i < pools.Count; i++)

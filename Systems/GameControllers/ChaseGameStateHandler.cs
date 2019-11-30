@@ -18,6 +18,8 @@ public class ChaseGameStateHandler : MonoCached // IState
     [SerializeField]
     private EventHandler eventHandler;
     [SerializeField]
+    private PlayerSessionHandler currentSessionHandler;
+    [SerializeField]
     private ObjectPoolersHolder objectPoolersHolder;
     [SerializeField]
     private DataReturnersHolder dataReturnersHolder;
@@ -64,6 +66,7 @@ public class ChaseGameStateHandler : MonoCached // IState
 
         playerHandler.StartUpdateCamera();
         inputHandler.StartUpdateInputs();
+        currentSessionHandler.StartHandleSession();
         #endregion
     }
 

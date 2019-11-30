@@ -15,9 +15,10 @@ public class AudioHandler : Singleton<AudioHandler>
     private IEnumerator CheckMus(AudioSource source)
     {
         yield return new WaitForSeconds(1f);
-        if(!source.isPlaying)
+        int randomMus = Random.Range(0, music.Length);
+        if (!source.isPlaying)
         {
-            source.PlayOneShot(music[Random.Range(0, music.Length)]);
+            source.PlayOneShot(music[randomMus]);
         }
         yield return StartCoroutine(CheckMus(source));
     }

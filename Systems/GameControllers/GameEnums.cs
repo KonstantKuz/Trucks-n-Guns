@@ -80,15 +80,15 @@ public static class GameEnums
 
     public enum GunDataType
     {
-        LrLd = 00,
-        LrMd = 01,
-        LrHd = 02,
-        MrLd = 10,
-        MrMd = 11,
-        MrHd = 12,
-        HrLd = 20,
-        HrMd = 21,
-        HrHd = 22
+        LrLd = 11,
+        LrMd = 12,
+        LrHd = 13,
+        MrLd = 21,
+        MrMd = 22,
+        MrHd = 23,
+        HrLd = 31,
+        HrMd = 32,
+        HrHd = 33
     }
 
     public enum ShopItemType
@@ -97,5 +97,27 @@ public static class GameEnums
         FirePoint,
         Gun,
         GunLevel
+    }
+
+    public enum RoadPropsType
+    {
+        Town,
+        FromTownToDesert,
+        Desert,
+        FromDesertToTown,
+    }
+    public enum RoadAsphaltType
+    {
+        SingleCenterRoad,
+        SingleLeftRoad,
+        SingleRightRoad,
+        DoubleRoad,
+        NoneRoad
+    }    
+    public enum RoadShapeType
+    {
+        Start,
+        Middle,
+        End
     }
 }

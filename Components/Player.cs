@@ -33,10 +33,8 @@ public class Player : MonoCached
         truck.TruckData = PlayerStaticRunTimeData.playerTruckData;
         truck.SetUpTruck();
 
-        #region NEWSYSTEM
         FirstTrackingGroupsTarget = new TargetData(null,null);
         SecondTrackingGroupTarget = new TargetData(null, null);
-        #endregion
         TrackingGroupsTargetsDictionary = new Dictionary<GameEnums.TrackingGroup, TargetData>(2);
         TrackingGroupsTargetsDictionary.Add(GameEnums.TrackingGroup.FirstTrackingGroup, FirstTrackingGroupsTarget);
         TrackingGroupsTargetsDictionary.Add(GameEnums.TrackingGroup.SecondTrackingGroup, SecondTrackingGroupTarget);
@@ -67,45 +65,34 @@ public class Player : MonoCached
     {
         TrackingGroupsTargetsDictionary[trackingGroup].target_rigidbody = targetRigidbody;
         TrackingGroupsTargetsDictionary[trackingGroup].target_condition = targetRigidbody.GetComponent<EntityCondition>();
+
         truck.firePoint.SetUpTargets(TrackingGroupsTargetsDictionary[trackingGroup], trackingGroup);
         StartListenTarget(trackingGroup);
     }
 
     private void StartListenTarget(GameEnums.TrackingGroup trackingGroup)
     {
-        if(!ReferenceEquals(TrackingGroupsTargetsDictionary[trackingGroup].target_condition, null))
+        if (!ReferenceEquals(TrackingGroupsTargetsDictionary[trackingGroup].target_condition, null))
         {
-            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition -= StopListenTargetCondition;
-            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition -= PlayerHandler.IncreaseDefeatedEnemiesOnThisSession;
-        }
-        EntityCondition targetCondition = TrackingGroupsTargetsDictionary[trackingGroup].target_rigidbody.GetComponent<EntityCondition>();
-        if(!ReferenceEquals(targetCondition, null))
-        {
-            TrackingGroupsTargetsDictionary[trackingGroup].target_condition = targetCondition;
-        }
-        else
-        {
-            targetCondition = TrackingGroupsTargetsDictionary[trackingGroup].target_rigidbody.GetComponentInParent<EntityCondition>();
-        }
-        if(!ReferenceEquals(targetCondition, null))
-        {
-            TrackingGroupsTargetsDictionary[trackingGroup].target_condition = targetCondition;
-            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition += PlayerHandler.IncreaseDefeatedEnemiesOnThisSession;
-            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition += StopListenTargetCondition;
-            Debug.Log($"Player starts listen to {TrackingGroupsTargetsDictionary[trackingGroup].target_rigidbody.name}");
+            StopListenTargetCondition(trackingGroup);
+            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition += PlayerSessionHandler.IncreaseDefeatedEnemiesCount;
+            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition += delegate { StopListenTargetCondition(trackingGroup); };
         }
     }
 
-    public void StopListenTargetCondition()
+    public void StopListenTargetCondition(GameEnums.TrackingGroup trackingGroup)
     {
-        TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_condition.OnZeroCondition -= StopListenTargetCondition;
-        TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_condition.OnZeroCondition -= PlayerHandler.IncreaseDefeatedEnemiesOnThisSession;
-        Debug.Log($"Player stops listen to {TrackingGroupsTargetsDictionary[GameEnums.TrackingGroup.FirstTrackingGroup].target_rigidbody.name}");
+        if (!ReferenceEquals(TrackingGroupsTargetsDictionary[trackingGroup].target_condition, null))
+        {
+            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition -= delegate { StopListenTargetCondition(trackingGroup); };
+            TrackingGroupsTargetsDictionary[trackingGroup].target_condition.OnZeroCondition -= PlayerSessionHandler.IncreaseDefeatedEnemiesCount;
+        }
     }
+
     public void MovePlayerTruck()
     {
         truck.Moving(1);
-
+        truck.SetBoost(5);
         SteeringWheels();
     }
 

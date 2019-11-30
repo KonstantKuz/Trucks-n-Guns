@@ -24,15 +24,15 @@ public class FirePointData : Data
 
         for (int i = 0; i < gunsConfigurations.Length; i++)
         {
-            if(gunsConfigurations[i].gunType == GameEnums.Gun.None)
+            if (gunsConfigurations[i].gunType == GameEnums.Gun.None)
             {
                 continue;
             }
 
-            if(firePoint.GunPointsDictionary.ContainsKey(gunsConfigurations[i].locationPath.ToString()))
+            if (firePoint.GunPointsDictionary.ContainsKey(gunsConfigurations[i].locationPath.ToString()))
             {
                 GameObject gun = ObjectPoolersHolder.GunsPooler.PermanentSpawn(gunsConfigurations[i].gunType.ToString());
-                
+
                 FirePoint.GunPoint gunPoint = firePoint.GunPointsDictionary[gunsConfigurations[i].locationPath.ToString()];
 
                 gun.transform.parent = gunPoint.gunsLocation;
@@ -107,7 +107,7 @@ public class FirePointData : Data
             int randomTrackingGroupNumber = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.TrackingGroup)).Length);
             GameEnums.TrackingGroup randomTrackingGroup = (GameEnums.TrackingGroup)randomTrackingGroupNumber;
             gunsConfigurations[i].trackingGroup = randomTrackingGroup;
-            if(gunsConfigurations[i].trackingGroup == GameEnums.TrackingGroup.StaticGroup)
+            if (gunsConfigurations[i].trackingGroup == GameEnums.TrackingGroup.StaticGroup)
             {
                 gunsConfigurations[i].battleType = GameEnums.BattleType.Static;
             }
@@ -145,6 +145,25 @@ public class FirePointData : Data
             int randomGunNumber = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
             GameEnums.Gun randomGun = (GameEnums.Gun)randomGunNumber;
             gunsConfigurations[i].gunType = randomGun;
+        }
+    }
+    [ContextMenu("SetAllGunDataTypesToLrLd")]
+    public void SetAllGunDataTypesToLrLd()
+    {
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            gunsConfigurations[i].gunDataType = GameEnums.GunDataType.LrLd;
+        }
+    }
+
+    [ContextMenu("SetAllGunDataTypesToRandom")]
+    public void SetAllGunDataTypesToRandom()
+    {
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            int randomGunDataTypeNumber = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.GunDataType)).Length);
+            GameEnums.GunDataType randomGunDataType = (GameEnums.GunDataType)randomGunDataTypeNumber;
+            gunsConfigurations[i].gunDataType = randomGunDataType;
         }
     }
 }

@@ -102,12 +102,12 @@ public class PlayerFollowState : State<Enemy>
 
         if (distanceToTarget < 5f)
         {
-            _owner.truck.StopTruck((targetForwardVelocity - distanceToTarget) * 0.005f);
+            _owner.truck.StopTruck((targetForwardVelocity - distanceToTarget) * 0.01f);
         }
         else if (distanceToTarget > 5f)
         {
             _owner.truck.LaunchTruck();
-            movingForce = Mathf.Abs(distanceToTarget * targetForwardVelocity) * 0.005f;
+            movingForce = Mathf.Abs(distanceToTarget * targetForwardVelocity) * 0.01f;
         }
         else if (distanceToTarget < -5f)
         {

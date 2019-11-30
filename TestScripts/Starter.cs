@@ -9,7 +9,7 @@ public class Starter : MonoBehaviour
 
     private void Start()
     {
-        gameObject.GetComponent<Button>().onClick.AddListener(() => StartLevel());
+        gameObject.GetComponent<Button>().onClick.AddListener(() => StartLevelLoadCheck());
 
         StartCoroutine(AsyncLoad());
     }
@@ -19,9 +19,10 @@ public class Starter : MonoBehaviour
         asyncLoad = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("GeneralGameState");
         asyncLoad.allowSceneActivation = false;
     }
-    private void StartLevel()
+    private void StartLevelLoadCheck()
     {
-        PersistentPlayerDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, PlayerStaticRunTimeData.playerFirePointData, new PlayerSessionData(0,0));
+        PersistentPlayerDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, PlayerStaticRunTimeData.playerFirePointData, new PlayerSessionData(0, 0));
         asyncLoad.allowSceneActivation = true;
     }
+
 }

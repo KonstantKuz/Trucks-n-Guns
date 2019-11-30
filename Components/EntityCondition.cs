@@ -7,17 +7,21 @@ public class EntityCondition : MonoCached
     [SerializeField]
     [Range(1, 10)]
     private int explosionCount = 1;
+    [SerializeField]
+    [Range(0,5)]
+    private int onEnableInvincibleTime;
 
     public float currentCondition { get; private set; }
 
     public float maxCondition { get; set; }
 
-    private Truck truck;
+    private bool invincible;
 
     private ObjectPoolerBase effectPooler;
 
     public delegate void EntityConditionEvent();
     public event EntityConditionEvent OnZeroCondition;
+    public event EntityConditionEvent OnCurrentConditionChanged;
 
     private string bigExplosionName = "BigExplosion";
 
@@ -25,19 +29,50 @@ public class EntityCondition : MonoCached
 
     private void OnEnable()
     {
+        StartCoroutine(InvincibleForSeconds(onEnableInvincibleTime));
         currentCondition = maxCondition;
         effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
     }
-
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+    }
+    private IEnumerator InvincibleForSeconds(float time)
+    {
+        invincible = true;
+        yield return new WaitForSeconds(time);
+        invincible = false;
+    }
     public void ResetCurrentCondition(float value)
     {
         currentCondition = value;
     }
     private void OnCollisionEnter(Collision collision)
     {
-        float damageRange = collision.relativeVelocity.sqrMagnitude * 0.1f;
-        if (damageRange > 800)
+        float damageRange;
+
+        if (!ReferenceEquals(collision.rigidbody, null))
         {
+            Rigidbody collidedRigidbody = collision.rigidbody;
+            Vector3 myBodyVelocity = collision.rigidbody.velocity - collision.relativeVelocity;
+
+            if (/*collision.rigidbody.mass > 20000 &&*/ collidedRigidbody.velocity.sqrMagnitude>myBodyVelocity.sqrMagnitude)
+            {
+                //Debug.Log($"<color=red> {collidedRigidbody.name} velocity was greater than {gameObject.name}</color>");
+                damageRange = collision.relativeVelocity.sqrMagnitude*2f;
+                AddDamage(damageRange);
+            }
+            else
+            {
+                //Debug.Log($"<color=green> {gameObject.name} velocity was greater than {collidedRigidbody.name}</color>");
+
+                damageRange = collision.relativeVelocity.sqrMagnitude * 2f/* collision.rigidbody.mass* collision.relativeVelocity.sqrMagnitude/ 100f*/;
+                AddHealth(damageRange);
+            }
+        }
+        else
+        {
+            damageRange = collision.relativeVelocity.sqrMagnitude * 5f;
             AddDamage(damageRange);
         }
     }
@@ -48,21 +83,32 @@ public class EntityCondition : MonoCached
     }
     public void AddDamage(float amount)
     {
-        currentCondition -= amount;
-        CheckMyHealth();
+        if(!invincible)
+        {
+            currentCondition -= amount;
+            CheckMyHealth();
+        }
     }
     private void CheckMyHealth()
     {
-        //Debug.Log($"<color=green> {gameObject.name} has {currentCondition} condition </color>");
-        if (currentCondition < 1)
+        CurrentConditionChanhedInvoke();
+        if (currentCondition < 10)
         {
             ZeroConditionInvoke();
             Death();
+        }
+        if(currentCondition>maxCondition)
+        {
+            currentCondition = maxCondition;
         }
     }
     public void ZeroConditionInvoke()
     {
         OnZeroCondition?.Invoke();
+    }
+    public void CurrentConditionChanhedInvoke()
+    {
+        OnCurrentConditionChanged?.Invoke();
     }
     private void Death()
     {

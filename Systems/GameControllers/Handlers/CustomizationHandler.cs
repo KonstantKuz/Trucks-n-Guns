@@ -11,15 +11,17 @@ public class CustomizationHandler : MonoCached
 
     public static Truck playerTruck;
 
-    public GameObject gunSelectButtonPrefab;
-    private Button[] gunButtons;
-    private GameObject[] gunButtObj;
+    public GameObject shopGunButtonGameObject;
+    private Button[] shopGunButtons;
+    private GameObject[] shopGunButtonGameObjects;
     
     private Button upgradeFirePointButton;
     private Button changeTruckButton;
     private Button buyButton;
 
-    private int firePointTypeCount = 0;
+    private Slider trucksConditionSlider;
+
+    private int firePointTypeCount = 1;
     private int truckTypeCount = 0;
     
 
@@ -30,65 +32,60 @@ public class CustomizationHandler : MonoCached
 
     public void InjectPlayerTruck(Truck truck)
     {
-
-        if(gunButtObj != null || gunButtons != null)
+        if (shopGunButtonGameObjects != null)
         {
-            foreach (var item in gunButtObj)
+            for (int i = 0; i < shopGunButtonGameObjects.Length; i++)
             {
-                item.SetActive(false);
-                Destroy(item.gameObject);
-            }
-
-            foreach (var item in gunButtons)
-            {
-                item.onClick.RemoveAllListeners();
-                item.gameObject.SetActive(false);
-                Destroy(item.gameObject);
+                Destroy(shopGunButtonGameObjects[i]);
             }
         }
 
         playerTruck = truck;
         playerTruck._rigidbody.useGravity = false;
 
-        gunButtons = new Button[playerTruck.firePoint.gunsPoints.Count];
-        gunButtObj = new GameObject[playerTruck.firePoint.gunsPoints.Count];
+        playerTruck.TruckData = PlayerStaticRunTimeData.customizationTruckData;
+        playerTruck.TruckData.ReturnObjectsToPool(playerTruck);
+        playerTruck.TruckData.SetUpTruck(playerTruck);
+
+        shopGunButtons = new Button[playerTruck.firePoint.gunsPoints.Count];
+        shopGunButtonGameObjects = new GameObject[playerTruck.firePoint.gunsPoints.Count];
 
         for (int i = 0; i < playerTruck.firePoint.gunsPoints.Count; i++)
         {
-            gunButtObj[i] = Instantiate(gunSelectButtonPrefab);
-            gunButtons[i] = gunButtObj[i].GetComponentInChildren<Button>();
-            gunButtObj[i].transform.parent = playerTruck.firePoint.gunsPoints[i].gunsLocation;
-            gunButtObj[i].transform.localPosition = Vector3.zero;
-            gunButtObj[i].transform.LookAt(Camera.main.transform);
-            gunButtObj[i].GetComponentInChildren<GunChangeButton>().StartListeningGunPoint(playerTruck.firePoint.gunsPoints[i]);
-            gunButtObj[i].transform.parent = null;
+            shopGunButtonGameObjects[i] = Instantiate(shopGunButtonGameObject);
+            shopGunButtons[i] = shopGunButtonGameObjects[i].GetComponentInChildren<Button>();
+            shopGunButtonGameObjects[i].transform.parent = playerTruck.firePoint.gunsPoints[i].gunsLocation;
+            shopGunButtonGameObjects[i].transform.localPosition = Vector3.zero;
+            shopGunButtonGameObjects[i].transform.LookAt(Camera.main.transform);
+            shopGunButtonGameObjects[i].GetComponentInChildren<ShopGunHandler>().StartListeningGunPoint(playerTruck.firePoint.gunsPoints[i]);
+            shopGunButtonGameObjects[i].transform.parent = null;
         }
+
         changeTruckButton = GameObject.Find("ChangeTruck").GetComponent<Button>();
         changeTruckButton.onClick.AddListener(() => ChangeTruck());
 
         upgradeFirePointButton = GameObject.Find("UpgradeFirePoint").GetComponent<Button>();
         upgradeFirePointButton.onClick.AddListener(() => UpgradeFirePoint());
 
-        buyButton = GameObject.Find("Buy").GetComponent<Button>();
+        trucksConditionSlider = GameObject.Find("TrucksConditionSlider").GetComponent<Slider>();
+        trucksConditionSlider.onValueChanged.AddListener(delegate { ChangeCondition(trucksConditionSlider.value); });
 
+        buyButton = GameObject.Find("Buy").GetComponent<Button>();
     }
     
     public void UpgradeFirePoint()
     {
-        playerTruck.TruckData = PlayerStaticRunTimeData.customizationTruckData;
 
         firePointTypeCount++;
 
         if(firePointTypeCount> System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1)
         {
-            firePointTypeCount = 0;
+            firePointTypeCount = 1;
         }
 
         GameEnums.FirePointType firePointToBuy = (GameEnums.FirePointType)firePointTypeCount;
 
-        playerTruck.TruckData.firePointType = firePointToBuy;
-        playerTruck.TruckData.ReturnObjectsToPool(playerTruck);
-        playerTruck.SetUpTruck();
+        PlayerStaticRunTimeData.customizationTruckData.firePointType = firePointToBuy;
 
         upgradeFirePointButton.onClick.RemoveAllListeners();
 
@@ -108,14 +105,19 @@ public class CustomizationHandler : MonoCached
         {
             PlayerStaticRunTimeData.playerTruckData.RewriteData(PlayerStaticRunTimeData.customizationTruckData);
             PlayerStaticRunTimeData.coins -= cost;
+            PlayerDataDebug.RefreshStatistics();
+            PersistentPlayerDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, PlayerStaticRunTimeData.playerFirePointData, new PlayerSessionData(0, 0));
+            buyButton.gameObject.GetComponentInChildren<Text>().text = "";
+
         }
+
+        InjectPlayerTruck(playerTruck);
+
         buyButton.onClick.RemoveAllListeners();
-        PlayerDataDebug.RefreshStatistics();
     }
 
     public void ChangeTruck()
     {
-        playerTruck.TruckData = PlayerStaticRunTimeData.customizationTruckData;
 
         truckTypeCount++;
 
@@ -124,9 +126,7 @@ public class CustomizationHandler : MonoCached
             truckTypeCount = 0;
         }
         GameEnums.Truck truckToBuy = (GameEnums.Truck)truckTypeCount;
-        playerTruck.TruckData.truckType = truckToBuy;
-        playerTruck.TruckData.ReturnObjectsToPool(playerTruck);
-        playerTruck.SetUpTruck();
+        PlayerStaticRunTimeData.customizationTruckData.truckType = truckToBuy;
 
         changeTruckButton.onClick.RemoveAllListeners();
 
@@ -146,8 +146,18 @@ public class CustomizationHandler : MonoCached
         {
             PlayerStaticRunTimeData.playerTruckData.RewriteData(PlayerStaticRunTimeData.customizationTruckData);
             PlayerStaticRunTimeData.coins -= cost;
+            PlayerDataDebug.RefreshStatistics();
+            PersistentPlayerDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, PlayerStaticRunTimeData.playerFirePointData, new PlayerSessionData(0, 0));
+            buyButton.gameObject.GetComponentInChildren<Text>().text = "";
+
         }
+        InjectPlayerTruck(playerTruck);
+
         buyButton.onClick.RemoveAllListeners();
-        PlayerDataDebug.RefreshStatistics();
+    }
+
+    public void ChangeCondition(float value)
+    {
+        PlayerStaticRunTimeData.playerTruckData.maxTrucksCondition = value;
     }
 }
