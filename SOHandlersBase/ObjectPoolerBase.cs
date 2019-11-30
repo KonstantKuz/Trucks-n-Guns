@@ -38,7 +38,7 @@ public class ObjectPoolerBase : ScriptableObject
 
             for (int j = 0; j < pools[i].size; j++)
             {
-                pools[i].tag = pools[i].prefab.name;
+                //pools[i].tag = pools[i].prefab.name;
 
                 GameObject instatObj = Instantiate(pools[i].prefab, parentInScene);
 
