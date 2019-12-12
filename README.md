@@ -1,4 +1,5 @@
-# TruckDefense
+# Trucks'n'Guns : Endless Road War
+
 Code of my first and only large mobile project at the moment.
 
 The principle of operation is based on a "single entry point", (almost) all dependencies are implemented through the "general game state handler" script, which also launches all game "handlers".
