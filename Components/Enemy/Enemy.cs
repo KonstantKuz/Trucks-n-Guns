@@ -86,8 +86,6 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
 
     public void RandomizeData()
     {
-        int randomState = Random.Range(0, 2);
-        followType = (GameEnums.EnemyFollowType)randomState;
         int randomTruck = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Truck)).Length);
         truck.TruckData.truckType = (GameEnums.Truck)randomTruck;
 

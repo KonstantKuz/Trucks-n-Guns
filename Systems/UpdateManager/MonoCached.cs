@@ -7,6 +7,23 @@ public class MonoCached : MonoBehaviour
     public static List<MonoCached> customFixedUpdates = new List<MonoCached>(1000);
     public static List<MonoCached> customLateUpdates = new List<MonoCached>(1000);
 
+    public Rigidbody cached_rigidody { get; private set; }
+    public Transform cached_transform { get; private set; }
+    public GameObject cached_gameObject { get; private set; }
+
+    [ContextMenu("DebugObjects")]
+    public void DebugObjects()
+    {
+        for (int i = 0; i < customUpdates.Count; i++)
+        {
+            Debug.Log(customUpdates[i].gameObject.name);
+        }
+        for (int i = 0; i < customFixedUpdates.Count; i++)
+        {
+            Debug.Log(customFixedUpdates[i].gameObject.name);
+        }
+    }
+
     private void OnEnable()
     {
         customUpdates.Add(this);

@@ -13,7 +13,7 @@ public class EntityCondition : MonoCached
 
     public float currentCondition { get; private set; }
 
-    public float maxCondition { get; set; }
+    private float maxCondition;
 
     private bool invincible;
 
@@ -30,7 +30,6 @@ public class EntityCondition : MonoCached
     private void OnEnable()
     {
         StartCoroutine(InvincibleForSeconds(onEnableInvincibleTime));
-        currentCondition = maxCondition;
         effectPooler = ObjectPoolersHolder.Instance.EffectPooler;
     }
     private void OnDisable()
@@ -40,41 +39,47 @@ public class EntityCondition : MonoCached
     private IEnumerator InvincibleForSeconds(float time)
     {
         invincible = true;
-        yield return new WaitForSeconds(time);
+        yield return new WaitForSecondsRealtime(time);
         invincible = false;
     }
-    public void ResetCurrentCondition(float value)
+    public void ResetCondition(float value)
     {
-        currentCondition = value;
+        maxCondition = value;
+        currentCondition = maxCondition;
     }
     private void OnCollisionEnter(Collision collision)
     {
         float damageRange;
 
-        if (!ReferenceEquals(collision.rigidbody, null))
+        if(collision.gameObject.layer != LayerMask.NameToLayer("Ground"))
         {
-            Rigidbody collidedRigidbody = collision.rigidbody;
-            Vector3 myBodyVelocity = collision.rigidbody.velocity - collision.relativeVelocity;
-
-            if (/*collision.rigidbody.mass > 20000 &&*/ collidedRigidbody.velocity.sqrMagnitude>myBodyVelocity.sqrMagnitude)
+            if (!ReferenceEquals(collision.rigidbody, null))
             {
-                //Debug.Log($"<color=red> {collidedRigidbody.name} velocity was greater than {gameObject.name}</color>");
-                damageRange = collision.relativeVelocity.sqrMagnitude*2f;
-                AddDamage(damageRange);
+                Rigidbody collidedRigidbody = collision.rigidbody;
+                Vector3 myBodyVelocity = collision.rigidbody.velocity - collision.relativeVelocity;
+
+                if (collision.rigidbody.mass > 30000 && collidedRigidbody.velocity.sqrMagnitude > myBodyVelocity.sqrMagnitude)
+                {
+                    //Debug.Log($"<color=red> {collidedRigidbody.name} velocity was greater than {gameObject.name}</color>");
+                    damageRange = collision.relativeVelocity.sqrMagnitude * 2f;
+
+                    AddDamage(damageRange);
+                }
+                else
+                {
+                    //Debug.Log($"<color=green> {gameObject.name} velocity was greater than {collidedRigidbody.name}</color>");
+
+                    damageRange = collision.relativeVelocity.sqrMagnitude * 2f/* collision.rigidbody.mass* collision.relativeVelocity.sqrMagnitude/ 100f*/;
+                    AddHealth(damageRange);
+                }
             }
             else
             {
-                //Debug.Log($"<color=green> {gameObject.name} velocity was greater than {collidedRigidbody.name}</color>");
-
-                damageRange = collision.relativeVelocity.sqrMagnitude * 2f/* collision.rigidbody.mass* collision.relativeVelocity.sqrMagnitude/ 100f*/;
-                AddHealth(damageRange);
+                damageRange = collision.relativeVelocity.sqrMagnitude * 5f;
+                AddDamage(damageRange);
             }
         }
-        else
-        {
-            damageRange = collision.relativeVelocity.sqrMagnitude * 5f;
-            AddDamage(damageRange);
-        }
+        
     }
     public void AddHealth(float amount)
     {
@@ -95,7 +100,6 @@ public class EntityCondition : MonoCached
         if (currentCondition < 10)
         {
             ZeroConditionInvoke();
-            Death();
         }
         if(currentCondition>maxCondition)
         {
@@ -105,11 +109,14 @@ public class EntityCondition : MonoCached
     public void ZeroConditionInvoke()
     {
         OnZeroCondition?.Invoke();
+
+        Death();
     }
     public void CurrentConditionChanhedInvoke()
     {
         OnCurrentConditionChanged?.Invoke();
     }
+
     private void Death()
     {
         for (int i = 0; i < explosionCount; i++)

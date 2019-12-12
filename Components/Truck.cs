@@ -29,7 +29,7 @@ public class Truck : MonoCached
     public Transform CenterOfMass { get { return centerOfMass; } }
 
     private Quaternion clampedRotation;
-
+    private Vector3 clampedPosition;
     private AudioSource engineSoundSource;
 
     public override void CustomUpdate()
@@ -39,6 +39,9 @@ public class Truck : MonoCached
         clampedRotation.y = Mathf.Clamp(clampedRotation.y, -0.4f, 0.4f);
         clampedRotation.z = Mathf.Clamp(clampedRotation.z, -0.15f, 0.15f);
         _transform.rotation = clampedRotation;
+        clampedPosition = _transform.position;
+        clampedPosition.y = Mathf.Clamp(clampedPosition.y, 0, 3);
+        _transform.position = clampedPosition;
     }
 
     public void SetUpTruck()
@@ -64,8 +67,7 @@ public class Truck : MonoCached
             TruckData = truckDataToCopy;
         }
 
-        trucksCondition.maxCondition = TruckData.maxTrucksCondition;
-        trucksCondition.ResetCurrentCondition(TruckData.maxTrucksCondition);
+        trucksCondition.ResetCondition(TruckData.maxTrucksCondition);
 
         TruckData.SetUpTruck(this);
         if (firePoint == null)

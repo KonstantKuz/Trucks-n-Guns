@@ -53,10 +53,10 @@ public class RaycastWheel : MonoCached {
     //{
     //    allTicks.Remove(this);
     //}
-    void Start ()
+    void Awake ()
 	{
-		wheelCircumference = wheelRadius * Mathf.PI * 2;
         _transform = transform;
+        wheelCircumference = wheelRadius * Mathf.PI * 2;
         //parentRigidbody = _transform.GetComponentInParent<Rigidbody>();
     }
 

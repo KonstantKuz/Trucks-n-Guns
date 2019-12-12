@@ -17,7 +17,6 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
     public void AwakeEvent(Vector3 playerPosition)
     {
-
         transform.position = new Vector3(0,0, playerPosition.z + roadBlockData.zSpawnOffset);
         roadBlockData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1);
         
@@ -105,7 +104,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
     {
         StateMachine.State<Enemy> previousState = enemy.followTypeStateController.currentState;
         enemy.followTypeStateController.ChangeState(IdleState.Instance);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSecondsRealtime(1f);
         enemy.followTypeStateController.ChangeState(previousState);
     }
 
@@ -122,7 +121,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
         for (int i = 0; i < firePoint.gunsPoints.Count; i++)
         {
             firePoint.gunsPoints[i].gunsLocation.gameObject.SetActive(true);
-            firePoint.gunsPoints[i].gunsLocation.gameObject.GetComponent<EntityCondition>().ResetCurrentCondition(roadBlockData.conditionPerGun);
+            firePoint.gunsPoints[i].gunsLocation.gameObject.GetComponent<EntityCondition>().ResetCondition(roadBlockData.conditionPerGun);
             totalStartCondition = firePoint.gunsPoints[i].gunsLocation.gameObject.GetComponent<EntityCondition>().currentCondition;
         }
     }

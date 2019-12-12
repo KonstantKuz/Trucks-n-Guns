@@ -4,24 +4,30 @@ using UnityEngine;
 
 public class RoadTile : MonoCached
 {
-    public RoadTileType roadTileType;
+    public RoadTileConfiguration roadTileConfiguration;
 
     public RoadTileTransitionCapabilitiesData NextRoadTileCapabilitiesHolder;
 
-    public PhysicalEnvironment[] env;
     public GameObject[] objects;
+
+    public List<PhysicalEnvironmentHolder> environmentHolders;
 
     private void Awake()
     {
-        env = gameObject.GetComponentsInChildren<PhysicalEnvironment>();
-
+        foreach (Transform child  in transform)
+        {
+            if(!ReferenceEquals(child.GetComponent<PhysicalEnvironmentHolder>(), null))
+            {
+                environmentHolders.Add(child.GetComponent<PhysicalEnvironmentHolder>());
+            }
+        }
     }
 
     [ContextMenu("SetUpPossibleTilesData")]
     public void SetUpPossibleTilesData()
     {
-        roadTileType.tileName = gameObject.name;
-        NextRoadTileCapabilitiesHolder.SetUpCapabilities(roadTileType);
+        roadTileConfiguration.tileName = gameObject.name;
+        NextRoadTileCapabilitiesHolder.SetUpCapabilities(roadTileConfiguration);
     }
 
     public void ResetEnv(float allRoadLEngt)
@@ -31,10 +37,10 @@ public class RoadTile : MonoCached
 
     private IEnumerator ResetEnvCall(float allRoadLEngt)
     {
-        for (int i = 0; i < env.Length; i++)
+        for (int i = 0; i < environmentHolders.Count; i++)
         {
-            env[i].ResetMe();
-            yield return new WaitForEndOfFrame();
+            environmentHolders[i].ResetEnvironment();
+             yield return new WaitForEndOfFrame();
         }
     }
 

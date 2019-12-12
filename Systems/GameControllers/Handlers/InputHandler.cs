@@ -3,144 +3,113 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[System.Serializable]
-public class GeneralGameStateController
-{
-
-}
-
 public class InputHandler : MonoCached
 {
-    [SerializeField]
-    private GameObject moveControllerPrefab, fireAreaPrefab, fwdBoost, bcwdBoost, prkngBrake;
-    
     public LayerMask damageableMask;
+    public LayerMask groundMask;
 
-    private Slider moveController;
-    private RectTransform fireArea;
-    private Button forwardBoost, backwardBoost, parkingBrake, restart;
+    public Transform targetPoint;
+
+    public RectTransform moveController;
+    public RectTransform fireArea;
+    public Button forwardBoost, backwardBoost, parkingBrake, changeCameraState, restart;
     private Camera mainCamera;
     private Vector3 seekPointPosition = Vector3.zero;
 
 
-    public Player player { get; set; }
+    private Player player;
     public float steeringForce { get; private set; }
     public bool doubleTap { get; private set; }
     
-    public void CreateControlsUI()
-    {
-        GameObject contr = Instantiate(moveControllerPrefab, GameObject.Find("UI").transform.GetChild(0).transform);
-        moveController = contr.GetComponentInChildren<Slider>();
-        GameObject fireAr = Instantiate(fireAreaPrefab, moveController.transform.parent, GameObject.Find("UI").transform.GetChild(0).transform);
-        fireArea = fireAr.GetComponent<RectTransform>();
-
-        GameObject fwdbst = Instantiate(fwdBoost, GameObject.Find("UI").transform.GetChild(0).transform);
-        forwardBoost = fwdBoost.GetComponent<Button>();
-        GameObject bcwdbst = Instantiate(bcwdBoost, GameObject.Find("UI").transform.GetChild(0).transform);
-        backwardBoost = bcwdbst.GetComponent<Button>();
-
-        GameObject prkBrk = Instantiate(prkngBrake, GameObject.Find("UI").transform.GetChild(0).transform);
-        parkingBrake = prkBrk.GetComponent<Button>();
-    }
     public void FindControlsUI()
     {
-        moveController = GameObject.Find("MoveCntr").GetComponent<Slider>();
-        fireArea = GameObject.Find("FireArea").GetComponent<RectTransform>();
-        forwardBoost = GameObject.Find("ForwardBoost").GetComponent<Button>();
-        backwardBoost = GameObject.Find("BackwardBoost").GetComponent<Button>();
-        parkingBrake = GameObject.Find("ParkingBrake").GetComponent<Button>();
-        //restart = GameObject.Find("Restart").GetComponent<Button>();
-
         forwardBoost.onClick.AddListener(() => player.ForwardBoost());
         backwardBoost.onClick.AddListener(() => player.BackwardBoost());
-        parkingBrake.onClick.AddListener(() => StopPlayer());
+        parkingBrake.onClick.AddListener(() => player.StopPlayerTruck());
+        changeCameraState.onClick.AddListener(() => ChangeCameraState());
         //restart.onClick.AddListener(() => Restart());
-
-        moveController.onValueChanged.AddListener(delegate { SteeringForceValueChange(); });
     }
     public void FindCamera()
     {
         mainCamera = Camera.main;
     }
     
-    private void StopPlayer()
+    public void ChangeCameraState()
     {
-        player.StopPlayerTruck();
+        PlayerHandler.staticCamera = !PlayerHandler.staticCamera;
     }
-    private void SteeringForceValueChange()
-    {
-        steeringForce = moveController.value;
-    }
+
     public void StartUpdateInputs()
     {
+        player = PlayerHandler.playerInstance;
         StartCoroutine(UpdateInputs());
     }
     private IEnumerator UpdateInputs()
     {
-        yield return new WaitForFixedUpdate();
-
-        #region unityAndroid
-#if UNITY_ANDROID
-        if(!ReferenceEquals(player.seekPoint, null))
+        yield return new WaitForEndOfFrame();
+        if(!ReferenceEquals(player.FirstTrackingGroupsTarget, null) && !ReferenceEquals(player.FirstTrackingGroupsTarget.target_rigidbody, null))
         {
-            seekPointPosition.x = steeringForce * 24f;
+            targetPoint.position = player.FirstTrackingGroupsTarget.target_rigidbody.position;
+        }
+
+        if (!ReferenceEquals(player.seekPoint, null))
+        {
             seekPointPosition.z = player.truck._transform.position.z + 30f;
             player.seekPoint.position = seekPointPosition;
             player.MovePlayerTruck();
         }
+        #region unityAndroid
+#if UNITY_ANDROID
 
         foreach (Touch touch in Input.touches)
         {
-            Vector2 localTouchPosition = fireArea.InverseTransformPoint(touch.position);
-            if (fireArea.rect.Contains(localTouchPosition))
+            Vector2 moveAreaTouchPosition = moveController.InverseTransformPoint(touch.position);
+            if(moveController.rect.Contains(moveAreaTouchPosition))
             {
-                if(touch.tapCount == 1)
-                {
-                    SetUpPlayersTarget(touch, GameEnums.TrackingGroup.FirstTrackingGroup);
-                }
-                if (touch.tapCount == 2)
-                {
-                    SetUpPlayersTarget(touch, GameEnums.TrackingGroup.SecondTrackingGroup);
-                }
+                SetSeekPointPosition(touch);
             }
-
+            Vector2 fireAreaTouchPosition = fireArea.InverseTransformPoint(touch.position);
+            if (fireArea.rect.Contains(fireAreaTouchPosition))
+            {
+                SetUpPlayersTarget(touch, GameEnums.TrackingGroup.FirstTrackingGroup);
+                //if (touch.tapCount == 1)
+                //{
+                //    SetUpPlayersTarget(touch, GameEnums.TrackingGroup.FirstTrackingGroup);
+                //}
+                //if (touch.tapCount == 2)
+                //{
+                //    SetUpPlayersTarget(touch, GameEnums.TrackingGroup.SecondTrackingGroup);
+                //}
+            }
         }
 #endif
-        #endregion 
+        #endregion
         #region unityEditor
 #if UNITY_EDITOR
-       // steeringForce = Input.GetAxis("Vertical");
-        Vector2 localMousePosition = fireArea.InverseTransformPoint(Input.mousePosition);
-        if (fireArea.rect.Contains(localMousePosition))
+        Vector2 moveAreaMousePosition = moveController.InverseTransformPoint(Input.mousePosition);
+        if (moveController.rect.Contains(moveAreaMousePosition))
         {
-            if (Input.GetMouseButton(0))
-            {
-                SetUpPlayersTarget(Input.mousePosition, GameEnums.TrackingGroup.FirstTrackingGroup);
-            }
-            if (Input.GetMouseButton(1))
-            {
-                SetUpPlayersTarget(Input.mousePosition, GameEnums.TrackingGroup.SecondTrackingGroup);
-            }
+            SetSeekPointPosition(Input.mousePosition);
         }
-        if(Input.GetKeyDown(KeyCode.F))
+        Vector2 fireAreaMousePosition = fireArea.InverseTransformPoint(Input.mousePosition);
+        if (fireArea.rect.Contains(fireAreaMousePosition))
         {
-            player.ForwardBoost();
-        }
-        if(Input.GetKeyDown(KeyCode.V))
-        {
-            player.BackwardBoost();
-        }
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            player.StopPlayerTruck();
-        }
+            SetUpPlayersTarget(Input.mousePosition, GameEnums.TrackingGroup.FirstTrackingGroup);
 
+            //if (Input.GetMouseButton(0))
+            //{
+            //    SetUpPlayersTarget(Input.mousePosition, GameEnums.TrackingGroup.FirstTrackingGroup);
+            //}
+            //if (Input.GetMouseButton(1))
+            //{
+            //    SetUpPlayersTarget(Input.mousePosition, GameEnums.TrackingGroup.SecondTrackingGroup);
+            //}
+        }
 #endif
-
         yield return StartCoroutine(UpdateInputs());
         #endregion
     }
-    void SetUpPlayersTarget(Vector3 mousePosition, GameEnums.TrackingGroup trackingGroup)
+    private void SetUpPlayersTarget(Vector3 mousePosition, GameEnums.TrackingGroup trackingGroup)
     {
         Ray ray = mainCamera.ScreenPointToRay(mousePosition);
         RaycastHit hit;
@@ -152,7 +121,7 @@ public class InputHandler : MonoCached
             }
         }
     }
-    void SetUpPlayersTarget(Touch touch, GameEnums.TrackingGroup trackingGroup)
+    private void SetUpPlayersTarget(Touch touch, GameEnums.TrackingGroup trackingGroup)
     {
         Ray ray = mainCamera.ScreenPointToRay(touch.position);
         RaycastHit hit;
@@ -162,6 +131,25 @@ public class InputHandler : MonoCached
             {
                 player.SetUpTargets(hit.rigidbody, trackingGroup);
             }
+        }
+    }
+    
+    private void SetSeekPointPosition(Touch touch)
+    {
+        Ray ray = mainCamera.ScreenPointToRay(touch.position);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 200, groundMask))
+        {
+            seekPointPosition.x = hit.point.x;
+        }
+    }
+    private void SetSeekPointPosition(Vector3 mousePosition)
+    {
+        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 200, groundMask))
+        {
+            seekPointPosition.x = hit.point.x;
         }
     }
 }

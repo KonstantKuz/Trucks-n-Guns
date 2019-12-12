@@ -27,6 +27,7 @@ public class ObjectPoolerBase : ScriptableObject
 
     public void AwakePooler()
     {
+        int totalInstantiatedGameObjects = 0;
         GameObject parent = Instantiate(parentInScenePrefab);
         parentInScene = parent.transform;
 
@@ -41,7 +42,7 @@ public class ObjectPoolerBase : ScriptableObject
                 //pools[i].tag = pools[i].prefab.name;
 
                 GameObject instatObj = Instantiate(pools[i].prefab, parentInScene);
-
+                totalInstantiatedGameObjects++;
                 instatObj.name = instatObj.name.Replace("(Clone)", "");
 
 
@@ -52,6 +53,8 @@ public class ObjectPoolerBase : ScriptableObject
             tags.Add(pools[i].tag);
 
         }
+
+        //Debug.Log($"<color=green> Total count of instantiated gameobjects in {name} pool is equals to {totalInstantiatedGameObjects} </color>");
         //foreach (Pool pool in pools)
         //{
         //    Queue<GameObject> objectPool = new Queue<GameObject>();

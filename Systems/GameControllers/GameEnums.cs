@@ -11,6 +11,7 @@ public static class GameEnums
         //PlayerOverTaking = 3,
         //SingleTest = 4 
     }
+
     public enum FirePointType
     {
         D_FPType /*= 2*/,
@@ -22,6 +23,7 @@ public static class GameEnums
         DCP_FPType /*= 10*/,
         DCMP_FPType /*= 11*/
     }
+
     public enum GunLocation
     {
         DoorsRight,
@@ -37,23 +39,27 @@ public static class GameEnums
         BodyLeft,
         BodyBack
     }
+
     public enum TrackingGroup
     {
         FirstTrackingGroup,
         SecondTrackingGroup,
         StaticGroup
     }
+
     public enum DriveType
     {
         FrontWheelDrive,
         RearWheelDrive,
         AllWheelDrive
     }
+
     public enum BattleType
     {
         Tracking,
         Static
     }
+
     public enum Gun
     {
         None,
@@ -66,6 +72,7 @@ public static class GameEnums
         RocketLauncher1,
         RocketLauncher2
     }
+
     public enum Truck
     {
         APACH,
@@ -119,5 +126,12 @@ public static class GameEnums
         Start,
         Middle,
         End
+    }
+
+    public enum TaskType
+    {
+        DestroyEnemies,
+        TravelDistance,
+        TravelTime
     }
 }

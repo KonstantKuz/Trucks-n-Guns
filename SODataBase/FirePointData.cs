@@ -18,6 +18,20 @@ public class FirePointData : Data
 
     public GunConfiguration[] gunsConfigurations;
 
+
+    public GunConfiguration GetConfigOnLocation(string locationPath)
+    {
+        for (int i = 0; i < gunsConfigurations.Length; i++)
+        {
+            if (gunsConfigurations[i].locationPath.ToString() == locationPath)
+            {
+                return gunsConfigurations[i];
+            }
+        }
+        Debug.LogError($"GunConfig with {locationPath} path does not contains in FPData");
+        return null;
+    }
+
     public void PermanentSetUpFirePoint(FirePoint firePoint)
     {
         firePoint.CreateFirePointsDictionaries();
@@ -66,7 +80,12 @@ public class FirePointData : Data
     {
         for (int i = 0; i < gunsConfigurations.Length; i++)
         {
-            gunsConfigurations[i] = dataToCopy.gunsConfigurations[i];
+            gunsConfigurations[i].battleType = dataToCopy.gunsConfigurations[i].battleType;
+            gunsConfigurations[i].gunDataType = dataToCopy.gunsConfigurations[i].gunDataType;
+            gunsConfigurations[i].gunType = dataToCopy.gunsConfigurations[i].gunType;
+            gunsConfigurations[i].locationPath = dataToCopy.gunsConfigurations[i].locationPath;
+            gunsConfigurations[i].trackingGroup = dataToCopy.gunsConfigurations[i].trackingGroup;
+
         }
     }
 

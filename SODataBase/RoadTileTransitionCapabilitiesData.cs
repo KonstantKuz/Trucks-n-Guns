@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class RoadTileType
+public class RoadTileConfiguration
 {
     public GameEnums.RoadPropsType propsType;
     public GameEnums.RoadAsphaltType asphaltType;
@@ -11,22 +11,22 @@ public class RoadTileType
     public string tileName { get; set; }
 }
 
-public static class RoadTilesDictionary
-{
-    public static List<RoadTileType> roadTiles = new List<RoadTileType>(1000);
+//public static class RoadTilesDictionary
+//{
+//    public static List<RoadTileConfiguration> roadTiles = new List<RoadTileConfiguration>(1000);
 
-    public static void AddNewTile(RoadTileType roadDataToAdd)
-    {
-        if(!roadTiles.Contains(roadDataToAdd))
-        {
-            roadTiles.Add(roadDataToAdd);
-        }
-        else
-        {
-            Debug.LogWarning($"<color=red> RoadTilesDictionary already exists {roadDataToAdd.tileName} roaddata </color>");
-        }
-    }
-}
+//    public static void AddNewTile(RoadTileConfiguration roadDataToAdd)
+//    {
+//        if(!roadTiles.Contains(roadDataToAdd))
+//        {
+//            roadTiles.Add(roadDataToAdd);
+//        }
+//        else
+//        {
+//            Debug.LogWarning($"<color=red> RoadTilesDictionary already exists {roadDataToAdd.tileName} roaddata </color>");
+//        }
+//    }
+//}
 [CreateAssetMenu(fileName = "NextRoadTileData", menuName = "Data/NextRoadTileData")]
 public class RoadTileTransitionCapabilitiesData : Data
 {
@@ -34,175 +34,240 @@ public class RoadTileTransitionCapabilitiesData : Data
     public class PossibleTile
     {
         public string TileName;
-        [Range(10,100)]
+        [Range(1, 100)]
         public int TileWeight;
     }
 
-    public List<PossibleTile> possibleTiles;
+    public List<PossibleTile> PossibleTilesForThis = new List<PossibleTile>(100);
+    private List<string> currentAvailablePossibleTileNames = new List<string>(100);
+    public static List<RoadTileConfiguration> allInGameAvailableRoadConfigs = new List<RoadTileConfiguration>(100);
 
-    public string NextWeightedRandomTile()
+    public string GetNextRandomWeightedRoadTileName()
     {
         int totalWeight = 0;
-        for (int i = 0; i < possibleTiles.Count; i++)
+        for (int i = 0; i < PossibleTilesForThis.Count; i++)
         {
-            totalWeight += possibleTiles[i].TileWeight;
+            totalWeight += PossibleTilesForThis[i].TileWeight;
         }
         int randomValue = Random.Range(0, totalWeight + 1);
 
-        for (int i = 0; i < possibleTiles.Count; i++)
+        for (int i = 0; i < PossibleTilesForThis.Count; i++)
         {
-            if (randomValue <= possibleTiles[i].TileWeight)
+            if (randomValue <= PossibleTilesForThis[i].TileWeight)
             {
-                return possibleTiles[i].TileName;
+                return PossibleTilesForThis[i].TileName;
             }
 
-            randomValue -= possibleTiles[i].TileWeight;
+            randomValue -= PossibleTilesForThis[i].TileWeight;
         }
 
         Debug.Log("<color=red> Weigted Random was return null </color>");
         return null;
     }
-    
-    public void SetUpCapabilities(RoadTileType ownersRoadTileType)
+
+    [ContextMenu("ClearAllData")]
+    public void ClearAllData()
+    {
+        PossibleTilesForThis.Clear();
+        currentAvailablePossibleTileNames.Clear();
+        allInGameAvailableRoadConfigs.Clear();
+    }
+
+    public void SetUpCapabilities(RoadTileConfiguration newRoadTileConfiguration)
     {
         Debug.Log("<color=green> Started seting up possibilities </color>");
-        possibleTiles = new List<PossibleTile>(50);
-        RoadTilesDictionary.AddNewTile(ownersRoadTileType);
 
-        List<RoadTileType> possibleTypes = new List<RoadTileType>(100);
-        List<GameEnums.RoadAsphaltType> possibleAsphaltTypesForOwner = PossibleAsphaltTypes(ownersRoadTileType);
-        List<GameEnums.RoadPropsType> possiblePropsTypesForOwner = PossiblePropsType(ownersRoadTileType);
-        List<GameEnums.RoadShapeType> possibleShapeTypesForOwner = PossibleShapeType(ownersRoadTileType);
-
-        for (int asphaltTypeCounter = 0; asphaltTypeCounter < possibleAsphaltTypesForOwner.Count; asphaltTypeCounter++)
+        if (!allInGameAvailableRoadConfigs.Contains(newRoadTileConfiguration))
         {
-            for (int propsTypeCounter = 0; propsTypeCounter < possiblePropsTypesForOwner.Count; propsTypeCounter++)
-            {
-                for (int shapeTypesCounter = 0; shapeTypesCounter < possibleShapeTypesForOwner.Count; shapeTypesCounter++)
-                {
-                    RoadTileType possibleType = new RoadTileType();
-                    possibleType.asphaltType = possibleAsphaltTypesForOwner[asphaltTypeCounter];
-                    possibleType.propsType = possiblePropsTypesForOwner[propsTypeCounter];
-                    possibleType.shapeType = possibleShapeTypesForOwner[shapeTypesCounter];
-                    possibleTypes.Add(possibleType);
-                }
-            }
+            allInGameAvailableRoadConfigs.Add(newRoadTileConfiguration);
         }
 
-        for (int i = 0; i < RoadTilesDictionary.roadTiles.Count; i++)
+        List<RoadTileConfiguration> possibleConfigsForNewRoad = PossibleRoadConfigsFor(newRoadTileConfiguration);
+
+        for (int i = 0; i < allInGameAvailableRoadConfigs.Count; i++)
         {
-            for (int j = 0; j < possibleTypes.Count; j++)
+            for (int j = 0; j < possibleConfigsForNewRoad.Count; j++)
             {
-                RoadTileType tileFromDictionary = RoadTilesDictionary.roadTiles[i];
-                RoadTileType possibleType = possibleTypes[j];
-                if (tileFromDictionary.asphaltType == possibleType.asphaltType &&  tileFromDictionary.propsType == possibleType.propsType && tileFromDictionary.shapeType == possibleType.shapeType)
+                RoadTileConfiguration concreteConfigFromAllAvailable = allInGameAvailableRoadConfigs[i];
+                RoadTileConfiguration concreteConfigFromAllPossible = possibleConfigsForNewRoad[j];
+
+                if (concreteConfigFromAllAvailable.asphaltType == concreteConfigFromAllPossible.asphaltType && concreteConfigFromAllAvailable.propsType == concreteConfigFromAllPossible.propsType && concreteConfigFromAllAvailable.shapeType == concreteConfigFromAllPossible.shapeType)
                 {
-                    Debug.Log($"Here was added a new possible tile with name {tileFromDictionary.tileName}");
                     PossibleTile possibleTile = new PossibleTile();
-                    possibleTile.TileName = tileFromDictionary.tileName;
-                    possibleTiles.Add(possibleTile);
+                    possibleTile.TileName = concreteConfigFromAllAvailable.tileName;
+                    possibleTile.TileWeight = 0;
+                    if (!currentAvailablePossibleTileNames.Contains(possibleTile.TileName))
+                    {
+                        Debug.Log($"Here was added a new possible tile with name {concreteConfigFromAllAvailable.tileName}");
+
+                        currentAvailablePossibleTileNames.Add(possibleTile.TileName);
+                        PossibleTilesForThis.Add(possibleTile);
+                    }
                 }
             }
         }
 
-        for (int i = 0; i < possibleTiles.Count; i++)
-        {
-            if(possibleTiles[i].TileName.Contains("End"))
-            {
-                possibleTiles[i].TileWeight = 10;
-            }
-            else
-            {
-                possibleTiles[i].TileWeight = 100 / possibleTiles.Count;
-            }
-        }
+        SetUpWeights();
+
         Debug.Log("<color=red> Stopped seting up possibilities </color>");
     }
 
-    public List<GameEnums.RoadAsphaltType> PossibleAsphaltTypes(RoadTileType ownersType)
+    public List<RoadTileConfiguration> PossibleRoadConfigsFor(RoadTileConfiguration newRoadTile)
     {
-        List<GameEnums.RoadAsphaltType> possibleTypes = new List<GameEnums.RoadAsphaltType>(System.Enum.GetNames(typeof(GameEnums.RoadAsphaltType)).Length);
+        List<RoadTileConfiguration> possibleConfigsForNewRoad = new List<RoadTileConfiguration>(100);
+        List<GameEnums.RoadAsphaltType> possibleAsphaltTypesForNewRoad = PossibleAsphaltTypes(newRoadTile);
+        List<GameEnums.RoadPropsType> possiblePropsTypesForNewRoad = PossiblePropsType(newRoadTile);
+        List<GameEnums.RoadShapeType> possibleShapeTypesForNewRoad = PossibleShapeType(newRoadTile);
 
-        switch (ownersType.shapeType)
+        for (int asphaltTypeCounter = 0; asphaltTypeCounter < possibleAsphaltTypesForNewRoad.Count; asphaltTypeCounter++)
         {
-            case GameEnums.RoadShapeType.Start:
-                possibleTypes.Add(ownersType.asphaltType);
-                break;
-            case GameEnums.RoadShapeType.Middle:
-                possibleTypes.Add(ownersType.asphaltType);
-                break;
-            case GameEnums.RoadShapeType.End:
-                int typeCounter = 0;
-                for (int i = 0; i < System.Enum.GetNames(typeof(GameEnums.RoadAsphaltType)).Length; i++)
+            for (int propsTypeCounter = 0; propsTypeCounter < possiblePropsTypesForNewRoad.Count; propsTypeCounter++)
+            {
+                for (int shapeTypesCounter = 0; shapeTypesCounter < possibleShapeTypesForNewRoad.Count; shapeTypesCounter++)
                 {
-                    GameEnums.RoadAsphaltType asphType = (GameEnums.RoadAsphaltType)typeCounter;
-                    possibleTypes.Add(asphType);
-                    typeCounter++;
+                    RoadTileConfiguration possibleConfig = new RoadTileConfiguration();
+                    possibleConfig.asphaltType = possibleAsphaltTypesForNewRoad[asphaltTypeCounter];
+                    possibleConfig.propsType = possiblePropsTypesForNewRoad[propsTypeCounter];
+                    possibleConfig.shapeType = possibleShapeTypesForNewRoad[shapeTypesCounter];
+                    possibleConfigsForNewRoad.Add(possibleConfig);
                 }
-                break;
+            }
         }
-        if(possibleTypes.Count == 0)
-        {
-            throw new System.Exception("Cannot return AsphaltType");
-        }
-        Debug.Log($"<color=blue> {possibleTypes} was returned with count {possibleTypes.Count} </color>");
 
-        return possibleTypes;
+        return possibleConfigsForNewRoad;
     }
 
-    public List<GameEnums.RoadPropsType> PossiblePropsType(RoadTileType ownersType)
+    public void SetUpWeights()
     {
-        List<GameEnums.RoadPropsType> possibleTypes = new List<GameEnums.RoadPropsType>(System.Enum.GetNames(typeof(GameEnums.RoadPropsType)).Length);
+        int From_End_totalWeight = 0;
+        int From_End_totalCount = 0;
+        for (int i = 0; i < PossibleTilesForThis.Count; i++)
+        {
+            if (PossibleTilesForThis[i].TileName.Contains("End"))
+            {
+                PossibleTilesForThis[i].TileWeight = 20;
+                From_End_totalWeight+= 20;
+                From_End_totalCount++;
+            }
+            if (PossibleTilesForThis[i].TileName.Contains("From"))
+            {
+                PossibleTilesForThis[i].TileWeight = 10;
+                From_End_totalWeight+=10;
+                From_End_totalCount++;
+            }
+        }
+        for (int i = 0; i < PossibleTilesForThis.Count; i++)
+        {
+            if(!PossibleTilesForThis[i].TileName.Contains("End") && !PossibleTilesForThis[i].TileName.Contains("From"))
+            {
+                PossibleTilesForThis[i].TileWeight = (100 - From_End_totalWeight) / (PossibleTilesForThis.Count - From_End_totalCount);
+            }
+        }
+    }
 
-        switch (ownersType.propsType)
+    public List<GameEnums.RoadAsphaltType> PossibleAsphaltTypes(RoadTileConfiguration newRoadTilesConfig)
+    {
+        List<GameEnums.RoadAsphaltType> allPossibleAsphaltTypesForNewTile = new List<GameEnums.RoadAsphaltType>(System.Enum.GetNames(typeof(GameEnums.RoadAsphaltType)).Length);
+        if (newRoadTilesConfig.propsType == GameEnums.RoadPropsType.FromDesertToTown || newRoadTilesConfig.propsType == GameEnums.RoadPropsType.FromTownToDesert)
+        {
+            int typeCounter = 0;
+            for (int i = 0; i < System.Enum.GetNames(typeof(GameEnums.RoadAsphaltType)).Length; i++)
+            {
+                GameEnums.RoadAsphaltType asphType = (GameEnums.RoadAsphaltType)typeCounter;
+                allPossibleAsphaltTypesForNewTile.Add(asphType);
+                typeCounter++;
+            }
+        }
+        else
+        {
+            switch (newRoadTilesConfig.shapeType)
+            {
+                case GameEnums.RoadShapeType.Start:
+                    allPossibleAsphaltTypesForNewTile.Add(newRoadTilesConfig.asphaltType);
+                    break;
+                case GameEnums.RoadShapeType.Middle:
+                    allPossibleAsphaltTypesForNewTile.Add(newRoadTilesConfig.asphaltType);
+                    break;
+                case GameEnums.RoadShapeType.End:
+                    int typeCounter = 0;
+                    for (int i = 0; i < System.Enum.GetNames(typeof(GameEnums.RoadAsphaltType)).Length; i++)
+                    {
+                        GameEnums.RoadAsphaltType asphType = (GameEnums.RoadAsphaltType)typeCounter;
+                        allPossibleAsphaltTypesForNewTile.Add(asphType);
+                        typeCounter++;
+                    }
+                    break;
+            }
+            if (allPossibleAsphaltTypesForNewTile.Count == 0)
+            {
+                throw new System.Exception("Cannot return AsphaltType");
+            }
+            Debug.Log($"<color=blue> {allPossibleAsphaltTypesForNewTile} was returned with count {allPossibleAsphaltTypesForNewTile.Count} </color>");
+        }
+        return allPossibleAsphaltTypesForNewTile;
+    }
+
+    public List<GameEnums.RoadPropsType> PossiblePropsType(RoadTileConfiguration newRoadTilesConfig)
+    {
+        List<GameEnums.RoadPropsType> allPossiblePropsTypesForNewTile = new List<GameEnums.RoadPropsType>(System.Enum.GetNames(typeof(GameEnums.RoadPropsType)).Length);
+
+        switch (newRoadTilesConfig.propsType)
         {
             case GameEnums.RoadPropsType.Town:
-                possibleTypes.Add(GameEnums.RoadPropsType.Town);
-                possibleTypes.Add(GameEnums.RoadPropsType.FromTownToDesert);
+                allPossiblePropsTypesForNewTile.Add(GameEnums.RoadPropsType.Town);
+                allPossiblePropsTypesForNewTile.Add(GameEnums.RoadPropsType.FromTownToDesert);
                 break;
             case GameEnums.RoadPropsType.Desert:
-                possibleTypes.Add(GameEnums.RoadPropsType.Desert);
-                possibleTypes.Add(GameEnums.RoadPropsType.FromDesertToTown);
+                allPossiblePropsTypesForNewTile.Add(GameEnums.RoadPropsType.Desert);
+                allPossiblePropsTypesForNewTile.Add(GameEnums.RoadPropsType.FromDesertToTown);
                 break;
             case GameEnums.RoadPropsType.FromTownToDesert:
-                possibleTypes.Add(GameEnums.RoadPropsType.Desert);
+                allPossiblePropsTypesForNewTile.Add(GameEnums.RoadPropsType.Desert);
                 break;
             case GameEnums.RoadPropsType.FromDesertToTown:
-                possibleTypes.Add(GameEnums.RoadPropsType.Town);
+                allPossiblePropsTypesForNewTile.Add(GameEnums.RoadPropsType.Town);
                 break;
         }
-        if(possibleTypes.Count == 0)
+        if(allPossiblePropsTypesForNewTile.Count == 0)
         {
             throw new System.Exception("Cannot return PropsType");
         }
-        Debug.Log($"<color=blue> {possibleTypes} was returned with count {possibleTypes.Count} </color>");
+        Debug.Log($"<color=blue> {allPossiblePropsTypesForNewTile} was returned with count {allPossiblePropsTypesForNewTile.Count} </color>");
 
-        return possibleTypes;
+        return allPossiblePropsTypesForNewTile;
     }
 
-    public List<GameEnums.RoadShapeType> PossibleShapeType(RoadTileType ownersRoadTileType)
+    public List<GameEnums.RoadShapeType> PossibleShapeType(RoadTileConfiguration newRoadTilesConfig)
     {
-        List<GameEnums.RoadShapeType> possibleTypes = new List<GameEnums.RoadShapeType>(System.Enum.GetNames(typeof(GameEnums.RoadShapeType)).Length);
+        List<GameEnums.RoadShapeType> allPossibleShapeTypesForNewTile = new List<GameEnums.RoadShapeType>(System.Enum.GetNames(typeof(GameEnums.RoadShapeType)).Length);
 
-        switch (ownersRoadTileType.shapeType)
+        if (newRoadTilesConfig.propsType == GameEnums.RoadPropsType.FromDesertToTown || newRoadTilesConfig.propsType == GameEnums.RoadPropsType.FromTownToDesert)
         {
-            case GameEnums.RoadShapeType.Start:
-                possibleTypes.Add(GameEnums.RoadShapeType.Middle);
-                break;
-            case GameEnums.RoadShapeType.Middle:
-                possibleTypes.Add(GameEnums.RoadShapeType.Middle);
-                possibleTypes.Add(GameEnums.RoadShapeType.End);
-                break;
-            case GameEnums.RoadShapeType.End:
-                possibleTypes.Add(GameEnums.RoadShapeType.Start);
-                break;
+            allPossibleShapeTypesForNewTile.Add(GameEnums.RoadShapeType.Start);
         }
-        if(possibleTypes.Count == 0)
+        else
+        {
+            switch (newRoadTilesConfig.shapeType)
+            {
+                case GameEnums.RoadShapeType.Start:
+                    allPossibleShapeTypesForNewTile.Add(GameEnums.RoadShapeType.Middle);
+                    break;
+                case GameEnums.RoadShapeType.Middle:
+                    allPossibleShapeTypesForNewTile.Add(GameEnums.RoadShapeType.Middle);
+                    allPossibleShapeTypesForNewTile.Add(GameEnums.RoadShapeType.End);
+                    break;
+                case GameEnums.RoadShapeType.End:
+                    allPossibleShapeTypesForNewTile.Add(GameEnums.RoadShapeType.Start);
+                    break;
+            }
+        }
+            
+        if(allPossibleShapeTypesForNewTile.Count == 0)
         {
             throw new System.Exception("Cannot return ShapeType");
         }
-        Debug.Log($"<color=blue> {possibleTypes} was returned with count {possibleTypes.Count} </color>");
+        Debug.Log($"<color=blue> {allPossibleShapeTypesForNewTile} was returned with count {allPossibleShapeTypesForNewTile.Count} </color>");
 
-        return possibleTypes;
+        return allPossibleShapeTypesForNewTile;
     }
 }

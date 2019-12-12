@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using StateMachine;
@@ -32,7 +33,7 @@ public class PlayerFollowState : State<Enemy>
     }
 
     public override void EnterState(Enemy _owner)
-    {      
+    {
     }
 
     public override void ExitState(Enemy _owner)
@@ -45,11 +46,11 @@ public class PlayerFollowState : State<Enemy>
         _owner.truck.Steering(SteeringForceOnDistanceBased(_owner) + _owner.AvoidForce());
     }
 
-    
+
     public float SteeringForceOnDistanceBased(Enemy _owner)
     {
         distanceToTarget = _owner.targetData.target_rigidbody.position.z - _owner.truck._transform.position.z;
-        if(distanceToTarget > 30 || distanceToTarget < 0)
+        if (distanceToTarget > 30 || distanceToTarget < 0)
         {
             return PathFollowSteeringForce(_owner);
         }

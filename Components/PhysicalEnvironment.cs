@@ -8,8 +8,6 @@ public class PhysicalEnvironment : MonoCached
     private bool hasConnections;
 
     private Rigidbody _rigidbody;
-    private Vector3 startPosition;
-    private Quaternion startRotation;
     private int collisionCounter;
 
     private Vector3 localStartPos;
@@ -26,26 +24,25 @@ public class PhysicalEnvironment : MonoCached
         {
             hasConnections = true;
         }
-        startPosition = _rigidbody.transform.localPosition;
-        startRotation = _rigidbody.transform.localRotation;
 
     }
 
-    public void ResetMe()
+    public void ResetParameters()
     {
-        //_rigidbody.isKinematic = true;
+        _rigidbody.WakeUp();
+        isDefeated = false;
+        _rigidbody.mass++;
+        _rigidbody.GetComponent<Collider>().isTrigger = false;
+        _rigidbody.isKinematic = true;
 
-        //if (hasConnections)
-        //{
-        //    for (int i = 0; i < connectedBodies.Length; i++)
-        //    {
-        //        connectedBodies[i].isKinematic = true;
-        //    }
-        //}
-
-        //_rigidbody.transform.localPosition = startPosition;
-        //_rigidbody.transform.localRotation = startRotation;
-        //collisionCounter = 0;
+        if (hasConnections)
+        {
+            for (int i = 0; i < connectedBodies.Length; i++)
+            {
+                connectedBodies[i].isKinematic = true;
+            }
+        }
+        collisionCounter = 0;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -91,13 +88,11 @@ public class PhysicalEnvironment : MonoCached
     private IEnumerator Deactivate()
     {
         isDefeated = true;
-        yield return new WaitForSeconds(0.01f);
+        yield return new WaitForEndOfFrame();
         _rigidbody.mass--;
-        //_rigidbody.GetComponent<Collider>().isTrigger = true;
-
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
         _rigidbody.GetComponent<Collider>().isTrigger = true;
-        yield return new WaitForSeconds(1f);
-        _rigidbody.gameObject.SetActive(false);
+        yield return new WaitForSecondsRealtime(1f);
+        _rigidbody.Sleep();
     }
 }

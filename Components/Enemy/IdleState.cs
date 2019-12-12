@@ -8,6 +8,7 @@ public class IdleState : State<Enemy>
 {
     public static IdleState _instance;
 
+
     private IdleState()
     {
         if (_instance != null)
@@ -26,7 +27,6 @@ public class IdleState : State<Enemy>
             return _instance;
         }
     }
-
     public override void EnterState(Enemy _owner)
     {
     }

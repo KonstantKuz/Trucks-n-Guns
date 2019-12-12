@@ -15,6 +15,8 @@ public class PlayerHandler : MonoCached
     [SerializeField]
     private float playerStartingForce;
 
+    public static bool staticCamera = false;
+
     private Camera playerCamera;
     public Transform camera_transform { get; set; }
     private Vector3 newCamPos;
@@ -25,8 +27,8 @@ public class PlayerHandler : MonoCached
     public Rigidbody player_rigidbody { get; private set; }
 
     public Vector3 playerStartPosition { get; private set; }
-
-    public void CreatePlayer(InputHandler inputHandler)
+    
+    public void CreatePlayer()
     {
         GameObject seekPnt = Instantiate(playerSeekPoint);
 
@@ -34,18 +36,13 @@ public class PlayerHandler : MonoCached
         player = pl;
         playerInstance = player.GetComponent<Player>();
         playerInstance.seekPoint = seekPnt.transform;
-        playerInstance.InjectPlayerIntoInput(inputHandler);
-
         player_transform = playerInstance.transform;
 
         playerStartPosition = player_transform.position;
 
         player_rigidbody = playerInstance.GetComponent<Rigidbody>();
 
-        player_rigidbody.AddForce(player_rigidbody.transform.forward * playerStartingForce, ForceMode.VelocityChange);
-
-        player.GetComponent<EntityCondition>().OnZeroCondition += ReturnToCustomization;
-       
+        player_rigidbody.AddForce(player_rigidbody.transform.forward * playerStartingForce, ForceMode.VelocityChange);       
     }
 
     public void CreateCamera()
@@ -63,33 +60,26 @@ public class PlayerHandler : MonoCached
 
     private IEnumerator UpdateCamera()
     {
-        yield return new WaitForFixedUpdate();
-
         var camPos = camera_transform.position;
         var playerPos = player_transform.position;
-        newCamPos.x = Mathf.Clamp(playerPos.x-20, -26, -18);
-        
-        newCamPos.y = camPos.y;
+        newCamPos = camPos;
+        if(staticCamera)
+        {
+            newCamPos.x = -24;
+            newCamPos.y = 57;
+        }
+        else
+        {
+            newCamPos.x = Mathf.Clamp(playerPos.x - 20, -26, -18);
+            newCamPos.y = 50;
+        }
         newCamPos.z = playerPos.z;
 
         camPos = Vector3.Lerp(camPos, newCamPos, 0.1f);
+        yield return new WaitForFixedUpdate();
+
         camera_transform.position = camPos;
         //camera_transform.LookAt(playerPos);
         yield return StartCoroutine(UpdateCamera());
-    }
-
-    private void ReturnToCustomization()
-    {
-        player.GetComponent<EntityCondition>().OnZeroCondition -= ReturnToCustomization;
-
-        StartCoroutine(LoadCustomiz());
-    }
-
-    private IEnumerator LoadCustomiz()
-    {
-        yield return new WaitForSeconds(0.5f);
-        PlayerStaticRunTimeData.LoadData();
-        yield return new WaitForSeconds(1f);
-        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Customization");
     }
 }

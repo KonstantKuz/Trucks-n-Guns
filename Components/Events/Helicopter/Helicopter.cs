@@ -17,23 +17,29 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
     public Transform _transform { get; set; }
 
-    private Vector3 followingVector;
+    private Vector3 followingVector, rotorRotation;
 
     private float targetForwardVelocity, zOffset_withVelocity, xOffset;
 
     private bool canAttack;
 
+    private void OnEnable()
+    {
+        customUpdates.Add(this);
+        customFixedUpdates.Add(this);
+    }
+    private void OnDisable()
+    {
+        customUpdates.Remove(this);
+        customFixedUpdates.Remove(this);
+    }
+
     public void AwakeEvent(Vector3 playerPosition)
     {
         RandomizeData();
-       
-        customFixedUpdates.Add(this);
-        customUpdates.Add(this);
         _transform = transform;
         _transform.position = playerPosition - new Vector3(0, 0, helicopterData.zSpawnOffset);
-        //_transform.position -= Vector3.forward * 150f;
         condition = GetComponent<EntityCondition>();
-        condition.ResetCurrentCondition(helicopterData.maxCondition);
         condition.OnZeroCondition += ReturnObjectsToPool;
         helicopterData.PermanentSetUpHelicopter(this);
 
@@ -42,6 +48,8 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
         {
             InjectNewTargetData(player.GetComponent<Rigidbody>());
         }
+        condition.ResetCondition(helicopterData.maxCondition);
+
     }
     public void RandomizeData()
     {
@@ -57,10 +65,10 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
             randomFirePoint = (int)GameEnums.FirePointType.DCMP_FPType;
         }
         helicopterData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length);
-        int[] gunDataTypes = { 11, 12, 13, 21, 22, 23 };
+        int[] gunDataTypes = { 22, 23 };
         for (int i = 0; i < helicopterData.firePointData.gunsConfigurations.Length; i++)
         {
-            int randomGun = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
+            int randomGun = Random.Range(1, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
             int randomGunData = Random.Range(0, gunDataTypes.Length);
             helicopterData.firePointData.gunsConfigurations[i].gunType = (GameEnums.Gun)randomGun;
             helicopterData.firePointData.gunsConfigurations[i].gunDataType = (GameEnums.GunDataType)gunDataTypes[randomGunData];
@@ -89,8 +97,12 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
     private void RotateRotors()
     {
-        mainRotor.RotateAround(mainRotor.position, mainRotor.up, -25f);
-        backRotor.RotateAround(backRotor.position, backRotor.right, 25f);
+        rotorRotation.x = 25;
+        rotorRotation.y = 0;
+        backRotor.localEulerAngles -= rotorRotation;
+        rotorRotation.x = 0;
+        rotorRotation.y = 25;
+        mainRotor.localEulerAngles -= rotorRotation;
     }
 
     private void UpdatePosition()
@@ -119,7 +131,7 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
             if (targetForwardVelocity > 5f)
             {
-                followingVector.x -= zOffset_withVelocity * 0.05f;
+                followingVector.x -= zOffset_withVelocity * 0.1f;
                 canAttack = true;
             }
             else
@@ -151,8 +163,6 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
     public void ReturnObjectsToPool()
     {
         targetData.target_condition.OnZeroCondition -= ReturnObjectsToPool;
-        customFixedUpdates.Remove(this);
-        customUpdates.Remove(this);
         if (condition != null)
         {
             condition.OnZeroCondition -= ReturnObjectsToPool;

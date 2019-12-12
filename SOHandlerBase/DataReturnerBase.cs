@@ -39,4 +39,9 @@ public class DataReturnerBase : ScriptableObject
             return null;
         }
     }
+
+    public Data GetRandomData()
+    {
+        return DataDictionary[dataToHold[Random.Range(0, dataToHold.Count)].tag].data;
+    }
 }

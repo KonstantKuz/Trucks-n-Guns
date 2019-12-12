@@ -6,11 +6,18 @@ public class DataReturnersHolder : Singleton<DataReturnersHolder>
 {
     public DataReturnerBase
         TurretGunDataReturner,
-        RocketGunDataReturner;
+        RocketGunDataReturner,
+        EnemyDataReturner,
+        HelicopterDataReturner,
+        TaskDataReturner;
+
     public void AwakeDataReturners()
     {
         Data.DataReturnersHolder = this;
         TurretGunDataReturner.AwakeDataHolder();
         RocketGunDataReturner.AwakeDataHolder();
+        //EnemyDataReturner.AwakeDataHolder();
+        //HelicopterDataReturner.AwakeDataHolder();
+        TaskDataReturner.AwakeDataHolder();
     }
 }

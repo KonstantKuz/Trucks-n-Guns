@@ -5,27 +5,11 @@ public class UpdateManager : MonoBehaviour
 {
     private void Awake()
     {
-        Application.targetFrameRate = 60;
-        //StartCoroutine(UpdateMonocached());
+       Application.targetFrameRate = 30;
+        Time.timeScale = 2;
+        //Screen.SetResolution(Screen.width,Screen.height, true);
     }
-
-    private IEnumerator UpdateMonocached()
-    {
-        yield return new WaitForSeconds(0.016f);
-
-        for (int i = 0; i < MonoCached.customUpdates.Count; i++)
-        {
-            MonoCached.customUpdates[i].CustomUpdatesCall();
-        }
-
-        for (int i = 0; i < MonoCached.customFixedUpdates.Count; i++)
-        {
-            MonoCached.customFixedUpdates[i].CustomFixedUpdatesCall();
-        }
-
-        yield return StartCoroutine(UpdateMonocached());
-    }
-
+    
     private void Update()
     {
         for (int i = 0; i < MonoCached.customUpdates.Count; i++)

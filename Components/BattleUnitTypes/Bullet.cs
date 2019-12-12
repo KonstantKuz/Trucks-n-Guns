@@ -38,7 +38,7 @@ public class Bullet : MonoCached, BattleUnit
     }
     private IEnumerator AutoDestruction()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSecondsRealtime(2f);
         Deactivate();
     }
 
@@ -50,7 +50,7 @@ public class Bullet : MonoCached, BattleUnit
     public void Fly()
     {
         _forwardDirection = _transform.forward;
-        _deltaPosition = _forwardDirection * Time.fixedDeltaTime * battleUnitData.speed;
+        _deltaPosition = _forwardDirection * Time.deltaTime * battleUnitData.speed;
         _transform.position += _deltaPosition;
         SearchTargets();
     }

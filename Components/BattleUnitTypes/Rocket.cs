@@ -50,7 +50,7 @@ public class Rocket : MonoCached, BattleUnit
 
     public IEnumerator AutoDestruction()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSecondsRealtime(3f);
         Explosion();
     }
 
@@ -64,7 +64,7 @@ public class Rocket : MonoCached, BattleUnit
         if(isLaunched == true)
         {
             _forwardDirection = _transform.forward;
-            _deltaPosition = _forwardDirection * Time.fixedDeltaTime * battleUnitData.speed;
+            _deltaPosition = _forwardDirection * Time.deltaTime * battleUnitData.speed;
             _transform.position += _deltaPosition;
 
             if(battleUnitData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody !=null && targetData.target_rigidbody.gameObject.activeInHierarchy)

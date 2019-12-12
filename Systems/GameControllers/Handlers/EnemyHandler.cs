@@ -24,6 +24,7 @@ public class EnemyHandler : MonoCached
         get { return currentSessionEnemies.Count; }
     }
     private PathHandler pathHandler;
+    private Rigidbody player_rigidbody;
 
     private void Awake()
     {
@@ -35,14 +36,17 @@ public class EnemyHandler : MonoCached
     {
         this.pathHandler = pathHandler;
     }
+
+
     public void StartCheckingEnemiesPositions(Rigidbody player_rigidbody)
     {
-        StartCoroutine(CheckingEnemiesPosition(player_rigidbody));
+        this.player_rigidbody = player_rigidbody;
+        StartCoroutine(CheckingEnemiesPosition());
     }
 
-    private IEnumerator CheckingEnemiesPosition(Rigidbody player_rigidbody)
+    private IEnumerator CheckingEnemiesPosition()
     {
-        yield return new WaitForSeconds(enemiesPositionsCheckPeriod);
+        yield return new WaitForSecondsRealtime(enemiesPositionsCheckPeriod);
 
         for (int i = 0; i < currentSessionEnemies.Count; i++)
         {
@@ -59,65 +63,30 @@ public class EnemyHandler : MonoCached
                 currentSessionEnemies.Remove(enemy);
             }
         }
-        yield return StartCoroutine(CheckingEnemiesPosition(player_rigidbody));
-    }
-
-    public void StartIncrementMaxEnemiesCount(float period)
-    {
-        StartCoroutine(IncrementMaxEnemiesCount(period));
-    }
-
-    private IEnumerator IncrementMaxEnemiesCount(float period)
-    {
-        yield return new WaitForSeconds(period);
-        maxCurrentSessionEnemiesCount++;
-        StartCoroutine(IncrementMaxEnemiesCount(period * 2f));
-
-    }
-
-    public void StartSpawnAllEnemiesEveryPeriod(Rigidbody player_rigidbody)
-    {
-        StartCoroutine(SpawnAllEnemiesEveryPeriod(player_rigidbody));
-    }
-
-    private IEnumerator SpawnAllEnemiesEveryPeriod(Rigidbody player_rigidbody)
-    {
-        yield return new WaitForSeconds(enemySpawnEveryPeriodTime);
-        if (currentSessionEnemies.Count < maxCurrentSessionEnemiesCount)
-        {
-            SpawnAllEnemies(player_rigidbody);
-        }
-        yield return StartCoroutine(SpawnRandomEnemyEveryPeriod(player_rigidbody));
+        yield return StartCoroutine(CheckingEnemiesPosition());
     }
 
     public void StartSpawnRandomEnemyEveryPeriod(Rigidbody player_rigidbody)
     {
-        StartCoroutine(SpawnRandomEnemyEveryPeriod(player_rigidbody));
+        this.player_rigidbody = player_rigidbody;
+        StartCoroutine(SpawnRandomEnemyEveryPeriod());
     }
-    private IEnumerator SpawnRandomEnemyEveryPeriod(Rigidbody player_rigidbody)
+    private IEnumerator SpawnRandomEnemyEveryPeriod()
     {
-        yield return new WaitForSeconds(enemySpawnEveryPeriodTime);
+        yield return new WaitForSecondsRealtime(enemySpawnEveryPeriodTime);
         if (currentSessionEnemies.Count < maxCurrentSessionEnemiesCount)
         {
-            SpawnRandomEnemy(player_rigidbody);
+            SpawnRandomEnemy();
         }
-        yield return StartCoroutine(SpawnRandomEnemyEveryPeriod(player_rigidbody));
+        yield return StartCoroutine(SpawnRandomEnemyEveryPeriod());
     }
-    public void SpawnRandomEnemy(Rigidbody player_rigidbody)
+    public void SpawnRandomEnemy()
     {
-        GameObject enemy = enemyPooler.SpawnRandom(RandomPositionNearPlayer(player_rigidbody), Quaternion.identity);
-        SetUpEnemyAndLaunch(enemy, player_rigidbody);
+        GameObject enemy = enemyPooler.SpawnRandom(RandomPositionNearPlayer(), Quaternion.identity);
+        SetUpEnemyAndLaunch(enemy);
     }
-
-    public void SpawnAllEnemies(Rigidbody player_rigidbody)
-    {
-        for (int i = 0; i < enemiesPoolCount; i++)
-        {
-            GameObject enemy = enemyPooler.Spawn(enemyPooler.tags[i], RandomPositionNearPlayer(player_rigidbody), Quaternion.identity);
-            SetUpEnemyAndLaunch(enemy, player_rigidbody);
-        }
-    }
-    private void SetUpEnemyAndLaunch(GameObject enemyToLaunch, Rigidbody player_rigidbody)
+    
+    private void SetUpEnemyAndLaunch(GameObject enemyToLaunch)
     {
         var enemy = enemyToLaunch.GetComponent<Enemy>();
         enemy.AwakeEnemy();
@@ -128,7 +97,7 @@ public class EnemyHandler : MonoCached
         UpdateEnemyPath(enemyToLaunch.GetComponent<Enemy>());
     }
 
-    private Vector3 RandomPositionNearPlayer(Rigidbody player_rigidbody)
+    private Vector3 RandomPositionNearPlayer()
     {
         int randomX = Random.Range(-pathHandler.pathGridWidth / 2, pathHandler.pathGridWidth / 2);
         Vector3 newPos = player_rigidbody.position;

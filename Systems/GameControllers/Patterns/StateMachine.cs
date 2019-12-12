@@ -1,4 +1,5 @@
-﻿namespace StateMachine
+﻿
+namespace StateMachine
 {
     public class StateMachine<T>
     {
