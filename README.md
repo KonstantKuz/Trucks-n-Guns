@@ -6,14 +6,4 @@ On the Internet, everyone swears at singletones, service locators, event systems
 
 From the patterns, I used a state machine to separate the types of enemy behavior and a scriptable object pool to separate the types of pools. 
 From the algorithms, only the path search algorithm was used.
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/1.png?raw=true)
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/2.png?raw=true)
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/4.png?raw=true)
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/5.png?raw=true)
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/6.png?raw=true)
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/7.png?raw=true)
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/8.png?raw=true)
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/9.png?raw=true)
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/10.png?raw=true)
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/11.png?raw=true)
-![alt text](https://github.com/KonstantKuz/TruckDefense/blob/master/scr/12.png?raw=true)
+![alt text]()
