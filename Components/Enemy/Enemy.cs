@@ -89,7 +89,7 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
         int randomTruck = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Truck)).Length);
         truck.TruckData.truckType = (GameEnums.Truck)randomTruck;
 
-        int playersFirePointType = (int)PlayerHandler.playerInstance.truck.TruckData.firePointType;
+        int playersFirePointType = (int)PlayerHandler.PlayerInstance.truck.TruckData.firePointType;
 
         int randomFirePoint = Random.Range(playersFirePointType-2, playersFirePointType+2);
         if(randomFirePoint < (int)GameEnums.FirePointType.D_FPType)
@@ -101,7 +101,7 @@ public class Enemy : MonoCached, INeedTarget, IPoolReturner
             randomFirePoint = (int)GameEnums.FirePointType.DCMP_FPType;
         }
         truck.TruckData.firePointType = (GameEnums.FirePointType)randomFirePoint;
-        int[] gunDataTypes = { 11, 12, 13, 21, 22, 23, 31, 32, 33 };
+        int[] gunDataTypes = { 213, 223, 233, 313, 323, 333, 212, 222, 232, 312, 322, 332 };
         for (int i = 0; i < truck.TruckData.firePointData.gunsConfigurations.Length; i++)
         {
             int randomGun = Random.Range(0, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);

@@ -10,37 +10,41 @@ public class PlayerHandler : MonoCached
     [SerializeField]
     private GameObject cameraPrefab;
     [SerializeField]
-    private GameObject playerSeekPoint;
+    private GameObject seekPoint;
+    [SerializeField]
+    private GameObject targetPoint;
 
     [SerializeField]
     private float playerStartingForce;
 
     public static bool staticCamera = false;
 
-    private Camera playerCamera;
-    public Transform camera_transform { get; set; }
+    public static Camera Camera;
+    private Transform camera_transform;
     private Vector3 newCamPos;
 
-    public static Player playerInstance { get; private set; }
-    public GameObject player { get; private set; }
-    public Transform player_transform { get; private set; }
-    public Rigidbody player_rigidbody { get; private set; }
-
-    public Vector3 playerStartPosition { get; private set; }
+    public static Player PlayerInstance { get; private set; }
+    [HideInInspector]
+    public GameObject player;
+    [HideInInspector]
+    public Transform player_transform;
+    [HideInInspector]
+    public Rigidbody player_rigidbody;
     
     public void CreatePlayer()
     {
-        GameObject seekPnt = Instantiate(playerSeekPoint);
+        GameObject seekPnt = Instantiate(seekPoint);
+        GameObject targetPnt = Instantiate(targetPoint);
 
         GameObject pl = Instantiate(playerPreafab, GameObject.Find("Scene").transform);
         player = pl;
-        playerInstance = player.GetComponent<Player>();
-        playerInstance.seekPoint = seekPnt.transform;
-        player_transform = playerInstance.transform;
+        PlayerInstance = player.GetComponent<Player>();
+        PlayerInstance.seekPoint = seekPnt.transform;
+        PlayerInstance.targetPoint = targetPnt.transform;
 
-        playerStartPosition = player_transform.position;
+        player_transform = PlayerInstance.transform;
 
-        player_rigidbody = playerInstance.GetComponent<Rigidbody>();
+        player_rigidbody = PlayerInstance.GetComponent<Rigidbody>();
 
         player_rigidbody.AddForce(player_rigidbody.transform.forward * playerStartingForce, ForceMode.VelocityChange);       
     }
@@ -48,8 +52,8 @@ public class PlayerHandler : MonoCached
     public void CreateCamera()
     {
         GameObject cam = Instantiate(cameraPrefab, GameObject.Find("Scene").transform);
-        playerCamera = cam.GetComponent<Camera>();
-        camera_transform = playerCamera.transform;
+        Camera = cam.GetComponent<Camera>();
+        camera_transform = Camera.transform;
         newCamPos = Vector3.zero;
     }
 

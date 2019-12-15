@@ -34,6 +34,8 @@ public class Customization
     public GameObject ChangeGunButton;
     public GameObject RateOfFireStat;
     public GameObject DamageStat;
+    public GameObject TargetingSpeedStat;
+    public GameObject GunInfoWindow;
 
     public GameObject coins;
     public GameObject experience;
@@ -61,6 +63,7 @@ public class MenuHandler : Singleton<MenuHandler>
 
     public GameObject BackButton;
 
+    [HideInInspector]
     public Vector3 cameraStartPosition, cameraStartRotation;
 
     public AsyncOperation asyncGeneralGameLoad;

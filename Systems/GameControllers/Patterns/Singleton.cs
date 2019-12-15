@@ -30,7 +30,7 @@ namespace Singleton
                             Debug.LogWarning("В сцене не найдено синглтона" + typeof(T) + ", поэтому он был создан принудительно");
                             var singleton = new GameObject("[SINGLETON] " + typeof(T));
                             _instance = singleton.AddComponent<T>();
-                            DontDestroyOnLoad(singleton);
+                            //DontDestroyOnLoad(singleton);
                         }
 
                     }

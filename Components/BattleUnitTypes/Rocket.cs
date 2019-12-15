@@ -67,7 +67,7 @@ public class Rocket : MonoCached, BattleUnit
             _deltaPosition = _forwardDirection * Time.deltaTime * battleUnitData.speed;
             _transform.position += _deltaPosition;
 
-            if(battleUnitData.battleType == GameEnums.BattleType.Tracking && targetData.target_rigidbody !=null && targetData.target_rigidbody.gameObject.activeInHierarchy)
+            if(battleUnitData.battleType == GameEnums.BattleType.Tracking && !ReferenceEquals(targetData,null) && !ReferenceEquals(targetData.target_rigidbody, null) && targetData.target_rigidbody.gameObject.activeInHierarchy)
             {
                 Quaternion lookRotation = Quaternion.LookRotation(targetData.target_rigidbody.position - _transform.position);
                 _transform.rotation = Quaternion.Slerp(_transform.rotation, lookRotation, 0.5f);

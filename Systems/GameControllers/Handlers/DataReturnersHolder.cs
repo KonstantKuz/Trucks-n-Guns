@@ -10,6 +10,10 @@ public class DataReturnersHolder : Singleton<DataReturnersHolder>
         EnemyDataReturner,
         HelicopterDataReturner,
         TaskDataReturner;
+    private void Awake()
+    {
+        AwakeDataReturners();
+    }
 
     public void AwakeDataReturners()
     {

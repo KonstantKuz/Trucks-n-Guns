@@ -21,8 +21,6 @@ public class ChaseGameStateHandler : MonoCached // IState
     private PlayerSessionHandler currentSessionHandler;
     [SerializeField]
     private ObjectPoolersHolder objectPoolersHolder;
-    [SerializeField]
-    private DataReturnersHolder dataReturnersHolder;
 
     private void Start()
     {
@@ -34,8 +32,7 @@ public class ChaseGameStateHandler : MonoCached // IState
         customUpdates.Add(this);
 
         objectPoolersHolder.AwakeGeneralGameStatePoolers();
-        dataReturnersHolder.AwakeDataReturners();
-        inputHandler.FindControlsUI();
+        inputHandler.SetUpControlsUI();
         
 
         #region InjectDependencies
@@ -49,7 +46,6 @@ public class ChaseGameStateHandler : MonoCached // IState
         //playerHandler.FindEnemyPlayer();
         //enemyHandler.AddEnemyPlayerToCurrentSession(playerHandler.player.GetComponent<Enemy>());
         playerHandler.CreateCamera();
-        inputHandler.FindCamera();
         pathHandler.CreateGrid(new Vector3(0, 0, 0));
 
         #endregion
@@ -60,7 +56,7 @@ public class ChaseGameStateHandler : MonoCached // IState
         enemyHandler.StartSpawnRandomEnemyEveryPeriod(playerHandler.player_rigidbody);
         //enemyHandler.StartSpawnAllEnemiesEveryPeriod(playerHandler.player_rigidbody);
         //enemyHandler.StartIncrementMaxEnemiesCount(5f);
-        eventHandler.StartCheckDistance(playerHandler.playerStartPosition, playerHandler.player_rigidbody);
+        eventHandler.StartCheckDistance(playerHandler.player_transform.position, playerHandler.player_rigidbody);
 
         playerHandler.StartUpdateCamera();
         inputHandler.StartUpdateInputs();

@@ -73,6 +73,13 @@ public class TruckData : Data
     }
     #endregion
 
+    public void ResetData()
+    {
+        truckType = GameEnums.Truck.APACH;
+        firePointType = GameEnums.FirePointType.D_FPType;
+        firePointData.ResetData();
+    }
+
     public void RewriteData(TruckData dataToCopy)
     {
         truckType = dataToCopy.truckType;

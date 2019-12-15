@@ -25,6 +25,17 @@ public class ObjectPoolerBase : ScriptableObject
 
     public List<string> tags { get; private set; }
 
+
+    [ContextMenu("Set Tags as Prefabs Name")]
+    public void SetTagsAsPrefabsName()
+    {
+        for (int i = 0; i < pools.Count; i++)
+        {
+            pools[i].tag = pools[i].prefab.name;
+        }
+        //UnityEditor.AssetDatabase.SaveAssets();
+    }
+
     public void AwakePooler()
     {
         int totalInstantiatedGameObjects = 0;

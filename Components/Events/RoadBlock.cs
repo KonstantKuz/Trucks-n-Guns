@@ -34,7 +34,7 @@ public class RoadBlock : MonoCached, IRoadEvent, IPoolReturner
 
     public void RandomizeData()
     {
-        int playersFirePointType = (int)PlayerHandler.playerInstance.truck.TruckData.firePointType;
+        int playersFirePointType = (int)PlayerHandler.PlayerInstance.truck.TruckData.firePointType;
 
         int randomFirePoint = Random.Range(playersFirePointType - 2, playersFirePointType + 3);
         if (randomFirePoint < (int)GameEnums.FirePointType.D_FPType)

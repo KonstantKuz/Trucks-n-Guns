@@ -13,7 +13,7 @@ public class EntityCondition : MonoCached
 
     public float currentCondition { get; private set; }
 
-    private float maxCondition;
+    public float maxCondition { get; private set; }
 
     private bool invincible;
 

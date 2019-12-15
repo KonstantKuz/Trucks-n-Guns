@@ -1,0 +1,179 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RocketGunDataTuner
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: 8b60f465c70849e4fb561abd38749878,
+      type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: gunDataReturner
+    value: 
+    objectReference: {fileID: 11400000, guid: eca9fb2870c8e7742ab3a9339933147a, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.size
+    value: 27
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[0]
+    value: 
+    objectReference: {fileID: 11400000, guid: 2ff1274e78705ae41ae1ac941399b326, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[1]
+    value: 
+    objectReference: {fileID: 11400000, guid: 7e61e8ee0269c4645a9cad42a66ab3b4, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[2]
+    value: 
+    objectReference: {fileID: 11400000, guid: aa6d2d4aa14f4f84dab80bdcc36f7250, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[3]
+    value: 
+    objectReference: {fileID: 11400000, guid: 1a7c2f3e2a242f8498d9e568c06ce12f, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[4]
+    value: 
+    objectReference: {fileID: 11400000, guid: b79a57d642a850a43b4bd34aff1e8a69, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[5]
+    value: 
+    objectReference: {fileID: 11400000, guid: 3b5bd708c8407da48bb2b44f594be0d5, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[6]
+    value: 
+    objectReference: {fileID: 11400000, guid: 2a173e271ded2bb40b036d16a5fac7d0, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[7]
+    value: 
+    objectReference: {fileID: 11400000, guid: a3925b45ae7697141b8a8968cd6fb8fb, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[8]
+    value: 
+    objectReference: {fileID: 11400000, guid: dcd3fbb9c2dc3c949ad2f8a9ec9ce9af, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[9]
+    value: 
+    objectReference: {fileID: 11400000, guid: b5e550996e0049640a85d74f3ed118a8, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[10]
+    value: 
+    objectReference: {fileID: 11400000, guid: 83d8bc4a7eee4a34186d48d36f3be764, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[11]
+    value: 
+    objectReference: {fileID: 11400000, guid: d2343a53971895443ab3c99db99e35a3, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[12]
+    value: 
+    objectReference: {fileID: 11400000, guid: 8d9efb09c6c89894b837705e6e7679d5, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[13]
+    value: 
+    objectReference: {fileID: 11400000, guid: 9b3c7cdf8279e6341b92a921c69d86a1, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[14]
+    value: 
+    objectReference: {fileID: 11400000, guid: 8caa0c1696009ce4aa2f0d6efaba3206, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[15]
+    value: 
+    objectReference: {fileID: 11400000, guid: e31c776c187734c40b0e7943648d83fd, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[16]
+    value: 
+    objectReference: {fileID: 11400000, guid: c020fb3d2d7884d4b80260443f91fddb, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[17]
+    value: 
+    objectReference: {fileID: 11400000, guid: 39c9d228d7beaf742babed0b698b23ad, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[18]
+    value: 
+    objectReference: {fileID: 11400000, guid: 8a5a624d5f6a9f74191ea454e9e37f8b, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[19]
+    value: 
+    objectReference: {fileID: 11400000, guid: 91c60da2049ed344881826e65b09557b, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[20]
+    value: 
+    objectReference: {fileID: 11400000, guid: fae6594481b781b4997a97eb90f98037, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[21]
+    value: 
+    objectReference: {fileID: 11400000, guid: dc120852ea104454b87c5c6b74e3eba2, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[22]
+    value: 
+    objectReference: {fileID: 11400000, guid: a63fd4b59bbf41c4990dc0421dfc4201, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[23]
+    value: 
+    objectReference: {fileID: 11400000, guid: 7ce116d96a801e9469a20e9e00c1c20c, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[24]
+    value: 
+    objectReference: {fileID: 11400000, guid: 0f178a0e06f22744d898914d1947ff69, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[25]
+    value: 
+    objectReference: {fileID: 11400000, guid: 53435991e87b37643af802d7dc4cf51d, type: 2}
+  - target: {fileID: 0}
+    propertyPath: datas.Array.data[26]
+    value: 
+    objectReference: {fileID: 11400000, guid: e8fc632ba2eea804da54a642a1dffaff, type: 2}
+  - target: {fileID: 0}
+    propertyPath: HighDamageBattleUnitName
+    value: RocketTracking
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: MediumDamageBattleUnitName
+    value: RocketStaticHighDamage
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: LowDamageBattleUnitName
+    value: RocketStaticLowDamage
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: highRateOfFireValue
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: mediumRateOfFireValue
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: lowRateOfFireValue
+    value: 6
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: highTargetingSpeedValue
+    value: 15
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: mediumTargetingSpeedValue
+    value: 5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: lowTargetingSpeedValue
+    value: 1
+    objectReference: {fileID: 0}

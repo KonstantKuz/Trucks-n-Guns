@@ -17,6 +17,8 @@ public class RocketGun : MonoCached, Gun
     private bool targetIsVisible = true;
     private float fireTimer;
 
+    private float angleBtwn_targetDirZY_hhFWD, angleBtwn_targetDirXZ_hhrootFWD;
+
     private ObjectPoolerBase battleUnitPooler;
 
     private AudioSource rocketLaunchSource;
@@ -91,7 +93,7 @@ public class RocketGun : MonoCached, Gun
 
     void LookAtTarget()
     {
-        if(gunData.battleUnit == staticRocketName)
+        if(gunData.battleUnit.Contains(staticRocketName))
         {
             targetPosSpeedBased = targetData.target_rigidbody.position + targetData.target_rigidbody.velocity * 0.25f;
             targetPosHeightDiffBased = headHolderRoot.up * (targetData.target_rigidbody.position.y - headHolderRoot.position.y) * 0.1f;
@@ -105,16 +107,16 @@ public class RocketGun : MonoCached, Gun
         targetDirection_XZprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.up);
         targetDirection_ZYprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.right);
 
-        float angleBtwn_targetDirZY_hhFWD = Vector3.SignedAngle(targetDirection_ZYprojection.normalized, headHolder.forward, headHolder.right);
-        float angleBtwn_targetDirXZ_hhrootFWD = Vector3.Angle(targetDirection_XZprojection.normalized, headHolderRoot.forward);
+        angleBtwn_targetDirZY_hhFWD = Vector3.SignedAngle(targetDirection_ZYprojection.normalized, headHolder.forward, headHolder.right);
+        angleBtwn_targetDirXZ_hhrootFWD = Vector3.Angle(targetDirection_XZprojection.normalized, headHolderRoot.forward);
 
         if (angleBtwn_targetDirXZ_hhrootFWD < allowableAngles.HeadHolderMaxAngle)
         {
-            headHolder.rotation = Quaternion.LookRotation(targetDirection_XZprojection, headHolder.up);
+            headHolder.rotation = Quaternion.Lerp(headHolder.rotation, Quaternion.LookRotation(targetDirection_XZprojection, headHolder.up), Time.deltaTime * gunData.targetingSpeed);
 
             if (angleBtwn_targetDirZY_hhFWD < allowableAngles.HeadMaxAngle && angleBtwn_targetDirZY_hhFWD > allowableAngles.HeadMinAngle)
             {
-                head.rotation = Quaternion.LookRotation(targetDirection_ZYprojection, headHolder.up);
+                head.rotation = Quaternion.Lerp(head.rotation, Quaternion.LookRotation(targetDirection_ZYprojection, headHolder.up), Time.deltaTime * gunData.targetingSpeed);
                 targetIsVisible = true;
             }
             else

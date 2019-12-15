@@ -9,7 +9,14 @@ public class ShopGunHandler : MonoCached
     private GameEnums.Gun gunTypeToBuy;
     public GameEnums.GunDataType currentGunDataType;
     private int gunTypeCount;
-    
+
+    private MenuHandler menuHandler;
+
+    private void Awake()
+    {
+        menuHandler = MenuHandler.Instance;
+    }
+
     public void StartListeningGunPoint(FirePoint.GunPoint gunPoint)
     {
         this.gunPoint = gunPoint;
@@ -18,6 +25,8 @@ public class ShopGunHandler : MonoCached
 
     private void SelectGun()
     {
+        CustomizationState.Instance.RefreshPlayerStats();
+
         //Camera.main.transform.position = transform.position + new Vector3(2, 2, 2);
         //Camera.main.transform.LookAt(gunPoint.gunsLocation);
 
@@ -28,27 +37,30 @@ public class ShopGunHandler : MonoCached
 
         if (ConfigFromPath.gunType != GameEnums.Gun.None)
         {
-            MenuHandler.Instance.customization.RateOfFireStat.SetActive(true);
-            MenuHandler.Instance.customization.DamageStat.SetActive(true);
+            menuHandler.customization.RateOfFireStat.SetActive(true);
+            menuHandler.customization.DamageStat.SetActive(true);
+            menuHandler.customization.TargetingSpeedStat.SetActive(true);
 
             currentGunDataType = ConfigFromPath.gunDataType;
             int gunType = (int)currentGunDataType;
             char[] typeNumbersChars = gunType.ToString().ToCharArray();
 
 
-            MenuHandler.Instance.customization.RateOfFireStat.GetComponent<Slider>().value = typeNumbersChars[0] - 48;
-            MenuHandler.Instance.customization.DamageStat.GetComponent<Slider>().value = typeNumbersChars[1] - 48;
-           
-            MenuHandler.Instance.customization.RateOfFireStat.GetComponentInChildren<Button>().onClick.AddListener(() => UpgradeRateOfFire());
-            MenuHandler.Instance.customization.DamageStat.GetComponentInChildren<Button>().onClick.AddListener(() => UpgradeDamage());
+            menuHandler.customization.RateOfFireStat.GetComponent<Slider>().value = typeNumbersChars[0] - 48;
+            menuHandler.customization.DamageStat.GetComponent<Slider>().value = typeNumbersChars[1] - 48;
+            menuHandler.customization.TargetingSpeedStat.GetComponent<Slider>().value = typeNumbersChars[2] - 48;
+
+            menuHandler.customization.RateOfFireStat.GetComponentInChildren<Button>().onClick.AddListener(() => UpgradeRateOfFire());
+            menuHandler.customization.DamageStat.GetComponentInChildren<Button>().onClick.AddListener(() => UpgradeDamage());
+            menuHandler.customization.TargetingSpeedStat.GetComponentInChildren<Button>().onClick.AddListener(() => UpgradeTargetingSpeed());
         }
 
-        MenuHandler.Instance.customization.ChangeGunButton.SetActive(true);
-        MenuHandler.Instance.customization.ChangeGunButton.GetComponent<Button>().onClick.AddListener(() => ChangeGun());
+        menuHandler.customization.ChangeGunButton.SetActive(true);
+        menuHandler.customization.ChangeGunButton.GetComponent<Button>().onClick.AddListener(() => ChangeGun());
 
         //gameObject.GetComponent<Image>().enabled = false;
-        MenuHandler.Instance.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
-        MenuHandler.Instance.BackButton.GetComponent<Button>().onClick.AddListener(() => BackToGunsOverView());
+        menuHandler.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        menuHandler.BackButton.GetComponent<Button>().onClick.AddListener(() => BackToGunsOverView());
 
         CustomizationHandler.Instance.ShopGunButtonsRenderSetActive(false);
     }
@@ -83,16 +95,34 @@ public class ShopGunHandler : MonoCached
         PlayerStaticRunTimeData.customizationTruckData.firePointData.GetConfigOnLocation(gunPoint.locationPath).gunType = gunTypeToBuy;
         CustomizationState.Instance.RefreshPlayerTruckVisualBy(PlayerStaticRunTimeData.customizationTruckData);
 
-        MenuHandler.Instance.customization.RateOfFireStat.SetActive(false);
-        MenuHandler.Instance.customization.DamageStat.SetActive(false);
+        menuHandler.customization.RateOfFireStat.SetActive(false);
+        menuHandler.customization.DamageStat.SetActive(false);
+        menuHandler.customization.TargetingSpeedStat.SetActive(false);
 
-        MenuHandler.Instance.customization.BuyButton.SetActive(true);
-        MenuHandler.Instance.customization.BuyButton.GetComponentInChildren<Text>().text = "Buy Gun " + CustomizationHandler.Instance.shopCosts.ItemsCost(gunTypeToBuy.ToString()).ToString();
-        MenuHandler.Instance.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
-        MenuHandler.Instance.customization.BuyButton.GetComponent<Button>().onClick.AddListener(() => BuyGun(gunTypeToBuy));
+        menuHandler.customization.BuyButton.SetActive(true);
+        menuHandler.customization.BuyButton.GetComponentInChildren<Text>().text = CustomizationHandler.Instance.shopCosts.ItemsCost(gunTypeToBuy.ToString()).ToString();
+        menuHandler.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        menuHandler.customization.BuyButton.GetComponent<Button>().onClick.AddListener(() => BuyGun(gunTypeToBuy));
 
-        MenuHandler.Instance.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
-        MenuHandler.Instance.BackButton.GetComponent<Button>().onClick.AddListener(() => BackToGunsOverView());
+        if(((GameEnums.Gun)gunTypeCount).ToString().Contains("Gun2"))
+        {
+            menuHandler.customization.GunInfoWindow.SetActive(true);
+            menuHandler.customization.GunInfoWindow.GetComponentInChildren<LocalizedText>().ResetText();
+            menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text = menuHandler.customization.TargetingSpeedStat.GetComponentInChildren<Text>().text + "\n" + menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text;
+        }
+        else if(((GameEnums.Gun)gunTypeCount).ToString().Contains("Gun3"))
+        {
+            menuHandler.customization.GunInfoWindow.SetActive(true);
+            menuHandler.customization.GunInfoWindow.GetComponentInChildren<LocalizedText>().ResetText();
+            menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text = menuHandler.customization.RateOfFireStat.GetComponentInChildren<Text>().text + "\n" + menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text;
+        }
+        else
+        {
+            menuHandler.customization.GunInfoWindow.SetActive(false);
+        }
+
+        menuHandler.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        menuHandler.BackButton.GetComponent<Button>().onClick.AddListener(() => BackToGunsOverView());
     }
 
     public void BuyGun(GameEnums.Gun guntype)
@@ -104,31 +134,35 @@ public class ShopGunHandler : MonoCached
             FirePointData.GunConfiguration CustomizationConfigFromPath = PlayerStaticRunTimeData.customizationTruckData.firePointData.GetConfigOnLocation(gunPoint.locationPath);
 
             PlayerConfigFromPath.gunType = gunTypeToBuy;
-            PlayerConfigFromPath.gunDataType = GameEnums.GunDataType.LrLd;
+            PlayerConfigFromPath.gunDataType = GameEnums.GunDataType.LrLdLs;
 
             CustomizationConfigFromPath.gunType = gunTypeToBuy;
-            CustomizationConfigFromPath.gunDataType = GameEnums.GunDataType.LrLd;
+            CustomizationConfigFromPath.gunDataType = GameEnums.GunDataType.LrLdLs;
 
-            currentGunDataType = GameEnums.GunDataType.LrLd;
+            currentGunDataType = GameEnums.GunDataType.LrLdLs;
 
             PlayerStaticRunTimeData.coins -= cost;
             PlayerStaticDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, new PlayerSessionData(0, 0, 0));
 
-            MenuHandler.Instance.customization.BuyButton.GetComponentInChildren<Text>().text = "";
+            menuHandler.customization.BuyButton.GetComponentInChildren<Text>().text = "";
 
-            MenuHandler.Instance.customization.ChangeGunButton.GetComponent<Button>().onClick.RemoveAllListeners();
+            menuHandler.customization.ChangeGunButton.GetComponent<Button>().onClick.RemoveAllListeners();
 
-            MenuHandler.Instance.customization.BuyButton.SetActive(false);
-            MenuHandler.Instance.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
-            MenuHandler.Instance.customization.RateOfFireStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
-            MenuHandler.Instance.customization.DamageStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
+            menuHandler.customization.BuyButton.SetActive(false);
+            menuHandler.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
+            menuHandler.customization.RateOfFireStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
+            menuHandler.customization.DamageStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
+            menuHandler.customization.TargetingSpeedStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
+
+            menuHandler.customization.GunInfoWindow.SetActive(false);
+
             SelectGun();
         }
     }
 
     private void UpgradeRateOfFire()
     {
-        int upgradedRateOfFire = (int)currentGunDataType + 10;
+        int upgradedRateOfFire = (int)currentGunDataType + 100;
         char[] typeNumbersChars = upgradedRateOfFire.ToString().ToCharArray();
         if (typeNumbersChars[0] - 48 > 3)
         {
@@ -136,12 +170,12 @@ public class ShopGunHandler : MonoCached
         }
 
         GameEnums.GunDataType upgradedGunData = (GameEnums.GunDataType)upgradedRateOfFire;
-        UpgradeGunData(upgradedGunData, 500);
+        UpgradeGunData(upgradedGunData, 500 * (typeNumbersChars[0] - 48));
     }
 
     private void UpgradeDamage()
     {
-        int upgradedDamage = (int)currentGunDataType + 1;
+        int upgradedDamage = (int)currentGunDataType + 10;
         char[] typeNumbersChars = upgradedDamage.ToString().ToCharArray();
         if (typeNumbersChars[1] - 48 > 3)
         {
@@ -149,7 +183,20 @@ public class ShopGunHandler : MonoCached
         }
 
         GameEnums.GunDataType upgradedGunData = (GameEnums.GunDataType)upgradedDamage;
-        UpgradeGunData(upgradedGunData, 300);
+        UpgradeGunData(upgradedGunData, 500 * (typeNumbersChars[1] - 48));
+    }
+
+    public void UpgradeTargetingSpeed()
+    {
+        int upgradedTargetingSpeed = (int)currentGunDataType + 1;
+        char[] typeNumbersChars = upgradedTargetingSpeed.ToString().ToCharArray();
+        if (typeNumbersChars[2] - 48 > 3)
+        {
+            return;
+        }
+
+        GameEnums.GunDataType upgradedGunData = (GameEnums.GunDataType)upgradedTargetingSpeed;
+        UpgradeGunData(upgradedGunData, 500 * (typeNumbersChars[2] - 48));
     }
 
     public void UpgradeGunData(GameEnums.GunDataType gunDataTypeToBuy, int cost)
@@ -169,13 +216,16 @@ public class ShopGunHandler : MonoCached
             char[] typeNumbersChars = gunType.ToString().ToCharArray();
 
 
-            MenuHandler.Instance.customization.RateOfFireStat.GetComponent<Slider>().value = typeNumbersChars[0] - 48;
-            MenuHandler.Instance.customization.DamageStat.GetComponent<Slider>().value = typeNumbersChars[1] - 48;
+            menuHandler.customization.RateOfFireStat.GetComponent<Slider>().value = typeNumbersChars[0] - 48;
+            menuHandler.customization.DamageStat.GetComponent<Slider>().value = typeNumbersChars[1] - 48;
+            menuHandler.customization.TargetingSpeedStat.GetComponent<Slider>().value = typeNumbersChars[2] - 48;
 
 
             PlayerStaticRunTimeData.coins -= cost;
             currentGunDataType = gunDataTypeToBuy;
             PlayerStaticDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, new PlayerSessionData(0,0, 0));
+
+            CustomizationState.Instance.RefreshPlayerStats();
         }
     }
    
@@ -184,28 +234,31 @@ public class ShopGunHandler : MonoCached
         //CustomizationHandler.Instance.RewriteCustomizationDataToPlayerData();
         //Camera.main.transform.position = MenuHandler.Instance.cameraStartPosition;
 
-        StartCoroutine(CameraTracking(Camera.main.transform.position, MenuHandler.Instance.cameraStartPosition, 
+        StartCoroutine(CameraTracking(Camera.main.transform.position, menuHandler.cameraStartPosition, 
             CustomizationState.Instance.PlayerTruck.transform.position - 2* CustomizationState.Instance.PlayerTruck.transform.forward/*,*/
             /*Camera.main.transform.eulerAngles, MenuHandler.Instance.cameraStartRotation*/));
 
         gameObject.GetComponent<Image>().enabled = true;
 
-        MenuHandler.Instance.customization.ChangeGunButton.GetComponent<Button>().onClick.RemoveAllListeners();
-        MenuHandler.Instance.customization.ChangeGunButton.SetActive(false);
+        menuHandler.customization.ChangeGunButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        menuHandler.customization.ChangeGunButton.SetActive(false);
 
-        MenuHandler.Instance.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
-        MenuHandler.Instance.customization.BuyButton.SetActive(false);
-        MenuHandler.Instance.customization.RateOfFireStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
-        MenuHandler.Instance.customization.RateOfFireStat.SetActive(false);
-        MenuHandler.Instance.customization.DamageStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
-        MenuHandler.Instance.customization.DamageStat.SetActive(false);
+        menuHandler.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        menuHandler.customization.BuyButton.SetActive(false);
+        menuHandler.customization.RateOfFireStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
+        menuHandler.customization.RateOfFireStat.SetActive(false);
+        menuHandler.customization.DamageStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
+        menuHandler.customization.DamageStat.SetActive(false);
+        menuHandler.customization.TargetingSpeedStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
+        menuHandler.customization.TargetingSpeedStat.SetActive(false);
 
-        MenuHandler.Instance.customization.RateOfFireStat.GetComponent<Slider>().value = 0;
-        MenuHandler.Instance.customization.DamageStat.GetComponent<Slider>().value = 0;
+        //MenuHandler.Instance.customization.RateOfFireStat.GetComponent<Slider>().value = 0;
+        //MenuHandler.Instance.customization.DamageStat.GetComponent<Slider>().value = 0;
 
+        menuHandler.customization.GunInfoWindow.SetActive(false);
 
-        MenuHandler.Instance.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
-        MenuHandler.Instance.BackButton.GetComponent<Button>().onClick.AddListener(() => CustomizationState.Instance.BackToSectionsWindow(MenuHandler.Instance));
+        menuHandler.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        menuHandler.BackButton.GetComponent<Button>().onClick.AddListener(() => CustomizationState.Instance.BackToSectionsWindow(MenuHandler.Instance));
         CustomizationState.Instance.RefreshPlayerTruckVisualBy(PlayerStaticRunTimeData.playerTruckData);
         CustomizationState.Instance.RewriteCustomizationData();
         //CustomizationState.Instance.RefreshPlayerTruckVisualBy(PlayerStaticRunTimeData.playerTruckData);

@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEditor;
 public static class GameEnums
 {
+    public enum Language
+    {
+        RU,
+        ENG
+    }
+
     public enum EnemyFollowType
     {
         PathFollow = 0,
@@ -87,15 +93,33 @@ public static class GameEnums
 
     public enum GunDataType
     {
-        LrLd = 11,
-        LrMd = 12,
-        LrHd = 13,
-        MrLd = 21,
-        MrMd = 22,
-        MrHd = 23,
-        HrLd = 31,
-        HrMd = 32,
-        HrHd = 33
+        LrLdLs = 111,
+        LrMdLs = 121,
+        LrHdLs = 131,
+        MrLdLs = 211,
+        MrMdLs = 221,
+        MrHdLs = 231,
+        HrLdLs = 311,
+        HrMdLs = 321,
+        HrHdLs = 331,
+        LrLdMs = 112,
+        LrMdMs = 122,
+        LrHdMs = 132,
+        MrLdMs = 212,
+        MrMdMs = 222,
+        MrHdMs = 232,
+        HrLdMs = 312,
+        HrMdMs = 322,
+        HrHdMs = 332,
+        LrLdHs = 113,
+        LrMdHs = 123,
+        LrHdHs = 133,
+        MrLdHs = 213,
+        MrMdHs = 223,
+        MrHdHs = 233,
+        HrLdHs = 313,
+        HrMdHs = 323,
+        HrHdHs = 333,
     }
 
     public enum ShopItemType

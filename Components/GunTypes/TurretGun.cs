@@ -9,6 +9,9 @@ public class TurretGun : MonoCached, Gun
     public GunAnglesData allowableAngles { get; set; }
     public GameEnums.BattleType battleType { get; set; }
 
+    public float targetingSpeedImprove;
+    public float rateOfFireImprove;
+
     public Transform head, headHolder;
     public Transform[] gunsBarrels;
 
@@ -22,9 +25,9 @@ public class TurretGun : MonoCached, Gun
     private Transform headHolderRoot;
 
     private bool targetIsVisible = true;
-    private float fireTimer;
+    private float fireTimer, nextSpreadStep;
 
-    private float nextSpreadStep;
+    private float angleBtwn_targetDirZY_hhFWD, angleBtwn_targetDirXZ_hhrootFWD;
 
     private ObjectPoolerBase battleUnitPooler;
 
@@ -84,7 +87,7 @@ public class TurretGun : MonoCached, Gun
     {
         if(Time.time >= fireTimer && targetIsVisible)
         {
-            fireTimer = Time.time + gunData.rateofFire + Random.Range(0.01f, 0.05f);
+            fireTimer = Time.time + gunData.rateofFire + Random.Range(0.01f, 0.05f) - rateOfFireImprove;
 
             for (int i = 0; i < gunsBarrels.Length; i++)
             {
@@ -124,16 +127,16 @@ public class TurretGun : MonoCached, Gun
         targetDirection_XZprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.up);
         targetDirection_ZYprojection = Vector3.ProjectOnPlane(targetDirection, headHolder.right);
 
-        float angleBtwn_targetDirZY_hhFWD = Vector3.SignedAngle(targetDirection_ZYprojection.normalized, headHolder.forward, headHolder.right);
-        float angleBtwn_targetDirXZ_hhrootFWD = Vector3.Angle(targetDirection_XZprojection.normalized, headHolderRoot.forward);
+        angleBtwn_targetDirZY_hhFWD = Vector3.SignedAngle(targetDirection_ZYprojection.normalized, headHolder.forward, headHolder.right);
+        angleBtwn_targetDirXZ_hhrootFWD = Vector3.Angle(targetDirection_XZprojection.normalized, headHolderRoot.forward);
 
         if(angleBtwn_targetDirXZ_hhrootFWD < allowableAngles.HeadHolderMaxAngle)
         {
-            headHolder.rotation = Quaternion.LookRotation(targetDirection_XZprojection, headHolder.up);
+            headHolder.rotation = Quaternion.Lerp(headHolder.rotation, Quaternion.LookRotation(targetDirection_XZprojection, headHolder.up), Time.deltaTime*(gunData.targetingSpeed+targetingSpeedImprove));
 
             if (angleBtwn_targetDirZY_hhFWD < allowableAngles.HeadMaxAngle && angleBtwn_targetDirZY_hhFWD > allowableAngles.HeadMinAngle)
             {
-                head.rotation = Quaternion.LookRotation(targetDirection_ZYprojection, headHolder.up);
+                head.rotation = Quaternion.Lerp(head.rotation, Quaternion.LookRotation(targetDirection_ZYprojection, headHolder.up), Time.deltaTime*(gunData.targetingSpeed + targetingSpeedImprove));
                 targetIsVisible = true;
             }
             else

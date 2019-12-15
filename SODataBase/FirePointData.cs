@@ -96,7 +96,7 @@ public class FirePointData : Data
         for (int i = 0; i < gunsConfigurations.Length; i++)
         {
             locationPath = i;
-            gunsConfigurations[i].gunDataType = GameEnums.GunDataType.LrLd;
+            gunsConfigurations[i].gunDataType = GameEnums.GunDataType.LrLdLs;
             gunsConfigurations[i].gunType = GameEnums.Gun.None;
             gunsConfigurations[i].locationPath = (GameEnums.GunLocation)locationPath;
             gunsConfigurations[i].trackingGroup = GameEnums.TrackingGroup.FirstTrackingGroup;
@@ -171,7 +171,7 @@ public class FirePointData : Data
     {
         for (int i = 0; i < gunsConfigurations.Length; i++)
         {
-            gunsConfigurations[i].gunDataType = GameEnums.GunDataType.LrLd;
+            gunsConfigurations[i].gunDataType = GameEnums.GunDataType.LrLdLs;
         }
     }
 

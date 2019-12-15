@@ -53,7 +53,7 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
     }
     public void RandomizeData()
     {
-        int playersFirePointType = (int)PlayerHandler.playerInstance.truck.TruckData.firePointType;
+        int playersFirePointType = (int)PlayerHandler.PlayerInstance.truck.TruckData.firePointType;
 
         int randomFirePoint = Random.Range(playersFirePointType - 2, playersFirePointType + 1);
         if (randomFirePoint < (int)GameEnums.FirePointType.D_FPType)
@@ -65,7 +65,7 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
             randomFirePoint = (int)GameEnums.FirePointType.DCMP_FPType;
         }
         helicopterData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length);
-        int[] gunDataTypes = { 22, 23 };
+        int[] gunDataTypes = { 222, 232, 223, 233 };
         for (int i = 0; i < helicopterData.firePointData.gunsConfigurations.Length; i++)
         {
             int randomGun = Random.Range(1, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);

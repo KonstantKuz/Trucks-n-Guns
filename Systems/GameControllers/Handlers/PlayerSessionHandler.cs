@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class PlayerSessionHandler : MonoCached
 {
-    public Slider playerConditionValue;
-    public TaskWindow taskWindow;
-
     private static PlayerSessionData currentSessionData;
     private CurrentSessionTaskData taskToSession;
 
@@ -22,9 +19,10 @@ public class PlayerSessionHandler : MonoCached
 
         taskToSession.IsDoneToFalse();
 
-        taskWindow.ShowTaskToSession(taskToSession, delegate { StartSession(); });
+        GeneralGameUIHolder.Instance.windows.taskWindow.ShowTaskToSession(taskToSession, delegate { StartSession(); });
     }
 
+    
     public void StartSession()
     {
         Time.timeScale = 2;
@@ -32,36 +30,69 @@ public class PlayerSessionHandler : MonoCached
         currentSessionData = new PlayerSessionData(0, 0, 0);
 
         //playerConditionValue = GameObject.Find("PlayerHealth").GetComponent<Slider>();
-        playerConditionValue.minValue = 0;
-        playerConditionValue.maxValue = PlayerHandler.playerInstance.truck.TruckData.maxTrucksCondition;
+        GeneralGameUIHolder.Instance.otherUI.playerConditionValue.minValue = 0;
+        GeneralGameUIHolder.Instance.otherUI.playerConditionValue.maxValue = PlayerHandler.PlayerInstance.truck.TruckData.maxTrucksCondition;
         //taskWindow = GameObject.Find("TaskWindow");
 
-        PlayerHandler.playerInstance.truck.trucksCondition.OnZeroCondition += SaveCurrentSessionData;
-        UpdatePlayerConditionValue();
-        PlayerHandler.playerInstance.truck.trucksCondition.OnCurrentConditionChanged += UpdatePlayerConditionValue;
+        GeneralGameUIHolder.Instance.otherUI.targetConditionValue = PlayerHandler.PlayerInstance.targetPoint.GetComponentInChildren<Slider>();
+        GeneralGameUIHolder.Instance.otherUI.targetConditionValue.minValue = 0;
 
-        startPostion = PlayerHandler.playerInstance.truck._transform.position;
+
+        GeneralGameUIHolder.Instance.otherUI.changeCameraBehaviour.onClick.RemoveAllListeners();
+        GeneralGameUIHolder.Instance.otherUI.changeCameraBehaviour.onClick.AddListener(() => ChangeCameraBehaviour());
+
+        GeneralGameUIHolder.Instance.otherUI.restartButton.onClick.RemoveAllListeners();
+        GeneralGameUIHolder.Instance.otherUI.restartButton.onClick.AddListener(() => Restart());
+
+        GeneralGameUIHolder.Instance.otherUI.returnToMenuButton.onClick.RemoveAllListeners();
+        GeneralGameUIHolder.Instance.otherUI.returnToMenuButton.onClick.AddListener(() => BackToMainMenu());
+
+        PlayerHandler.PlayerInstance.truck.trucksCondition.OnZeroCondition += SaveCurrentSessionData;
+        UpdatePlayerConditionValue();
+        PlayerHandler.PlayerInstance.truck.trucksCondition.OnCurrentConditionChanged += UpdatePlayerConditionValue;
+
+        startPostion = PlayerHandler.PlayerInstance.truck._transform.position;
         startTime = (int)Time.time;
 
         StartCoroutine(WriteTimeTraveledDistances());
     }
 
+    public void ChangeCameraBehaviour()
+    {
+        PlayerHandler.staticCamera = !PlayerHandler.staticCamera;
+    }
+
+    public void Restart()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("GeneralGameState");
+    }
+
+    public void BackToMainMenu()
+    {
+        SaveCurrentSessionData();
+    }
+
     private IEnumerator WriteTimeTraveledDistances()
     {
         yield return new WaitForSecondsRealtime(60);
-        endPosition = PlayerHandler.playerInstance.truck._transform.position;
+        endPosition = PlayerHandler.PlayerInstance.truck._transform.position;
         currentSessionData.traveledDistance_1Minute = (int)(endPosition.z - startPostion.z);
         yield return new WaitForSecondsRealtime(120);
-        endPosition = PlayerHandler.playerInstance.truck._transform.position;
+        endPosition = PlayerHandler.PlayerInstance.truck._transform.position;
         currentSessionData.traveledDistance_3Minutes = (int)(endPosition.z - startPostion.z);
         yield return new WaitForSecondsRealtime(120);
-        endPosition = PlayerHandler.playerInstance.truck._transform.position;
+        endPosition = PlayerHandler.PlayerInstance.truck._transform.position;
         currentSessionData.traveledDistance_5Minutes = (int)(endPosition.z - startPostion.z);
     }
 
     private void UpdatePlayerConditionValue()
     {
-        playerConditionValue.value = PlayerHandler.playerInstance.truck.trucksCondition.currentCondition;
+        GeneralGameUIHolder.Instance.otherUI.playerConditionValue.value = PlayerHandler.PlayerInstance.truck.trucksCondition.currentCondition;
+    }
+
+    public static void UpdateTargetConditionValue()
+    {
+        GeneralGameUIHolder.Instance.otherUI.targetConditionValue.value = PlayerHandler.PlayerInstance.FirstTrackingGroupsTarget.target_condition.currentCondition;
     }
 
     public static void IncreaseDefeatedEnemiesCount()
@@ -71,15 +102,16 @@ public class PlayerSessionHandler : MonoCached
 
     public void SaveCurrentSessionData()
     {
-        PlayerHandler.playerInstance.truck.trucksCondition.OnCurrentConditionChanged -= UpdatePlayerConditionValue;
-        PlayerHandler.playerInstance.truck.trucksCondition.OnZeroCondition -= SaveCurrentSessionData;
-        endPosition = PlayerHandler.playerInstance.truck._transform.position;
-        endTime = (int)Time.time;
+        PlayerHandler.PlayerInstance.StopListenTargetCondition(GameEnums.TrackingGroup.FirstTrackingGroup);
+        PlayerHandler.PlayerInstance.truck.trucksCondition.OnCurrentConditionChanged -= UpdatePlayerConditionValue;
+        PlayerHandler.PlayerInstance.truck.trucksCondition.OnZeroCondition -= SaveCurrentSessionData;
+        //endPosition = PlayerHandler.PlayerInstance.truck._transform.position;
+        //endTime = (int)Time.time;
 
-        currentSessionData.traveledDistance = (int)(endPosition.z - startPostion.z);
-        currentSessionData.traveledTime = endTime - startTime;
+        //currentSessionData.traveledDistance = (int)(endPosition.z - startPostion.z);
+        //currentSessionData.traveledTime = endTime - startTime;
 
-        taskToSession.CheckSession(currentSessionData);
+        taskToSession.CheckSession(CurrentSessionProgress());
 
         PlayerStaticRunTimeData.coins += taskToSession.totalReward;
         PlayerStaticDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, currentSessionData);
@@ -87,10 +119,21 @@ public class PlayerSessionHandler : MonoCached
         ShowDoneTasks();
     }
 
+    public PlayerSessionData CurrentSessionProgress()
+    {
+        endPosition = PlayerHandler.PlayerInstance.truck._transform.position;
+        endTime = (int)Time.time;
+
+        currentSessionData.traveledDistance = (int)(endPosition.z - startPostion.z);
+        currentSessionData.traveledTime = endTime - startTime;
+
+        return currentSessionData;
+    }
+
     public void ShowDoneTasks()
     {
         StartCoroutine(LoadCustomiz());
-        taskWindow.ShowSessionProgress(currentSessionData, taskToSession, delegate { ActivateScene(); });
+        GeneralGameUIHolder.Instance.windows.taskWindow.ShowSessionProgress(currentSessionData, taskToSession, delegate { ActivateScene(); });
     }
 
     private void ActivateScene()
@@ -104,10 +147,9 @@ public class PlayerSessionHandler : MonoCached
     private AsyncOperation asyncLoad;
     private IEnumerator LoadCustomiz()
     {
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForSecondsRealtime(0.01f);
         //PlayerStaticRunTimeData.LoadData();
         //UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
-        yield return new WaitForSecondsRealtime(1f);
         asyncLoad = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("MainMenuWithCustomization");
         asyncLoad.allowSceneActivation = false;
     }

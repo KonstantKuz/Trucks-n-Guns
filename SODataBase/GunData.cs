@@ -8,6 +8,8 @@ public class GunData : Data
 
     public float rateofFire;
 
+    public float targetingSpeed;
+
     public AnimationCurve spreadCurve;
     public float spreadForce;
 }

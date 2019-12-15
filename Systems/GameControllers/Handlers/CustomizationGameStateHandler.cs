@@ -8,8 +8,6 @@ public class CustomizationGameStateHandler : MonoBehaviour
     private PlayerHandler playerHandler;
     [SerializeField]
     private ObjectPoolersHolder objectPoolersHolder;
-    [SerializeField]
-    private DataReturnersHolder dataReturnersHolder;
 
     private void OnEnable()
     {
@@ -22,7 +20,6 @@ public class CustomizationGameStateHandler : MonoBehaviour
         //PlayerStaticRunTimeData.customizationFirePointData.RewriteData(PlayerStaticRunTimeData.playerFirePointData);
 
         objectPoolersHolder.AwakeCustomizationGameStatePooler();
-        dataReturnersHolder.AwakeDataReturners();
         playerHandler.CreateCamera();
         playerHandler.CreatePlayer();
     }

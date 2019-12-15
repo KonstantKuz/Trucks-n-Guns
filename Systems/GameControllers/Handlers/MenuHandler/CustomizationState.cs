@@ -46,6 +46,8 @@ public class CustomizationState : State<MenuHandler>
         _owner.customization.GunSectionButton.GetComponent<Button>().onClick.AddListener(() => EnterGunSection(_owner));
 
         _owner.customization.coins.GetComponentInChildren<Button>().onClick.AddListener(() => GoogleAdmobHandler.Instance.ShowRewardBasedVideo());
+
+        RefreshPlayerStats();
     }
 
     public override void ExitState(MenuHandler _owner)
@@ -56,6 +58,8 @@ public class CustomizationState : State<MenuHandler>
         _owner.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
 
         _owner.customization.coins.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
+
+        RefreshPlayerStats();
 
     }
 

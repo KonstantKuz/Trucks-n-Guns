@@ -23,16 +23,16 @@ public class PlayerStatisticsViewer : Singleton<PlayerStatisticsViewer>
     {
         PlayerStaticRunTimeData.LoadData();
 
-        totalTraveledDistance.text = $"{totalTraveledDistance.name} : {PlayerStaticRunTimeData.totalTraveledDistance} meters";
-        maxTraveledDistancePerSession.text = $"{maxTraveledDistancePerSession.name} : {PlayerStaticRunTimeData.maxTraveledDistancePerSession} meters";
-        totalDefeatedEnemies.text = $"{totalDefeatedEnemies.name} : {PlayerStaticRunTimeData.totalDefeatedEnemies}";
-        maxDefeatedEnemiesPerSession.text = $"{maxDefeatedEnemiesPerSession.name} : {PlayerStaticRunTimeData.maxDefeatedEnemiesPerSession}";
-        totalTraveledTime.text = $"{totalTraveledTime.name} : {PlayerStaticRunTimeData.totalTraveledTime} seconds";
-        maxTraveledTimePerSession.text = $"{maxTraveledTimePerSession.name} : {PlayerStaticRunTimeData.maxTraveledTimePerSession} seconds";
+        totalTraveledDistance.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.totalTraveledDistance} m";
+        maxTraveledDistancePerSession.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.maxTraveledDistancePerSession} m";
+        totalDefeatedEnemies.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.totalDefeatedEnemies}";
+        maxDefeatedEnemiesPerSession.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.maxDefeatedEnemiesPerSession}";
+        totalTraveledTime.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.totalTraveledTime} sec";
+        maxTraveledTimePerSession.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.maxTraveledTimePerSession} sec";
 
-        maxTraveledDistance_1Minute.text = $"{maxTraveledDistance_1Minute.name} : {PlayerStaticRunTimeData.maxTraveledDistance_1Minute} meters";
-        maxTraveledDistance_3Minutes.text = $"{maxTraveledDistance_3Minutes.name} : {PlayerStaticRunTimeData.maxTraveledDistance_3Minutes} meters";
-        maxTraveledDistance_5Minutes.text = $"{maxTraveledDistance_5Minutes.name} : {PlayerStaticRunTimeData.maxTraveledDistance_5Minutes} meters";
+        maxTraveledDistance_1Minute.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.maxTraveledDistance_1Minute} m";
+        maxTraveledDistance_3Minutes.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.maxTraveledDistance_3Minutes} m";
+        maxTraveledDistance_5Minutes.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.maxTraveledDistance_5Minutes} m";
 
         maxTraveledDistancePerSession.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
         maxDefeatedEnemiesPerSession.GetComponentInChildren<Button>().onClick.RemoveAllListeners();

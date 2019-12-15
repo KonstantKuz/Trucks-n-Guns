@@ -7,50 +7,35 @@ public class InputHandler : MonoCached
 {
     public LayerMask damageableMask;
     public LayerMask groundMask;
-
-    public Transform targetPoint;
-
-    public RectTransform moveController;
-    public RectTransform fireArea;
-    public Button forwardBoost, backwardBoost, parkingBrake, changeCameraState, restart;
-    private Camera mainCamera;
+    
     private Vector3 seekPointPosition = Vector3.zero;
 
-
     private Player player;
-    public float steeringForce { get; private set; }
-    public bool doubleTap { get; private set; }
-    
-    public void FindControlsUI()
+
+    private Vector2 moveAreaTouchPosition, fireAreaTouchPosition, moveAreaMousePosition, fireAreaMousePosition;
+
+    private Camera playerCamera;
+
+    private Controls controls;
+
+    public void SetUpControlsUI()
     {
-        forwardBoost.onClick.AddListener(() => player.ForwardBoost());
-        backwardBoost.onClick.AddListener(() => player.BackwardBoost());
-        parkingBrake.onClick.AddListener(() => player.StopPlayerTruck());
-        changeCameraState.onClick.AddListener(() => ChangeCameraState());
-        //restart.onClick.AddListener(() => Restart());
-    }
-    public void FindCamera()
-    {
-        mainCamera = Camera.main;
-    }
-    
-    public void ChangeCameraState()
-    {
-        PlayerHandler.staticCamera = !PlayerHandler.staticCamera;
+        controls = GeneralGameUIHolder.Instance.controls;
+
+        controls.forwardBoost.onClick.AddListener(() => player.ForwardBoost());
+        controls.backwardBoost.onClick.AddListener(() => player.BackwardBoost());
+        //controls.parkingBrake.onClick.AddListener(() => player.StopPlayerTruck());
     }
 
     public void StartUpdateInputs()
     {
-        player = PlayerHandler.playerInstance;
+        playerCamera = PlayerHandler.Camera;
+        player = PlayerHandler.PlayerInstance;
         StartCoroutine(UpdateInputs());
     }
     private IEnumerator UpdateInputs()
     {
         yield return new WaitForEndOfFrame();
-        if(!ReferenceEquals(player.FirstTrackingGroupsTarget, null) && !ReferenceEquals(player.FirstTrackingGroupsTarget.target_rigidbody, null))
-        {
-            targetPoint.position = player.FirstTrackingGroupsTarget.target_rigidbody.position;
-        }
 
         if (!ReferenceEquals(player.seekPoint, null))
         {
@@ -63,47 +48,30 @@ public class InputHandler : MonoCached
 
         foreach (Touch touch in Input.touches)
         {
-            Vector2 moveAreaTouchPosition = moveController.InverseTransformPoint(touch.position);
-            if(moveController.rect.Contains(moveAreaTouchPosition))
+            moveAreaTouchPosition = controls.moveArea.InverseTransformPoint(touch.position);
+            if(controls.moveArea.rect.Contains(moveAreaTouchPosition))
             {
                 SetSeekPointPosition(touch);
             }
-            Vector2 fireAreaTouchPosition = fireArea.InverseTransformPoint(touch.position);
-            if (fireArea.rect.Contains(fireAreaTouchPosition))
+            fireAreaTouchPosition = controls.fireArea.InverseTransformPoint(touch.position);
+            if (controls.fireArea.rect.Contains(fireAreaTouchPosition))
             {
                 SetUpPlayersTarget(touch, GameEnums.TrackingGroup.FirstTrackingGroup);
-                //if (touch.tapCount == 1)
-                //{
-                //    SetUpPlayersTarget(touch, GameEnums.TrackingGroup.FirstTrackingGroup);
-                //}
-                //if (touch.tapCount == 2)
-                //{
-                //    SetUpPlayersTarget(touch, GameEnums.TrackingGroup.SecondTrackingGroup);
-                //}
             }
         }
 #endif
         #endregion
         #region unityEditor
 #if UNITY_EDITOR
-        Vector2 moveAreaMousePosition = moveController.InverseTransformPoint(Input.mousePosition);
-        if (moveController.rect.Contains(moveAreaMousePosition))
+        moveAreaMousePosition = controls.moveArea.InverseTransformPoint(Input.mousePosition);
+        if (controls.moveArea.rect.Contains(moveAreaMousePosition))
         {
             SetSeekPointPosition(Input.mousePosition);
         }
-        Vector2 fireAreaMousePosition = fireArea.InverseTransformPoint(Input.mousePosition);
-        if (fireArea.rect.Contains(fireAreaMousePosition))
+        fireAreaMousePosition = controls.fireArea.InverseTransformPoint(Input.mousePosition);
+        if (controls.fireArea.rect.Contains(fireAreaMousePosition))
         {
             SetUpPlayersTarget(Input.mousePosition, GameEnums.TrackingGroup.FirstTrackingGroup);
-
-            //if (Input.GetMouseButton(0))
-            //{
-            //    SetUpPlayersTarget(Input.mousePosition, GameEnums.TrackingGroup.FirstTrackingGroup);
-            //}
-            //if (Input.GetMouseButton(1))
-            //{
-            //    SetUpPlayersTarget(Input.mousePosition, GameEnums.TrackingGroup.SecondTrackingGroup);
-            //}
         }
 #endif
         yield return StartCoroutine(UpdateInputs());
@@ -111,7 +79,7 @@ public class InputHandler : MonoCached
     }
     private void SetUpPlayersTarget(Vector3 mousePosition, GameEnums.TrackingGroup trackingGroup)
     {
-        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+        Ray ray = playerCamera.ScreenPointToRay(mousePosition);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 200, damageableMask))
         {
@@ -123,7 +91,7 @@ public class InputHandler : MonoCached
     }
     private void SetUpPlayersTarget(Touch touch, GameEnums.TrackingGroup trackingGroup)
     {
-        Ray ray = mainCamera.ScreenPointToRay(touch.position);
+        Ray ray = playerCamera.ScreenPointToRay(touch.position);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 200, damageableMask))
         {
@@ -136,7 +104,7 @@ public class InputHandler : MonoCached
     
     private void SetSeekPointPosition(Touch touch)
     {
-        Ray ray = mainCamera.ScreenPointToRay(touch.position);
+        Ray ray = playerCamera.ScreenPointToRay(touch.position);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 200, groundMask))
         {
@@ -145,7 +113,7 @@ public class InputHandler : MonoCached
     }
     private void SetSeekPointPosition(Vector3 mousePosition)
     {
-        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+        Ray ray = playerCamera.ScreenPointToRay(mousePosition);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 200, groundMask))
         {

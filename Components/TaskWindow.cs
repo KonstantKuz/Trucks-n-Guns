@@ -7,9 +7,10 @@ public class TaskWindow : MonoCached
 {
     public Button okButton;
 
-    public Text totalReward;
-    public Text[] tasks;
-    public Toggle[] tasksProgress;
+    public Text totalRewardText;
+    public GameObject[] taskViewer;
+    //public Text[] rewardTexts;
+    //public Toggle[] tasksProgressToggle;
 
     public void HideWindow()
     {
@@ -21,11 +22,13 @@ public class TaskWindow : MonoCached
         gameObject.SetActive(true);
         for (int i = 0; i < sessionTask.tasks.Length; i++)
         {
-            tasks[i].gameObject.SetActive(true);
-            tasksProgress[i].gameObject.SetActive(true);
-            tasks[i].text = $"{sessionTask.tasks[i].taskType.ToString()} more or equal to {sessionTask.tasks[i].taskAmount}";
-            tasksProgress[i].GetComponent<UnityEngine.UI.Toggle>().isOn = false;
+            taskViewer[i].SetActive(true);
+            taskViewer[i].GetComponentInChildren<Toggle>().gameObject.SetActive(true);
+            taskViewer[i].GetComponent<Text>().text = GetLocalizedTaskText(sessionTask.tasks[i].taskType, sessionTask.tasks[i].taskAmount);
+            taskViewer[i].GetComponentInChildren<Toggle>().GetComponent<UnityEngine.UI.Toggle>().isOn = false;
+            taskViewer[i].transform.GetChild(2).GetComponent<Text>().text = sessionTask.tasks[i].reward.ToString() + "$";
         }
+        totalRewardText.gameObject.SetActive(false);
         okButton.onClick.RemoveAllListeners();
         okButton.onClick.AddListener(() => onOKclick.Invoke());
         okButton.onClick.AddListener(() => HideWindow());
@@ -36,16 +39,64 @@ public class TaskWindow : MonoCached
         gameObject.SetActive(true);
         for (int i = 0; i < sessionTask.tasks.Length; i++)
         {
-            tasks[i].gameObject.SetActive(true);
-            tasksProgress[i].gameObject.SetActive(true);
-            tasks[i].text = $"{sessionTask.tasks[i].taskType.ToString()} more or equal to {sessionTask.tasks[i].taskAmount}";
-            tasksProgress[i].GetComponent<UnityEngine.UI.Toggle>().isOn = sessionTask.tasks[i].isDone;
+            taskViewer[i].SetActive(true);
+            taskViewer[i].GetComponentInChildren<Toggle>().gameObject.SetActive(true);
+            taskViewer[i].GetComponent<Text>().text = GetLocalizedTaskText(sessionTask.tasks[i].taskType, sessionTask.tasks[i].taskAmount);
+            taskViewer[i].GetComponentInChildren<Toggle>().GetComponent<UnityEngine.UI.Toggle>().isOn = sessionTask.tasks[i].isDone;
+            taskViewer[i].transform.GetChild(2).GetComponent<Text>().text = sessionTask.tasks[i].reward.ToString() + "$";
         }
-        totalReward.text = $"Total reward = {sessionTask.totalReward} $ for tasks + {sessionData.defeatedEnemies * 10 + sessionData.traveledDistance / 10} $ for session";
+        totalRewardText.gameObject.SetActive(true);
+        totalRewardText.text = GetLocalizedRewardText(sessionTask.totalReward, sessionData.defeatedEnemies * 10 + sessionData.traveledDistance / 10);
         okButton.onClick.RemoveAllListeners();
         okButton.onClick.AddListener(() => onOKclick.Invoke());
         okButton.onClick.AddListener(() => HideWindow());
     }
 
+    public string GetLocalizedRewardText(int totalRewardForTasks, int rewardForSession)
+    {
+        if(Localization.currentLanguage == GameEnums.Language.RU)
+        {
+            return $"Получено денег : {totalRewardForTasks} + {rewardForSession} $";
+        }
+        else
+        {
+            return $"Total reward : {totalRewardForTasks} + {rewardForSession} $";
+        }
+    }
 
+
+    public string GetLocalizedTaskText(GameEnums.TaskType taskType, int taskAmount)
+    {
+        switch (taskType)
+        {
+            case GameEnums.TaskType.DestroyEnemies:
+                if(Localization.currentLanguage == GameEnums.Language.RU)
+                {
+                    return $"Уничтожь {taskAmount} врагов";
+                }
+                else
+                {
+                    return $"Destroy {taskAmount} enemies";
+                }
+            case GameEnums.TaskType.TravelDistance:
+                if (Localization.currentLanguage == GameEnums.Language.RU)
+                {
+                    return $"Проедь {taskAmount} метров";
+                }
+                else
+                {
+                    return $"Travel {taskAmount} meters";
+                }
+            case GameEnums.TaskType.TravelTime:
+                if (Localization.currentLanguage == GameEnums.Language.RU)
+                {
+                    return $"Проедь {taskAmount} секунд";
+                }
+                else
+                {
+                    return $"Travel {taskAmount} seconds";
+                }
+        }
+        return null;
+    }
 }

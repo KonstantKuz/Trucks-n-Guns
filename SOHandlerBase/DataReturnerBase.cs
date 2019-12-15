@@ -14,15 +14,19 @@ public class DataReturnerBase : ScriptableObject
 
     public List<DataToHold> dataToHold;
 
-    public Dictionary<string, DataToHold> DataDictionary;
+    public Dictionary<string, Data> DataDictionary;
 
     public void AwakeDataHolder()
     {
-        DataDictionary = new Dictionary<string, DataToHold>();
+#if UNITY_EDITOR
+        UnityEditor.EditorUtility.SetDirty(this);
+#endif
 
+        DataDictionary = new Dictionary<string, Data>();
+        DataDictionary.Clear();
         for (int i = 0; i < dataToHold.Count; i++)
         {
-            DataDictionary.Add(dataToHold[i].tag, dataToHold[i]);
+            DataDictionary.Add(dataToHold[i].tag, Instantiate(dataToHold[i].data));
         }
     }
 
@@ -31,7 +35,7 @@ public class DataReturnerBase : ScriptableObject
         if(DataDictionary.ContainsKey(tag))
         {
             //Debug.Log(DataDictionary[tag].data.name);
-            return DataDictionary[tag].data;
+            return DataDictionary[tag];
         }
         else
         {
@@ -42,6 +46,6 @@ public class DataReturnerBase : ScriptableObject
 
     public Data GetRandomData()
     {
-        return DataDictionary[dataToHold[Random.Range(0, dataToHold.Count)].tag].data;
+        return DataDictionary[dataToHold[Random.Range(0, dataToHold.Count)].tag];
     }
 }

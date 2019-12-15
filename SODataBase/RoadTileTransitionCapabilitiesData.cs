@@ -11,22 +11,6 @@ public class RoadTileConfiguration
     public string tileName { get; set; }
 }
 
-//public static class RoadTilesDictionary
-//{
-//    public static List<RoadTileConfiguration> roadTiles = new List<RoadTileConfiguration>(1000);
-
-//    public static void AddNewTile(RoadTileConfiguration roadDataToAdd)
-//    {
-//        if(!roadTiles.Contains(roadDataToAdd))
-//        {
-//            roadTiles.Add(roadDataToAdd);
-//        }
-//        else
-//        {
-//            Debug.LogWarning($"<color=red> RoadTilesDictionary already exists {roadDataToAdd.tileName} roaddata </color>");
-//        }
-//    }
-//}
 [CreateAssetMenu(fileName = "NextRoadTileData", menuName = "Data/NextRoadTileData")]
 public class RoadTileTransitionCapabilitiesData : Data
 {
