@@ -62,6 +62,9 @@ public class EnemyHandler : MonoCached
                 enemy.gameObject.SetActive(false);
                 currentSessionEnemies.Remove(enemy);
             }
+
+            //new delayed 171719
+            yield return new WaitForEndOfFrame();
         }
         yield return StartCoroutine(CheckingEnemiesPosition());
     }

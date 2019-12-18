@@ -15,6 +15,10 @@ public class MainMenu
     public GameObject ViewStatisticsButton;
     public GameObject SettingsButton;
     public GameObject LogInButton;
+
+    public GameObject SendFeedbackButton;
+    public GameObject ControlsTutorialButton;
+
     public GameObject QuitButton;
 }
 [System.Serializable]
@@ -52,6 +56,22 @@ public class Settings
 {
     public GameObject SettingsWindow;
 }
+[System.Serializable]
+public class Feedback
+{
+    public GameObject FeedbackWindow;
+    public FeedbackQuestion[] QuickQuestions;
+    public GameObject SendButton;
+    public GameObject GoToGoogleButton;
+    public Text senderReview;
+    public Text senderDevice;
+    public Text senderMail_Adress;
+}
+[System.Serializable]
+public class ControlsTutorial
+{
+    public GameObject controlsTutprialWindow;
+}
 
 public class MenuHandler : Singleton<MenuHandler>
 {
@@ -60,6 +80,9 @@ public class MenuHandler : Singleton<MenuHandler>
     public Customization customization;
     public Statistics statistics;
     public Settings settings;
+
+    public Feedback feedBack;
+    public ControlsTutorial controlsTutorial;
 
     public GameObject BackButton;
 
@@ -84,7 +107,7 @@ public class MenuHandler : Singleton<MenuHandler>
 
     private IEnumerator AsyncGeneralGameSceceLoad()
     {
-        yield return new WaitForSecondsRealtime(2f);
+        yield return new WaitForSecondsRealtime(1f);
         asyncGeneralGameLoad = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("GeneralGameState");
         asyncGeneralGameLoad.allowSceneActivation = false;
     }

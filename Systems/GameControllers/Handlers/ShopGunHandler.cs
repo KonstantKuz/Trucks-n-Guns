@@ -31,7 +31,7 @@ public class ShopGunHandler : MonoCached
         //Camera.main.transform.LookAt(gunPoint.gunsLocation);
 
         StartCoroutine(CameraTracking(Camera.main.transform.position, transform.position + new Vector3(3, 3, 3), gunPoint.gunsLocation.position/*,*/
-                                                                                                                                      /*Camera.main.transform.eulerAngles, Quaternion.LookRotation(transform.position  - Camera.main.transform.position).eulerAngles*/));
+        /*Camera.main.transform.eulerAngles, Quaternion.LookRotation(transform.position  - Camera.main.transform.position).eulerAngles*/));
 
         FirePointData.GunConfiguration ConfigFromPath = PlayerStaticRunTimeData.playerTruckData.firePointData.GetConfigOnLocation(gunPoint.locationPath);
 
@@ -53,6 +53,10 @@ public class ShopGunHandler : MonoCached
             menuHandler.customization.RateOfFireStat.GetComponentInChildren<Button>().onClick.AddListener(() => UpgradeRateOfFire());
             menuHandler.customization.DamageStat.GetComponentInChildren<Button>().onClick.AddListener(() => UpgradeDamage());
             menuHandler.customization.TargetingSpeedStat.GetComponentInChildren<Button>().onClick.AddListener(() => UpgradeTargetingSpeed());
+
+            menuHandler.customization.RateOfFireStat.GetComponentInChildren<Button>().GetComponentInChildren<Text>().text = UpgradeRateOfFireCost();
+            menuHandler.customization.DamageStat.GetComponentInChildren<Button>().GetComponentInChildren<Text>().text = UpgradeDamageCost();
+            menuHandler.customization.TargetingSpeedStat.GetComponentInChildren<Button>().GetComponentInChildren<Text>().text = UpgradeTargetingSpeedCost();
         }
 
         menuHandler.customization.ChangeGunButton.SetActive(true);
@@ -100,7 +104,7 @@ public class ShopGunHandler : MonoCached
         menuHandler.customization.TargetingSpeedStat.SetActive(false);
 
         menuHandler.customization.BuyButton.SetActive(true);
-        menuHandler.customization.BuyButton.GetComponentInChildren<Text>().text = CustomizationHandler.Instance.shopCosts.ItemsCost(gunTypeToBuy.ToString()).ToString();
+        menuHandler.customization.BuyButton.GetComponentInChildren<Text>().text = CustomizationHandler.Instance.shopCosts.ItemsCost(gunTypeToBuy.ToString()).ToString() + "$";
         menuHandler.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
         menuHandler.customization.BuyButton.GetComponent<Button>().onClick.AddListener(() => BuyGun(gunTypeToBuy));
 
@@ -108,13 +112,15 @@ public class ShopGunHandler : MonoCached
         {
             menuHandler.customization.GunInfoWindow.SetActive(true);
             menuHandler.customization.GunInfoWindow.GetComponentInChildren<LocalizedText>().ResetText();
-            menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text = menuHandler.customization.TargetingSpeedStat.GetComponentInChildren<Text>().text + "\n" + menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text;
+            menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text = menuHandler.customization.TargetingSpeedStat.GetComponentInChildren<Text>().text 
+                + "\n" + menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text;
         }
         else if(((GameEnums.Gun)gunTypeCount).ToString().Contains("Gun3"))
         {
             menuHandler.customization.GunInfoWindow.SetActive(true);
             menuHandler.customization.GunInfoWindow.GetComponentInChildren<LocalizedText>().ResetText();
-            menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text = menuHandler.customization.RateOfFireStat.GetComponentInChildren<Text>().text + "\n" + menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text;
+            menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text = menuHandler.customization.RateOfFireStat.GetComponentInChildren<Text>().text 
+                + "\n" + menuHandler.customization.GunInfoWindow.GetComponentInChildren<Text>().text;
         }
         else
         {
@@ -171,6 +177,8 @@ public class ShopGunHandler : MonoCached
 
         GameEnums.GunDataType upgradedGunData = (GameEnums.GunDataType)upgradedRateOfFire;
         UpgradeGunData(upgradedGunData, 500 * (typeNumbersChars[0] - 48));
+
+        menuHandler.customization.RateOfFireStat.GetComponentInChildren<Button>().GetComponentInChildren<Text>().text = UpgradeRateOfFireCost();
     }
 
     private void UpgradeDamage()
@@ -184,6 +192,8 @@ public class ShopGunHandler : MonoCached
 
         GameEnums.GunDataType upgradedGunData = (GameEnums.GunDataType)upgradedDamage;
         UpgradeGunData(upgradedGunData, 500 * (typeNumbersChars[1] - 48));
+        
+        menuHandler.customization.DamageStat.GetComponentInChildren<Button>().GetComponentInChildren<Text>().text = UpgradeDamageCost();
     }
 
     public void UpgradeTargetingSpeed()
@@ -197,6 +207,50 @@ public class ShopGunHandler : MonoCached
 
         GameEnums.GunDataType upgradedGunData = (GameEnums.GunDataType)upgradedTargetingSpeed;
         UpgradeGunData(upgradedGunData, 500 * (typeNumbersChars[2] - 48));
+        
+        menuHandler.customization.TargetingSpeedStat.GetComponentInChildren<Button>().GetComponentInChildren<Text>().text = UpgradeTargetingSpeedCost();
+    }
+
+    private string UpgradeRateOfFireCost()
+    {
+        int upgradedRateOfFire = (int)currentGunDataType + 100;
+        char[] typeNumbersChars = upgradedRateOfFire.ToString().ToCharArray();
+        if (typeNumbersChars[0] - 48 > 3)
+        {
+            return "max";
+        }
+        else
+        {
+            return $"+ ({500 * (typeNumbersChars[0] - 48)} $)";
+        }
+    }
+
+    private string UpgradeDamageCost()
+    {
+        int upgradedDamage = (int)currentGunDataType + 10;
+        char[] typeNumbersChars = upgradedDamage.ToString().ToCharArray();
+        if (typeNumbersChars[1] - 48 > 3)
+        {
+            return "max";
+        }
+        else
+        {
+            return $"+ ({500 * (typeNumbersChars[1] - 48)} $)";
+        }
+    }
+
+    public string UpgradeTargetingSpeedCost()
+    {
+        int upgradedTargetingSpeed = (int)currentGunDataType + 1;
+        char[] typeNumbersChars = upgradedTargetingSpeed.ToString().ToCharArray();
+        if (typeNumbersChars[2] - 48 > 3)
+        {
+            return "max";
+        }
+        else
+        {
+            return $"+ ({500 * (typeNumbersChars[2] - 48)} $)";
+        }
     }
 
     public void UpgradeGunData(GameEnums.GunDataType gunDataTypeToBuy, int cost)

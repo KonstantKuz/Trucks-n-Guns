@@ -69,7 +69,7 @@ public class EntityCondition : MonoCached
                 {
                     //Debug.Log($"<color=green> {gameObject.name} velocity was greater than {collidedRigidbody.name}</color>");
 
-                    damageRange = collision.relativeVelocity.sqrMagnitude * 2f/* collision.rigidbody.mass* collision.relativeVelocity.sqrMagnitude/ 100f*/;
+                    damageRange = collision.relativeVelocity.sqrMagnitude/* collision.rigidbody.mass* collision.relativeVelocity.sqrMagnitude/ 100f*/;
                     AddHealth(damageRange);
                 }
             }

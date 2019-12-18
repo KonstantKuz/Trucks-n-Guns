@@ -10,7 +10,7 @@ public class Bullet : MonoCached, BattleUnit
 
     public BattleUnitData battleUnitData { get; set; }
 
-    private Ray ray;
+    private Ray rayFWD, rayBWD;
     private RaycastHit hit;
     private float rayDistance;
     private Transform _transform;
@@ -23,9 +23,9 @@ public class Bullet : MonoCached, BattleUnit
         _transform = transform;
         _gameObject = gameObject;
         _deltaPosition = Vector3.zero;
-        ray = new Ray();
-
-        rayDistance = battleUnitData.speed * 0.01f;
+        rayFWD = new Ray();
+        rayBWD = new Ray();
+        rayDistance = battleUnitData.speed * 0.02f;
     }
     private void OnEnable()
     {
@@ -57,9 +57,16 @@ public class Bullet : MonoCached, BattleUnit
 
     public void SearchTargets()
     {
-        ray.origin = _transform.position;
-        ray.direction = _forwardDirection;
-        if (Physics.Raycast(ray, out hit, rayDistance, battleUnitData.interactibleWith))
+        rayFWD.origin = _transform.position;
+        rayFWD.direction = _forwardDirection;
+        if (Physics.Raycast(rayFWD, out hit, rayDistance, battleUnitData.interactibleWith))
+        {
+            SetDamage(hit.collider.GetComponentInParent<EntityCondition>());
+            return;
+        }
+        rayBWD.origin = _transform.position;
+        rayBWD.direction = _forwardDirection;
+        if (Physics.Raycast(rayBWD, out hit, rayDistance, battleUnitData.interactibleWith))
         {
             SetDamage(hit.collider.GetComponentInParent<EntityCondition>());
         }

@@ -16,6 +16,8 @@ public class CustomizationHandler : Singleton<CustomizationHandler>
     private void Awake()
     {
         menuHandler = MenuHandler.Instance;
+
+        GameObject.Find("PlayerTruckPreset(Clone)").GetComponent<AudioSource>().volume = 0.1f;
     }
 
     public void StartCustomizeTruck()
@@ -111,7 +113,7 @@ public class CustomizationHandler : Singleton<CustomizationHandler>
 
 
         menuHandler.customization.BuyButton.SetActive(true);
-        menuHandler.customization.BuyButton.GetComponentInChildren<Text>().text = shopCosts.ItemsCost(firePointToBuy.ToString()).ToString();
+        menuHandler.customization.BuyButton.GetComponentInChildren<Text>().text = shopCosts.ItemsCost(firePointToBuy.ToString()).ToString() + "$";
 
         menuHandler.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
         menuHandler.customization.BuyButton.GetComponent<Button>().onClick.AddListener(() => BuyFirePoint(firePointToBuy));
@@ -165,7 +167,7 @@ public class CustomizationHandler : Singleton<CustomizationHandler>
 
 
         menuHandler.customization.BuyButton.SetActive(true);
-        menuHandler.customization.BuyButton.GetComponentInChildren<Text>().text = shopCosts.ItemsCost(truckToBuy.ToString()).ToString();
+        menuHandler.customization.BuyButton.GetComponentInChildren<Text>().text = shopCosts.ItemsCost(truckToBuy.ToString()).ToString() + "$";
 
         menuHandler.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
         menuHandler.customization.BuyButton.GetComponent<Button>().onClick.AddListener(() => BuyTruck(truckToBuy));

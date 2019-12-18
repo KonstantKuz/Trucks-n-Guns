@@ -16,6 +16,8 @@ public class EventHandler : MonoCached
     private ObjectPoolerBase eventPooler;
     private float traveledDistaceToGenerateEvent;
 
+    private Rigidbody player_rigidbody;
+
     private void Awake()
     {
         eventPooler = ObjectPoolersHolder.Instance.EventPooler;
@@ -25,10 +27,11 @@ public class EventHandler : MonoCached
 
     public void StartCheckDistance(Vector3 player_startPos, Rigidbody player_rigidbody)
     {
-        StartCoroutine(CheckTraveledDistance(player_startPos, player_rigidbody));
+        this.player_rigidbody = player_rigidbody;
+        StartCoroutine(CheckTraveledDistance(player_startPos));
     }
 
-    private IEnumerator CheckTraveledDistance(Vector3 player_Pos, Rigidbody player_rigidbody)
+    private IEnumerator CheckTraveledDistance(Vector3 player_Pos)
     {
         if(traveledDistaceToGenerateEvent == 0)
         {
@@ -52,7 +55,7 @@ public class EventHandler : MonoCached
             }
         }
 
-        yield return StartCoroutine(CheckTraveledDistance(playerPos_fromLastEvent, player_rigidbody));
+        yield return StartCoroutine(CheckTraveledDistance(playerPos_fromLastEvent));
     }
     private void GenerateEvent(Rigidbody player_rigidbody)
     {

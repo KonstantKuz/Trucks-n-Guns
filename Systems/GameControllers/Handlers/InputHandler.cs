@@ -22,9 +22,30 @@ public class InputHandler : MonoCached
     {
         controls = GeneralGameUIHolder.Instance.controls;
 
-        controls.forwardBoost.onClick.AddListener(() => player.ForwardBoost());
-        controls.backwardBoost.onClick.AddListener(() => player.BackwardBoost());
+        //controls.forwardBoost.onClick.AddListener(() => player.ForwardBoost());
+        //controls.backwardBoost.onClick.AddListener(() => player.BackwardBoost());
         //controls.parkingBrake.onClick.AddListener(() => player.StopPlayerTruck());
+    }
+    private bool forwardBoosted;
+    private bool backwardBossted;
+
+    public void StartForwardBoost()
+    {
+        forwardBoosted = true;
+    }
+
+    public void StopForwardBoost()
+    {
+        forwardBoosted = false;
+    }
+
+    public void StartBackwardBoost()
+    {
+        backwardBossted = true;
+    }
+    public void StopBackwardBoost()
+    {
+        backwardBossted = false;
     }
 
     public void StartUpdateInputs()
@@ -36,6 +57,15 @@ public class InputHandler : MonoCached
     private IEnumerator UpdateInputs()
     {
         yield return new WaitForEndOfFrame();
+
+        if(forwardBoosted)
+        {
+            player.ForwardBoost();
+        }
+        if(backwardBossted)
+        {
+            player.BackwardBoost();
+        }
 
         if (!ReferenceEquals(player.seekPoint, null))
         {

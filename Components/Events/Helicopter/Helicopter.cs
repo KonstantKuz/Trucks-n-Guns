@@ -65,14 +65,14 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
             randomFirePoint = (int)GameEnums.FirePointType.DCMP_FPType;
         }
         helicopterData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length);
-        int[] gunDataTypes = { 222, 232, 223, 233 };
-        for (int i = 0; i < helicopterData.firePointData.gunsConfigurations.Length; i++)
-        {
-            int randomGun = Random.Range(1, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
-            int randomGunData = Random.Range(0, gunDataTypes.Length);
-            helicopterData.firePointData.gunsConfigurations[i].gunType = (GameEnums.Gun)randomGun;
-            helicopterData.firePointData.gunsConfigurations[i].gunDataType = (GameEnums.GunDataType)gunDataTypes[randomGunData];
-        }
+        //int[] gunDataTypes = { 222, 323, 223, 322 };
+        //for (int i = 0; i < helicopterData.firePointData.gunsConfigurations.Length; i++)
+        //{
+        //    int randomGun = Random.Range(1, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
+        //    int randomGunData = Random.Range(0, gunDataTypes.Length);
+        //    helicopterData.firePointData.gunsConfigurations[i].gunType = (GameEnums.Gun)randomGun;
+        //    helicopterData.firePointData.gunsConfigurations[i].gunDataType = (GameEnums.GunDataType)gunDataTypes[randomGunData];
+        //}
     }
     public void InjectNewTargetData(Rigidbody targetRigidbody)
     {

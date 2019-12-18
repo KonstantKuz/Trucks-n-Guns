@@ -101,7 +101,7 @@ public class Player : MonoCached
 
     public float MovingForce()
     {
-        movingForce += Time.deltaTime / 100;
+        movingForce += Time.deltaTime / 200;
         return movingForce;
     }
 
