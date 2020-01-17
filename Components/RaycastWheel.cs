@@ -60,7 +60,7 @@ public class RaycastWheel : MonoCached {
         //parentRigidbody = _transform.GetComponentInParent<Rigidbody>();
     }
 
-    public override void CustomUpdate()
+    public override void CustomFixedUpdate()
     {
         _transform.localRotation = Quaternion.AngleAxis(steerAngle, _transform.up);
 

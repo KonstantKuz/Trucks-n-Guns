@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Localization : MonoCached
+public class Localization : MonoBehaviour
 {
     public static GameEnums.Language currentLanguage;
 

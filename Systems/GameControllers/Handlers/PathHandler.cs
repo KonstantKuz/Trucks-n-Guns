@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Pathfinding;
 
-public class PathHandler : MonoCached
+public class PathHandler : MonoBehaviour
 {
     public LayerMask obstacleMask;
     [SerializeField]

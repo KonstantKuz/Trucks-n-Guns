@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class FeedbackQuestion : MonoCached
+public class FeedbackQuestion : MonoBehaviour
 {
     public Text questionText;
     public UnityEngine.UI.Toggle yes;

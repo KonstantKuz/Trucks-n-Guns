@@ -48,6 +48,11 @@ public class CustomizationState : State<MenuHandler>
         _owner.customization.coins.GetComponentInChildren<Button>().onClick.AddListener(() => GoogleAdmobHandler.Instance.ShowRewardBasedVideo());
 
         RefreshPlayerStats();
+
+        if(PlayerStaticRunTimeData.experience > GetNextLevelExperienceCost(GetNextLevel()))
+        {
+            WarningWindow.Instance.ShowWarning(WarningStrings.CanImproveTruck());
+        }
     }
 
     public override void ExitState(MenuHandler _owner)
@@ -142,7 +147,68 @@ public class CustomizationState : State<MenuHandler>
 
     public void RefreshPlayerStats()
     {
-        MenuHandler.Instance.customization.coins.GetComponentInChildren<Text>().text = $"{PlayerStaticRunTimeData.coins} $";
-        MenuHandler.Instance.customization.experience.GetComponentInChildren<Text>().text = $"{PlayerStaticRunTimeData.experience}";
+        MenuHandler menuHandler = MenuHandler.Instance;
+
+        menuHandler.customization.coins.GetComponentInChildren<Text>().text = $"{PlayerStaticRunTimeData.coins} $";
+
+        Slider experience = menuHandler.customization.experience.GetComponent<Slider>();
+        experience.minValue = 0;
+
+        experience.maxValue = GetNextLevelExperienceCost(GetNextLevel());
+        experience.value = PlayerStaticRunTimeData.experience;
+        string levelToShow = "";
+        switch (PlayerStaticRunTimeData.playerTruckData.firePointType)
+        {
+            case GameEnums.FirePointType.D_FPType:
+                levelToShow = "1";
+                break;
+            case GameEnums.FirePointType.DM_FPType:
+                levelToShow = "2";
+                break;
+            case GameEnums.FirePointType.DMP_FPType:
+                levelToShow = "3";
+                break;
+            case GameEnums.FirePointType.DCMP_FPType:
+                levelToShow = "Max";
+                experience.maxValue = 1;
+                experience.value = 1;
+                break;
+        }
+
+        switch (Localization.currentLanguage)
+        {
+            case GameEnums.Language.RU:
+                menuHandler.customization.experience.GetComponentInChildren<Text>().text = $"{levelToShow} уровень";
+                break;
+            case GameEnums.Language.ENG:
+                menuHandler.customization.experience.GetComponentInChildren<Text>().text = $"{levelToShow} level";
+                break;
+            default:
+                break;
+        }
+    }
+
+    public GameEnums.FirePointType GetNextLevel()
+    {
+        GameEnums.FirePointType currentLevel = PlayerStaticRunTimeData.playerTruckData.firePointType;
+
+        if ((int)currentLevel == 0)
+        {
+            return GameEnums.FirePointType.DM_FPType;
+        }
+        else if ((int)currentLevel == 1)
+        {
+            return GameEnums.FirePointType.DMP_FPType;
+        }
+        else
+        {
+            return GameEnums.FirePointType.DCMP_FPType;
+        }
+    }
+
+    public int GetNextLevelExperienceCost(GameEnums.FirePointType nextLevel)
+    {
+        ShopCosts experienceCosts = CustomizationHandler.Instance.experienceCosts;
+        return experienceCosts.ItemsCost(nextLevel.ToString());
     }
 }

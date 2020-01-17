@@ -26,12 +26,10 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
     private void OnEnable()
     {
         customUpdates.Add(this);
-        customFixedUpdates.Add(this);
     }
     private void OnDisable()
     {
         customUpdates.Remove(this);
-        customFixedUpdates.Remove(this);
     }
 
     public void AwakeEvent(Vector3 playerPosition)
@@ -43,19 +41,15 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
         condition.OnZeroCondition += ReturnObjectsToPool;
         helicopterData.PermanentSetUpHelicopter(this);
 
-        GameObject player = GameObject.Find("PlayerTruckPreset(Clone)");
-        if(!ReferenceEquals(player,null))
-        {
-            InjectNewTargetData(player.GetComponent<Rigidbody>());
-        }
-        condition.ResetCondition(helicopterData.maxCondition);
+        InjectNewTargetData(PlayerHandler.PlayerInstance.truck._rigidbody);
 
+        condition.ResetCondition(EnemyHandler.EnemyConditionCalculatedFromPlayerLevelAndComplexity());
     }
+
     public void RandomizeData()
     {
-        int playersFirePointType = (int)PlayerHandler.PlayerInstance.truck.TruckData.firePointType;
+        int randomFirePoint = EnemyHandler.RandomFirePointTypeFromComplexity();
 
-        int randomFirePoint = Random.Range(playersFirePointType - 2, playersFirePointType + 1);
         if (randomFirePoint < (int)GameEnums.FirePointType.D_FPType)
         {
             randomFirePoint = (int)GameEnums.FirePointType.D_FPType;
@@ -65,14 +59,15 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
             randomFirePoint = (int)GameEnums.FirePointType.DCMP_FPType;
         }
         helicopterData.firePointType = (GameEnums.FirePointType)Random.Range(0, System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length);
-        //int[] gunDataTypes = { 222, 323, 223, 322 };
-        //for (int i = 0; i < helicopterData.firePointData.gunsConfigurations.Length; i++)
-        //{
-        //    int randomGun = Random.Range(1, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
-        //    int randomGunData = Random.Range(0, gunDataTypes.Length);
-        //    helicopterData.firePointData.gunsConfigurations[i].gunType = (GameEnums.Gun)randomGun;
-        //    helicopterData.firePointData.gunsConfigurations[i].gunDataType = (GameEnums.GunDataType)gunDataTypes[randomGunData];
-        //}
+        int[] gunDataTypes = EnemyHandler.PossibleGunDataTypesFromComplexity() ;
+
+        for (int i = 0; i < helicopterData.firePointData.gunsConfigurations.Length; i++)
+        {
+            int randomGun = Random.Range(1, System.Enum.GetNames(typeof(GameEnums.Gun)).Length);
+            int randomGunData = Random.Range(0, gunDataTypes.Length);
+            helicopterData.firePointData.gunsConfigurations[i].gunType = (GameEnums.Gun)randomGun;
+            helicopterData.firePointData.gunsConfigurations[i].gunDataType = (GameEnums.GunDataType)gunDataTypes[randomGunData];
+        }
     }
     public void InjectNewTargetData(Rigidbody targetRigidbody)
     {
@@ -83,16 +78,13 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
     public override void CustomUpdate()
     {
+        UpdatePosition();
+
         RotateRotors();
 
         UpdateRotation();
 
         Attack();
-    }
-
-    public override void CustomFixedUpdate()
-    {
-        UpdatePosition();
     }
 
     private void RotateRotors()
@@ -107,51 +99,41 @@ public class Helicopter : MonoCached, INeedTarget, IRoadEvent, IPoolReturner
 
     private void UpdatePosition()
     {
-        if (CheckTarget())
-        {
-            followingVector.x = targetData.target_rigidbody.position.x;
-            followingVector.z = targetData.target_rigidbody.position.z - helicopterData.offsetFromTarget.z;
-            followingVector.y = helicopterData.offsetFromTarget.y;
+        followingVector.x = targetData.target_rigidbody.position.x;
+        followingVector.z = targetData.target_rigidbody.position.z - helicopterData.offsetFromTarget.z;
+        followingVector.y = helicopterData.offsetFromTarget.y;
 
-            _transform.position = Vector3.Lerp(_transform.position, followingVector, Time.deltaTime);
-        }
+        _transform.position = Vector3.Lerp(_transform.position, followingVector, Time.deltaTime);
     }
 
     private void UpdateRotation()
     {
-        if(CheckTarget())
+        followingVector = targetData.target_rigidbody.position - _transform.position;
+        xOffset = followingVector.x;
+
+        followingVector = Quaternion.LookRotation(followingVector).eulerAngles;
+
+        targetForwardVelocity = targetData.target_rigidbody.velocity.z;
+        zOffset_withVelocity = ((targetData.target_rigidbody.position.z + targetForwardVelocity) - _transform.position.z);
+
+        if (targetForwardVelocity > 5f)
         {
-            followingVector = targetData.target_rigidbody.position - _transform.position;
-            xOffset = followingVector.x;
-
-            followingVector = Quaternion.LookRotation(followingVector).eulerAngles;
-
-            targetForwardVelocity = targetData.target_rigidbody.velocity.z;
-            zOffset_withVelocity = ((targetData.target_rigidbody.position.z + targetForwardVelocity) - _transform.position.z);
-
-            if (targetForwardVelocity > 5f)
-            {
-                followingVector.x -= zOffset_withVelocity * 0.1f;
-                canAttack = true;
-            }
-            else
-            {
-                followingVector.x = zOffset_withVelocity * 0.4f;
-                canAttack = false;
-            }
-
-            followingVector.y = 0;
-
-            followingVector.z = -xOffset * 3f;
-
-            _transform.rotation = Quaternion.Lerp(_transform.rotation, Quaternion.Euler(followingVector), Time.deltaTime);
+            followingVector.x -= zOffset_withVelocity * 0.1f;
+            canAttack = true;
         }
-       
+        else
+        {
+            followingVector.x = zOffset_withVelocity * 0.4f;
+            canAttack = false;
+        }
+
+        followingVector.y = 0;
+
+        followingVector.z = -xOffset * 3f;
+
+        _transform.rotation = Quaternion.Lerp(_transform.rotation, Quaternion.Euler(followingVector), Time.deltaTime);
     }
-    private bool CheckTarget()
-    {
-        return !ReferenceEquals(targetData.target_rigidbody, null) && targetData.target_rigidbody.gameObject.activeInHierarchy;
-    }
+
     private void Attack()
     {
         if(canAttack)

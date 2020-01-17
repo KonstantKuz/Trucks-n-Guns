@@ -106,6 +106,19 @@ public class PlayerSessionData
         this.traveledTime = traveledTime;
     }
 }
+
+[System.Serializable]
+public class AdvertisementConsentData
+{
+    public bool showNONPersonalizedAd;
+}
+
+[System.Serializable]
+public class GPGSAutoEntry
+{
+    public bool enabled;
+}
+
 public static class PlayerStaticDataHandler
 {
     public static void SaveData(TruckData truckData, PlayerSessionData playerSessionData)
@@ -194,11 +207,16 @@ public static class PlayerStaticDataHandler
         data.totalTraveledTime = PlayerStaticRunTimeData.totalTraveledTime + playerSessionData.traveledTime;
         data.totalDefeatedEnemies = PlayerStaticRunTimeData.totalDefeatedEnemies + playerSessionData.defeatedEnemies;
 
-        data.experience = PlayerStaticRunTimeData.experience + playerSessionData.defeatedEnemies * 100 + playerSessionData.traveledDistance / 10;
-        data.coins = PlayerStaticRunTimeData.coins + playerSessionData.defeatedEnemies * 10 + playerSessionData.traveledDistance / 10;
+        data.experience = PlayerStaticRunTimeData.experience + RewardCoinsForSession(playerSessionData.defeatedEnemies, playerSessionData.traveledDistance);
+        data.coins = PlayerStaticRunTimeData.coins + RewardCoinsForSession(playerSessionData.defeatedEnemies, playerSessionData.traveledDistance);
 
         formatter.Serialize(stream, data);
         stream.Close();
+    }
+
+    public static int RewardCoinsForSession(int defeatedEnemies, int traveledDistance)
+    {
+        return defeatedEnemies * 25 + traveledDistance / 4;
     }
 
     public static PlayerSerializableData LoadData()
@@ -211,6 +229,76 @@ public static class PlayerStaticDataHandler
             FileStream stream = new FileStream(path, FileMode.Open);
 
             PlayerSerializableData data = formatter.Deserialize(stream) as PlayerSerializableData;
+            stream.Close();
+            return data;
+        }
+        else
+        {
+            Debug.Log("saved data not found in" + path);
+            return null;
+        }
+    }
+
+    public static void SaveAdConsent(bool showNONPersonalzedAd)
+    {
+        BinaryFormatter formatter = new BinaryFormatter();
+        string path = Application.persistentDataPath + "/adconsent.data";
+
+        FileStream stream = new FileStream(path, FileMode.Create);
+
+        AdvertisementConsentData data = new AdvertisementConsentData();
+
+        data.showNONPersonalizedAd = showNONPersonalzedAd;
+
+        formatter.Serialize(stream, data);
+        stream.Close();
+    }
+
+    public static AdvertisementConsentData LoadAdConsent()
+    {
+        string path = Application.persistentDataPath + "/adconsent.data";
+
+        if (File.Exists(path))
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = new FileStream(path, FileMode.Open);
+
+            AdvertisementConsentData data = formatter.Deserialize(stream) as AdvertisementConsentData;
+            stream.Close();
+            return data;
+        }
+        else
+        {
+            Debug.Log("saved data not found in" + path);
+            return null;
+        }
+    }
+
+    public static void SetGPGSAutoEntry(bool enabled)
+    {
+        BinaryFormatter formatter = new BinaryFormatter();
+        string path = Application.persistentDataPath + "/gpgsautoent.data";
+
+        FileStream stream = new FileStream(path, FileMode.Create);
+
+        GPGSAutoEntry data = new GPGSAutoEntry();
+
+        data.enabled = enabled;
+
+        formatter.Serialize(stream, data);
+        stream.Close();
+    }
+
+    public static GPGSAutoEntry GPGSAutoEntryStat()
+    {
+        string path = Application.persistentDataPath + "/gpgsautoent.data";
+
+        if (File.Exists(path))
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = new FileStream(path, FileMode.Open);
+
+            GPGSAutoEntry data = formatter.Deserialize(stream) as GPGSAutoEntry;
             stream.Close();
             return data;
         }

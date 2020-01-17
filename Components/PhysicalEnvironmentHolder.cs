@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PhysicalEnvironmentHolder : MonoCached
+public class PhysicalEnvironmentHolder : MonoBehaviour
 {
     public PhysicalEnvironment[] physicalChilds;
     public Vector3[] startChildsLocalPositions;

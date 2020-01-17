@@ -62,4 +62,27 @@ public class CurrentSessionTaskData : Data
             }
         }
     }
+
+    [ContextMenu("SetUpRewards")]
+    public void SetUpRewards()
+    {
+        for (int i = 0; i < tasks.Length; i++)
+        {
+            switch (tasks[i].taskType)
+            {
+                case GameEnums.TaskType.DestroyEnemies:
+                    tasks[i].reward = tasks[i].taskAmount * 100;
+                    break;
+                case GameEnums.TaskType.TravelDistance:
+                    tasks[i].reward = tasks[i].taskAmount / 2;
+                    break;
+                case GameEnums.TaskType.TravelTime:
+                    tasks[i].reward = tasks[i].taskAmount * 5;
+                    break;
+                default:
+                    break;
+            }
+            //UnityEditor.AssetDatabase.SaveAssets();
+        }
+    }
 }

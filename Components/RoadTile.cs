@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RoadTile : MonoCached
+public class RoadTile : MonoBehaviour
 {
     public RoadTileConfiguration roadTileConfiguration;
 
@@ -30,7 +30,7 @@ public class RoadTile : MonoCached
         NextRoadTileCapabilitiesHolder.SetUpCapabilities(roadTileConfiguration);
     }
 
-    public void ResetEnv(float allRoadLEngt)
+    public void ResetPhysicalEnvironment(float allRoadLEngt)
     {
         StartCoroutine(ResetEnvCall(allRoadLEngt));
     }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FirePoint : MonoCached
+public class FirePoint : MonoBehaviour
 {
     [System.Serializable]
     public class GunPoint

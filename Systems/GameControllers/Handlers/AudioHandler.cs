@@ -3,9 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using Singleton;
 
-public class AudioHandler : Singleton<AudioHandler>
+public class AudioHandler : MonoBehaviour
 {
-    public AudioClip[] music;
+    [System.Serializable]
+    public class GameMusic
+    {
+        public AudioClip music;
+        public string author;
+        public string track;
+    }
+
+    public GameMusic[] music;
 
     private void Start()
     {
@@ -15,10 +23,11 @@ public class AudioHandler : Singleton<AudioHandler>
     private IEnumerator CheckMus(AudioSource source)
     {
         yield return new WaitForSecondsRealtime(1f);
-        int randomMus = Random.Range(0, music.Length);
         if (!source.isPlaying)
         {
-            source.PlayOneShot(music[randomMus]);
+            int randomMus = Random.Range(0, music.Length);
+            source.PlayOneShot(music[randomMus].music);
+            GeneralGameUIHolder.Instance.windows.musicWindow.ShowMusic(music[randomMus].author, music[randomMus].track);
         }
         yield return StartCoroutine(CheckMus(source));
     }

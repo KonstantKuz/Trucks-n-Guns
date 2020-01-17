@@ -18,6 +18,7 @@ public class MainMenu
 
     public GameObject SendFeedbackButton;
     public GameObject ControlsTutorialButton;
+    public GameObject SpecialThanksButton;
 
     public GameObject QuitButton;
 }
@@ -30,6 +31,7 @@ public class Customization
     public GameObject TrucksSectionButton;
     public GameObject ChangeTruckButton;
     public GameObject UpgradeFirePointButton;
+    public GameObject TruckInfoWindow;
 
     public GameObject GunSectionWindow;
     public GameObject GunSectionButton;
@@ -72,6 +74,18 @@ public class ControlsTutorial
 {
     public GameObject controlsTutprialWindow;
 }
+[System.Serializable]
+public class SpecialThanks
+{
+    public GameObject SpecialThanksWindow;
+}
+[System.Serializable]
+public class AdvertisementConsent
+{
+    public GameObject AdvertisementConsentWindow;
+    public GameObject AgreeButton;
+    public GameObject DisagreeButton;
+}
 
 public class MenuHandler : Singleton<MenuHandler>
 {
@@ -83,6 +97,8 @@ public class MenuHandler : Singleton<MenuHandler>
 
     public Feedback feedBack;
     public ControlsTutorial controlsTutorial;
+    public SpecialThanks specialThanks;
+    public AdvertisementConsent advertisementConsent;
 
     public GameObject BackButton;
 
@@ -103,11 +119,14 @@ public class MenuHandler : Singleton<MenuHandler>
         GameObject.Find("PlayerTruckPreset(Clone)").GetComponent<Rigidbody>().isKinematic = true;
 
         StartCoroutine(AsyncGeneralGameSceceLoad());
+
+        GoogleAdmobHandler.isPlaying = false;
+        GoogleAdmobHandler.Instance.AdConsentHandle();
     }
 
     private IEnumerator AsyncGeneralGameSceceLoad()
     {
-        yield return new WaitForSecondsRealtime(1f);
+        yield return new WaitForSecondsRealtime(0.5f);
         asyncGeneralGameLoad = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("GeneralGameState");
         asyncGeneralGameLoad.allowSceneActivation = false;
     }
@@ -122,6 +141,8 @@ public class MenuHandler : Singleton<MenuHandler>
     {
         if(!ReferenceEquals(asyncGeneralGameLoad, null))
         {
+            WarningWindow.Instance.ShowWarning(WarningStrings.LoadGeneralGameWarning());
+            WarningWindow.Instance.okButton.gameObject.SetActive(false);
             asyncGeneralGameLoad.allowSceneActivation = true;
             yield return null;
         }

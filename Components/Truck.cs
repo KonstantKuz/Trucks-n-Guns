@@ -32,6 +32,7 @@ public class Truck : MonoCached
     private Vector3 clampedPosition;
     private AudioSource engineSoundSource;
 
+   
     public override void CustomUpdate()
     {
         clampedRotation = _transform.rotation;
@@ -197,11 +198,11 @@ public class Truck : MonoCached
         {
             if(drivingWheels[i].IsGrounded)
             {
-                if (force > 0 && CurrentSpeed() < 100f)
+                if (force > 0 && CurrentSpeed() < 90f)
                 {
                     _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
                 }
-                if (force < 0 && CurrentSpeed() > -30f)
+                if (force < 0 && CurrentSpeed() > -20f)
                 {
                     _rigidbody.AddForce(_transform.forward * force, ForceMode.Acceleration);
                 }

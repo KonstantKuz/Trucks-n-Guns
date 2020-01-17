@@ -33,7 +33,7 @@ public class PlayerStatisticsViewer : Singleton<PlayerStatisticsViewer>
         maxTraveledDistance_1Minute.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.maxTraveledDistance_1Minute} m";
         maxTraveledDistance_3Minutes.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.maxTraveledDistance_3Minutes} m";
         maxTraveledDistance_5Minutes.transform.GetChild(1).GetComponent<Text>().text = $"{PlayerStaticRunTimeData.maxTraveledDistance_5Minutes} m";
-
+        Debug.Log(PlayerStaticRunTimeData.maxTraveledDistance_3Minutes);
         maxTraveledDistancePerSession.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
         maxDefeatedEnemiesPerSession.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
 

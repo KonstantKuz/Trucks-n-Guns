@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerHandler : MonoCached
+public class PlayerHandler : MonoBehaviour
 {
     [SerializeField]
     private GameObject playerPreafab;

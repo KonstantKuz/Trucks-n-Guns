@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Singleton;
 using Pathfinding;
-public class EnemyHandler : MonoCached
+public class EnemyHandler : MonoBehaviour
 {
     List<Enemy> currentSessionEnemies = new List<Enemy>(15);
 
@@ -11,9 +11,9 @@ public class EnemyHandler : MonoCached
 
 
     public float distanceToDestroyEnemy = 60f;
-    [Range(2,6)]
+    [Range(0.5f,2)]
     public float enemiesPositionsCheckPeriod = 5f;
-    [Range(5, 15)]
+    [Range(1, 5)]
     public float enemySpawnEveryPeriodTime = 15f;
     [Range(0, 3)]
     public int maxCurrentSessionEnemiesCount = 3;
@@ -73,6 +73,7 @@ public class EnemyHandler : MonoCached
     {
         this.player_rigidbody = player_rigidbody;
         StartCoroutine(SpawnRandomEnemyEveryPeriod());
+        StartCoroutine(IncreaseMaxCount());
     }
     private IEnumerator SpawnRandomEnemyEveryPeriod()
     {
@@ -82,6 +83,19 @@ public class EnemyHandler : MonoCached
             SpawnRandomEnemy();
         }
         yield return StartCoroutine(SpawnRandomEnemyEveryPeriod());
+    }
+    private IEnumerator IncreaseMaxCount()
+    {
+        yield return new WaitForSecondsRealtime(10f);
+        if(maxCurrentSessionEnemiesCount<3)
+        {
+            maxCurrentSessionEnemiesCount++;
+            yield return StartCoroutine(IncreaseMaxCount());
+        }
+        else
+        {
+            StopCoroutine(IncreaseMaxCount());
+        }
     }
     public void SpawnRandomEnemy()
     {
@@ -104,9 +118,85 @@ public class EnemyHandler : MonoCached
     {
         int randomX = Random.Range(-pathHandler.pathGridWidth / 2, pathHandler.pathGridWidth / 2);
         Vector3 newPos = player_rigidbody.position;
-        newPos.z -= 60;
+        newPos.z -= 70;
         newPos.x = randomX;
         return newPos;
+    }
+
+    public static int EnemyConditionCalculatedFromPlayerLevelAndComplexity()
+    {
+        int playerFPType = (int)PlayerHandler.PlayerInstance.truck.TruckData.firePointType;
+        int complexityLvl = (int)PlayerSessionHandler.SessionComplexity;
+
+        if (playerFPType == 0)
+        {
+            return Random.Range(5000 + complexityLvl * 1000, 20000 + complexityLvl * 5000);
+        }
+        if (playerFPType == 1)
+        {
+            return Random.Range(10000 + complexityLvl*5000, 30000 + complexityLvl*10000);
+        }
+        if (playerFPType == 3)
+        {
+            return Random.Range(30000 + complexityLvl * 10000, 50000 + complexityLvl * 20000);
+        }
+        if (playerFPType == 7)
+        {
+            return Random.Range(50000 + complexityLvl * complexityLvl * 25000, 70000 + complexityLvl *complexityLvl* 25000);
+        }
+
+        return 0;
+    }
+
+    public static int[] PossibleGunDataTypesFromComplexity()
+    {
+        int[] gundataTypes = { 111, 121, 131, 211, 221, 231, 311, 321, 331, 112, 122, 132, 212, 222, 232, 312, 322, 332, 113, 123, 133, 213, 223, 233, 313, 323, 333 };
+        List<int> typesToReturn = new List<int>(20);
+
+        for (int i = 0; i < gundataTypes.Length; i++)
+        {
+            char[] typesTiles = gundataTypes[i].ToString().ToCharArray();
+            int summOfTiles = 0;
+
+            for (int j = 0; j < typesTiles.Length; j++)
+            {
+                summOfTiles += typesTiles[j] - 48;
+            }
+            switch (PlayerSessionHandler.SessionComplexity)
+            {
+                case GameEnums.SessionComplexity.Low:
+                    if (summOfTiles <= 5)
+                        typesToReturn.Add(gundataTypes[i]);
+                    break;
+                case GameEnums.SessionComplexity.Medium:
+                    if (summOfTiles > 5 && summOfTiles < 7)
+                        typesToReturn.Add(gundataTypes[i]);
+                    break;
+                case GameEnums.SessionComplexity.High:
+                    if (summOfTiles >= 7)
+                        typesToReturn.Add(gundataTypes[i]);
+                    break;
+            }
+        }
+
+        return typesToReturn.ToArray();
+    }
+
+    public static int RandomFirePointTypeFromComplexity()
+    {
+        int playersFirePointType = (int)PlayerHandler.PlayerInstance.truck.TruckData.firePointType;
+
+        switch (PlayerSessionHandler.SessionComplexity)
+        {
+            case GameEnums.SessionComplexity.Low:
+                return Random.Range(playersFirePointType - 2, playersFirePointType);
+            case GameEnums.SessionComplexity.Medium:
+                return Random.Range(playersFirePointType, playersFirePointType + 2);
+            case GameEnums.SessionComplexity.High:
+                return Random.Range(playersFirePointType + 2, 10);
+        }
+
+        return 3;
     }
 
     public void StartUpdateEnemiesPaths(PathHandler pathHandler)

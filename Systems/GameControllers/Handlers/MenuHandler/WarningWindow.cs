@@ -12,14 +12,29 @@ public static class WarningStrings
     public const string logInRequestWarning_Ru = "Пожалуйста, войдите в систему с помощью кнопки ''Войти'' в главном меню, чтобы увидеть лидеров и свою позицию в рейтингах.";
     public const string logInRequestWarning_Eng = "Please login with ''LogIn'' button in main menu to look at leaders and your position in leaderboards.";
 
-    public const string loadGeneralGameWarning_Ru = "Пожалуйста, подождите пока сгенерируется мир. Это может занять до одной минуты.";
-    public const string loadGeneralGameWarning_Eng = "Please wait while the world is generated. This may take up to one minute.";
+    public const string loadGeneralGameWarning_Ru = "Пожалуйста, подождите пока сгенерируется мир. при недавнем запуске игры Это может занять немного времени.";
+    public const string loadGeneralGameWarning_Eng = "Please wait while the world is generated. on a recent launch of the game This may take a little time.";
 
     public const string thaksForSendReview_Ru = "отзыв успешно отправлен! спасибо за уделенное вами время на тестирование данной версии игры.";
     public const string thaksForSendReview_Eng = "Feedback sent successfully! Thank you for your time in testing this version of the game.";
 
-    public const string fillStringsRequest_Ru = "пожалуйста, заполните поле вашей почты по примеру example@box.com, а так же укажите ваше устройство, если оно не указано.";
-    public const string fillStringsRequest_Eng = "please fill in your mail field as in example @box.com, and indicate your device if it is not specified.";
+    public const string fillStringsRequest_Ru = "пожалуйста, заполните поле вашей почты (например : adress@example.ex), а так же укажите ваше устройство, если оно не указано.";
+    public const string fillStringsRequest_Eng = "please fill in your mail field (for example : adress@example.ex), and indicate your device if it is not specified.";
+
+    public const string notImplementedFunc_Ru = "извините, эта функция пока недоступна, но появится в скором времени.";
+    public const string notImplementedFunc_Eng = "sorry, this feature is not yet available, but will appear shortly.";
+
+    public const string dontHaveMoney_Ru = "у вас недостаточно денег";
+    public const string dontHaveMoney_Eng = "you do not have enough money";
+
+    public const string dontHaveExperience_Ru = "у вас недостаточно опыта";
+    public const string dontHaveExperience_Eng = "you do not have enough experience";
+
+    public const string canImproveTruck_Ru = "Вы достигли нового уровня! Теперь вы можете улучшить свой грузовик и добавить слот для оружия";
+    public const string canImproveTruck_Eng = "You have reached a new level! Now you can upgrade your truck and add a weapon slot";
+
+    public const string googlePSLogInSuccessfully_Ru = "вход выполнен успешно! теперь вы можете участвовать в рейтингах среди игроков в разделе ''статистика''!";
+    public const string googlePSLogInSuccessfully_Eng = "Login successful! Now you can participate in ratings among players in the section '' statistics ''!";
 
     public static string InternetConnectionWarning()
     {
@@ -78,6 +93,66 @@ public static class WarningStrings
         else
         {
             return fillStringsRequest_Eng;
+        }
+    }
+
+    public static string NotImplementedFunc()
+    {
+        if (Localization.currentLanguage == GameEnums.Language.RU)
+        {
+            return notImplementedFunc_Ru;
+        }
+        else
+        {
+            return notImplementedFunc_Eng;
+        }
+    }
+
+    public static string DontHaveMoney()
+    {
+        if (Localization.currentLanguage == GameEnums.Language.RU)
+        {
+            return dontHaveMoney_Ru;
+        }
+        else
+        {
+            return dontHaveMoney_Eng;
+        }
+    }
+
+    public static string DontHaveExperience()
+    {
+        if (Localization.currentLanguage == GameEnums.Language.RU)
+        {
+            return dontHaveExperience_Ru;
+        }
+        else
+        {
+            return dontHaveExperience_Eng;
+        }
+    }
+
+    public static string CanImproveTruck()
+    {
+        if (Localization.currentLanguage == GameEnums.Language.RU)
+        {
+            return canImproveTruck_Ru;
+        }
+        else
+        {
+            return canImproveTruck_Eng;
+        }
+    }
+
+    public static string GooglePSLogInSuccessfully()
+    {
+        if (Localization.currentLanguage == GameEnums.Language.RU)
+        {
+            return googlePSLogInSuccessfully_Ru;
+        }
+        else
+        {
+            return googlePSLogInSuccessfully_Eng;
         }
     }
 }

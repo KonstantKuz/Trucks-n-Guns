@@ -1,0 +1,217 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RoadPoolerAssigner
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: 2e7e58b37cb424941aa1e2bc339e3adc,
+      type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.size
+    value: 34
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[0]
+    value: 
+    objectReference: {fileID: 8474556592334687807, guid: 8654d3894dd71eb44968d1f2bda5eb22,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[1]
+    value: 
+    objectReference: {fileID: 8245156819231762193, guid: 9c2be8f6f37e87f40a8eab4d8c52f5a9,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[2]
+    value: 
+    objectReference: {fileID: -5658248250458656870, guid: b3ebff4d0b9058442ab64be7d43ec6ef,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[3]
+    value: 
+    objectReference: {fileID: 5829314615548373772, guid: fd85461777eaa3741a52715b21d5b19e,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[4]
+    value: 
+    objectReference: {fileID: 1631213816829503368, guid: 978ad6138a85ac640ae6dcfc67ffcf14,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[5]
+    value: 
+    objectReference: {fileID: 6866437553974449570, guid: 26a32ffffda075d4baf7ed1db4113a79,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[6]
+    value: 
+    objectReference: {fileID: 3921449226608321838, guid: 678a85c4d46aac944b7692bfc9759a78,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[7]
+    value: 
+    objectReference: {fileID: 245207740043139856, guid: 51b0cde8a4f56f547b3ef2b62937106f,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[8]
+    value: 
+    objectReference: {fileID: 6386873613039740155, guid: e0b7fbbf40d880648a61bd0437d5da0d,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[9]
+    value: 
+    objectReference: {fileID: 911676098792084730, guid: 743bd7ec0a2b3964a9c9756dd66982d3,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[10]
+    value: 
+    objectReference: {fileID: 2641932487192401082, guid: b0ebc7b649549b9439526e03b7ec7893,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[11]
+    value: 
+    objectReference: {fileID: 3496608994787880735, guid: 64c294117610da54f94a847edc3ea944,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[12]
+    value: 
+    objectReference: {fileID: 3331386873166475282, guid: 5c28a89ac987602449e2fd72736d83f4,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[13]
+    value: 
+    objectReference: {fileID: 6562511483835960131, guid: 6fe810dd7c9d06f4682e60668b8120c6,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[14]
+    value: 
+    objectReference: {fileID: 3695341095702357742, guid: 7a4855250c8f49f41b4cb21f2137787f,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[15]
+    value: 
+    objectReference: {fileID: 847353376486121965, guid: 03a0e1e8268f6864b8b88b40fde0caeb,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[16]
+    value: 
+    objectReference: {fileID: 57304555998444671, guid: 295ab8bd1c6020b498994c90bef8b4be,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[17]
+    value: 
+    objectReference: {fileID: 2375065745468420909, guid: eef622fd13b709549a82b5ac2c03bf9a,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[18]
+    value: 
+    objectReference: {fileID: 6039735374662607445, guid: 4b72cb1c61e98b04eb9ff5f085df1af1,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[19]
+    value: 
+    objectReference: {fileID: 7383146665161797428, guid: b4ba99bce7e511a4485799ec5326fe93,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[20]
+    value: 
+    objectReference: {fileID: 2540418025761827928, guid: 7431d9f48e9fe3d4d8c4958431094e79,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[21]
+    value: 
+    objectReference: {fileID: 1762872128893406480, guid: ddb668d9e428fe647ab12038ee468de2,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[22]
+    value: 
+    objectReference: {fileID: 6764848680049972965, guid: d28e5ddb246f4134a8d6e2c8c7393e21,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[23]
+    value: 
+    objectReference: {fileID: 5584487048648493157, guid: b75c7855ba9187046972bbae39282d50,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[24]
+    value: 
+    objectReference: {fileID: 4488850412188230561, guid: ee04b00c965cd3c4cbc7cced2baef1ff,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[25]
+    value: 
+    objectReference: {fileID: 8955346254275838718, guid: 586f435f612cde848b6c33f36be9536b,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[26]
+    value: 
+    objectReference: {fileID: 3411049623657698314, guid: 552e4da32965b1841800f9f36bf506b4,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[27]
+    value: 
+    objectReference: {fileID: 768672888819149886, guid: cfbd8fe39e4a9bb46b8c2d1040cafbc0,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[28]
+    value: 
+    objectReference: {fileID: -5842335347011556966, guid: 9bb887f5ced28124cb7d6d185f06b7c9,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[29]
+    value: 
+    objectReference: {fileID: 7057619208919731133, guid: df6f0cc5fc888654c9733a2ee2fcc256,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[30]
+    value: 
+    objectReference: {fileID: 7918608648783576245, guid: 17e84880193aa1745bc59645d21db74e,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[31]
+    value: 
+    objectReference: {fileID: 1760400027782705555, guid: 501d87e5e14179b4d97b016fe5c54216,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[32]
+    value: 
+    objectReference: {fileID: 5668343199611857973, guid: c5ebb55cd69d59547b0b6dbabc787aca,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: tilesToSetUP.Array.data[33]
+    value: 
+    objectReference: {fileID: 7317431929376469522, guid: 4e83281a68e57eb409f914990d86c657,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: roadPooler
+    value: 
+    objectReference: {fileID: 11400000, guid: 6f6727e578fa00f4da513b52cf7284fc, type: 2}
+  - target: {fileID: 0}
+    propertyPath: startTilesSize
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: endTilesSize
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: middleTilesSize
+    value: 10
+    objectReference: {fileID: 0}

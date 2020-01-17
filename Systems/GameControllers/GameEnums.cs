@@ -158,4 +158,11 @@ public static class GameEnums
         TravelDistance,
         TravelTime
     }
+
+    public enum SessionComplexity
+    {
+        Low,
+        Medium,
+        High
+    }
 }

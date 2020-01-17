@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class ChaseGameStateHandler : MonoCached // IState
+public class ChaseGameStateHandler : MonoBehaviour // IState
 {
     [SerializeField]
     private RoadHandler roadHandler;
@@ -25,12 +25,10 @@ public class ChaseGameStateHandler : MonoCached // IState
     private void Start()
     {
         StartGame();
+        GoogleAdmobHandler.isPlaying = true;
     }
     void StartGame()
     {
-        customFixedUpdates.Add(this);
-        customUpdates.Add(this);
-
         objectPoolersHolder.AwakeGeneralGameStatePoolers();
         inputHandler.SetUpControlsUI();
         

@@ -6,8 +6,6 @@ public class UpdateManager : MonoBehaviour
     private void Awake()
     {
        Application.targetFrameRate = 30;
-        Time.timeScale = 2;
-        //Screen.SetResolution(Screen.width,Screen.height, true);
     }
     
     private void Update()
@@ -26,11 +24,11 @@ public class UpdateManager : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
-    {
-        for (int i = 0; i < MonoCached.customLateUpdates.Count; i++)
-        {
-            MonoCached.customLateUpdates[i].CustomLateUpdatesCall();
-        }
-    }
+    //private void LateUpdate()
+    //{
+    //    for (int i = 0; i < MonoCached.customLateUpdates.Count; i++)
+    //    {
+    //        MonoCached.customLateUpdates[i].CustomLateUpdatesCall();
+    //    }
+    //}
 }

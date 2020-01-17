@@ -43,7 +43,9 @@ public class MainMenuState : State<MenuHandler>
         _owner.mainMenu.SendFeedbackButton.GetComponent<Button>().onClick.AddListener(() => OpenFeedback(_owner));
         _owner.mainMenu.ControlsTutorialButton.GetComponent<Button>().onClick.AddListener(() => OpenControlsTutorial(_owner));
 
-        _owner.mainMenu.LogInButton.GetComponent<Button>().onClick.AddListener(() => GooglePlayServicesHandler.Instance.LogIn());
+        _owner.mainMenu.SpecialThanksButton.GetComponent<Button>().onClick.AddListener(() => OpenSpecialThanks(_owner));
+
+        _owner.mainMenu.LogInButton.GetComponent<Button>().onClick.AddListener(() => GooglePlayServicesHandler.Instance.ForceLogIn());
     }
 
     public override void ExitState(MenuHandler _owner)
@@ -69,8 +71,8 @@ public class MainMenuState : State<MenuHandler>
     public void PlayGeneralGame(MenuHandler _owner)
     {
         PlayerStaticDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, new PlayerSessionData(0, 0, 0));
-        WarningWindow.Instance.ShowWarning(WarningStrings.LoadGeneralGameWarning());
-        MenuHandler.Instance.ActivateGeneralGameScene();
+        //WarningWindow.Instance.ShowWarning(WarningStrings.LoadGeneralGameWarning());
+        _owner.ActivateGeneralGameScene();
     }
 
     public void OpenCustomization(MenuHandler _owner)
@@ -96,6 +98,19 @@ public class MainMenuState : State<MenuHandler>
     public void OpenControlsTutorial(MenuHandler _owner)
     {
         _owner.menu.ChangeState(ControlsTutorialState.Instance);
+    }
+
+    public void OpenSpecialThanks(MenuHandler _owner)
+    {
+        _owner.menu.currentState.ExitState(_owner);
+
+        _owner.BackButton.SetActive(true);
+        _owner.specialThanks.SpecialThanksWindow.SetActive(true);
+
+        _owner.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        _owner.BackButton.GetComponent<Button>().onClick.AddListener(() => _owner.menu.ChangeState(MainMenuState.Instance));
+        _owner.BackButton.GetComponent<Button>().onClick.AddListener(() => _owner.specialThanks.SpecialThanksWindow.SetActive(false));
+        _owner.BackButton.GetComponent<Button>().onClick.AddListener(() => _owner.BackButton.SetActive(false));
     }
 
     public void CloseGame()

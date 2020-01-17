@@ -7,8 +7,9 @@ using Singleton;
 public class CustomizationHandler : Singleton<CustomizationHandler>
 {
     public ShopCosts shopCosts;
+    public ShopCosts experienceCosts;
 
-    private int firePointTypeCount = 1;
+    private int nextFirePointType = 0;
     private int truckTypeCount = 0;
 
     private MenuHandler menuHandler;
@@ -17,7 +18,7 @@ public class CustomizationHandler : Singleton<CustomizationHandler>
     {
         menuHandler = MenuHandler.Instance;
 
-        GameObject.Find("PlayerTruckPreset(Clone)").GetComponent<AudioSource>().volume = 0.1f;
+        PlayerHandler.PlayerInstance.truck.GetComponent<AudioSource>().volume = 0.1f;
     }
 
     public void StartCustomizeTruck()
@@ -37,13 +38,16 @@ public class CustomizationHandler : Singleton<CustomizationHandler>
 
     public void StopCustomizeTruck()
     {
+        nextFirePointType = 0;
         CustomizationState.Instance.RefreshPlayerTruckVisualBy(PlayerStaticRunTimeData.playerTruckData);
+        CustomizationState.Instance.RewriteCustomizationData();
     }
 
     public void StopCustomizeGuns()
     {
         RemoveGunButtons();
         CustomizationState.Instance.RefreshPlayerTruckVisualBy(PlayerStaticRunTimeData.playerTruckData);
+        CustomizationState.Instance.RewriteCustomizationData();
     }
 
     public void SetUpShopGunButtons()
@@ -98,14 +102,22 @@ public class CustomizationHandler : Singleton<CustomizationHandler>
     {
         menuHandler.customization.ChangeTruckButton.SetActive(false);
 
-        firePointTypeCount++;
+        GameEnums.FirePointType currentLevel = PlayerStaticRunTimeData.playerTruckData.firePointType;
 
-        if(firePointTypeCount> System.Enum.GetNames(typeof(GameEnums.FirePointType)).Length - 1)
+        if ((int)currentLevel == 0)
         {
-            firePointTypeCount = 1;
+            nextFirePointType = (int)GameEnums.FirePointType.DM_FPType;
+        }
+        else if ((int)currentLevel == 1)
+        {
+            nextFirePointType = (int)GameEnums.FirePointType.DMP_FPType;
+        }
+        else
+        {
+            nextFirePointType = (int)GameEnums.FirePointType.DCMP_FPType;
         }
 
-        GameEnums.FirePointType firePointToBuy = (GameEnums.FirePointType)firePointTypeCount;
+        GameEnums.FirePointType firePointToBuy = (GameEnums.FirePointType)nextFirePointType;
 
         PlayerStaticRunTimeData.customizationTruckData.firePointType = firePointToBuy;
 
@@ -127,26 +139,34 @@ public class CustomizationHandler : Singleton<CustomizationHandler>
 
     public void BuyFirePoint(GameEnums.FirePointType fptype)
     {
-
-
         int cost = shopCosts.ItemsCost(fptype.ToString());
-        if (PlayerStaticRunTimeData.coins >= cost)
+        int exp = experienceCosts.ItemsCost(fptype.ToString());
+
+        if(PlayerStaticRunTimeData.experience >= exp)
         {
-            PlayerStaticRunTimeData.playerTruckData.RewriteData(PlayerStaticRunTimeData.customizationTruckData);
-            PlayerStaticRunTimeData.coins -= cost;
-            PlayerStaticDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, new PlayerSessionData(0, 0, 0));
-            menuHandler.customization.BuyButton.GetComponentInChildren<Text>().text = "";
+            if (PlayerStaticRunTimeData.coins >= cost)
+            {
+                PlayerStaticRunTimeData.playerTruckData.RewriteData(PlayerStaticRunTimeData.customizationTruckData);
+                PlayerStaticRunTimeData.coins -= cost;
+                PlayerStaticDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, new PlayerSessionData(0, 0, 0));
+                menuHandler.customization.BuyButton.GetComponentInChildren<Text>().text = "";
 
-            menuHandler.customization.ChangeTruckButton.SetActive(true);
-            menuHandler.customization.BuyButton.SetActive(false);
-            menuHandler.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
+                menuHandler.customization.ChangeTruckButton.SetActive(true);
+                menuHandler.customization.BuyButton.SetActive(false);
+                menuHandler.customization.BuyButton.GetComponent<Button>().onClick.RemoveAllListeners();
 
-            menuHandler.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
-            menuHandler.BackButton.GetComponent<Button>().onClick.AddListener(() => CustomizationState.Instance.BackToSectionsWindow(MenuHandler.Instance));
+                menuHandler.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
+                menuHandler.BackButton.GetComponent<Button>().onClick.AddListener(() => CustomizationState.Instance.BackToSectionsWindow(MenuHandler.Instance));
+            }
+            else
+            {
+                WarningWindow.Instance.ShowWarning(WarningStrings.DontHaveMoney());
+            }
         }
-
-        
-
+        else
+        {
+            WarningWindow.Instance.ShowWarning(WarningStrings.DontHaveExperience());
+        }
         StartCustomizeTruck();
     }
 
@@ -159,6 +179,23 @@ public class CustomizationHandler : Singleton<CustomizationHandler>
         if (truckTypeCount > System.Enum.GetNames(typeof(GameEnums.Truck)).Length - 1)
         {
             truckTypeCount = 0;
+        }
+        if(truckTypeCount>0)
+        {
+            menuHandler.customization.TruckInfoWindow.SetActive(true);
+            switch (Localization.currentLanguage)
+            {
+                case GameEnums.Language.RU:
+                    menuHandler.customization.TruckInfoWindow.GetComponentInChildren<Text>().text = menuHandler.customization.TruckInfoWindow.GetComponentInChildren<LocalizedText>().RU + $" <color=green>{truckTypeCount * 10}</color> процентов";
+                    break;
+                case GameEnums.Language.ENG:
+                    menuHandler.customization.TruckInfoWindow.GetComponentInChildren<Text>().text = menuHandler.customization.TruckInfoWindow.GetComponentInChildren<LocalizedText>().ENG + $" <color=green>{truckTypeCount * 10}</color> percent";
+                    break;
+            }
+        }
+        else
+        {
+            menuHandler.customization.TruckInfoWindow.SetActive(false);
         }
         GameEnums.Truck truckToBuy = (GameEnums.Truck)truckTypeCount;
         PlayerStaticRunTimeData.customizationTruckData.truckType = truckToBuy;
@@ -180,8 +217,6 @@ public class CustomizationHandler : Singleton<CustomizationHandler>
 
     public void BuyTruck(GameEnums.Truck trucktype)
     {
-
-
         int cost = shopCosts.ItemsCost(trucktype.ToString());
         if (PlayerStaticRunTimeData.coins >= cost)
         {
@@ -198,19 +233,40 @@ public class CustomizationHandler : Singleton<CustomizationHandler>
             menuHandler.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
             menuHandler.BackButton.GetComponent<Button>().onClick.AddListener(() => CustomizationState.Instance.BackToSectionsWindow(MenuHandler.Instance));
         }
+        else
+        {
+            WarningWindow.Instance.ShowWarning(WarningStrings.DontHaveMoney());
+        }
         StartCustomizeTruck();
     }
 
     public void BackToTruckSectionWindow()
     {
+        nextFirePointType = 0;
+
         menuHandler.customization.ChangeTruckButton.SetActive(true);
         menuHandler.customization.UpgradeFirePointButton.SetActive(true);
         menuHandler.customization.BuyButton.SetActive(false);
+        menuHandler.customization.TruckInfoWindow.SetActive(false);
 
         CustomizationState.Instance.RefreshPlayerTruckVisualBy(PlayerStaticRunTimeData.playerTruckData);
         CustomizationState.Instance.RewriteCustomizationData();
 
         menuHandler.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
         menuHandler.BackButton.GetComponent<Button>().onClick.AddListener(() => CustomizationState.Instance.BackToSectionsWindow(MenuHandler.Instance));
+    }
+
+    public IEnumerator CameraTracking(Vector3 from, Vector3 to, Vector3 lookAt)
+    {
+        float waitTime = 1;
+        float elapsedTime = 0;
+        while (elapsedTime < waitTime)
+        {
+
+            Camera.main.transform.position = Vector3.Lerp(from, to, (elapsedTime / waitTime));
+            Camera.main.transform.rotation = Quaternion.Lerp(Camera.main.transform.rotation, Quaternion.LookRotation(lookAt - Camera.main.transform.position), (elapsedTime / waitTime));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
     }
 }

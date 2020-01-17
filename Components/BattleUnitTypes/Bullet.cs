@@ -62,6 +62,7 @@ public class Bullet : MonoCached, BattleUnit
         if (Physics.Raycast(rayFWD, out hit, rayDistance, battleUnitData.interactibleWith))
         {
             SetDamage(hit.collider.GetComponentInParent<EntityCondition>());
+            Deactivate();
             return;
         }
         rayBWD.origin = _transform.position;
@@ -69,6 +70,7 @@ public class Bullet : MonoCached, BattleUnit
         if (Physics.Raycast(rayBWD, out hit, rayDistance, battleUnitData.interactibleWith))
         {
             SetDamage(hit.collider.GetComponentInParent<EntityCondition>());
+            Deactivate();
         }
     }
 
@@ -78,7 +80,6 @@ public class Bullet : MonoCached, BattleUnit
         {
             targetToHit.AddDamage(battleUnitData.damage);
         }
-        Deactivate();
     }
 
     public void Deactivate()

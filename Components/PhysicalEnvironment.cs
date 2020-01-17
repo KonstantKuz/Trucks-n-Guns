@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PhysicalEnvironment : MonoCached
+public class PhysicalEnvironment : MonoBehaviour
 {
     public Rigidbody[] connectedBodies;
     private bool hasConnections;
@@ -12,12 +12,13 @@ public class PhysicalEnvironment : MonoCached
 
     private Vector3 localStartPos;
     private bool isDefeated = false;
+
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        if(ReferenceEquals(connectedBodies, null))
+
+        if (ReferenceEquals(connectedBodies, null))
         {
-            connectedBodies = new Rigidbody[transform.childCount];
             connectedBodies = GetComponentsInChildren<Rigidbody>();
         }
         if(!ReferenceEquals(connectedBodies,null) && connectedBodies.Length>0 && !ReferenceEquals(connectedBodies[0], null))
@@ -25,29 +26,22 @@ public class PhysicalEnvironment : MonoCached
             hasConnections = true;
         }
 
+        ResetParameters();
     }
 
     public void ResetParameters()
     {
-        _rigidbody.WakeUp();
         isDefeated = false;
         _rigidbody.mass++;
-        _rigidbody.GetComponent<Collider>().isTrigger = false;
-        _rigidbody.isKinematic = true;
-
-        if (hasConnections)
-        {
-            for (int i = 0; i < connectedBodies.Length; i++)
-            {
-                connectedBodies[i].isKinematic = true;
-            }
-        }
         collisionCounter = 0;
+
+        TriggerControl(false);
+        FreezeControl(true);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(!ReferenceEquals(collision.rigidbody, null) && !isDefeated)
+        if(!ReferenceEquals(collision.rigidbody, null) && collision.relativeVelocity.magnitude > 1)
         {
             KnockDown(collision.rigidbody, collision.relativeVelocity);
         }
@@ -55,34 +49,15 @@ public class PhysicalEnvironment : MonoCached
 
     private void KnockDown(Rigidbody kickedRigidbody, Vector3 kickVelocity)
     {
-        if(kickedRigidbody.mass >= _rigidbody.mass)
+        if(kickedRigidbody.mass >= _rigidbody.mass && !isDefeated)
         {
-            _rigidbody.isKinematic = false;
-            if (hasConnections)
-            {
-                for (int i = 0; i < connectedBodies.Length; i++)
-                {
-                    connectedBodies[i].isKinematic = false;
-                }
-            }
+            FreezeControl(false);
+
             kickedRigidbody.velocity = ((kickedRigidbody.mass - _rigidbody.mass) * kickVelocity) / (kickedRigidbody.mass + _rigidbody.mass);
-            _rigidbody.velocity = /*2 * */kickedRigidbody.mass * kickVelocity / (kickedRigidbody.mass + _rigidbody.mass);
-            //_rigidbody.velocity = kickVelocity;
+            _rigidbody.velocity = kickedRigidbody.mass * kickVelocity / (kickedRigidbody.mass + _rigidbody.mass);
             kickedRigidbody.velocity = kickVelocity;
             StartCoroutine(Deactivate());
         }
-
-        //float m_1 = kickedRigidbody.mass;
-        //Vector3 v_1 = kickVelocity;
-        //float m_2 = _rigidbody.mass;
-        //Vector3 u_1;
-        //Vector3 u_2;
-
-        //u_1 = ((m_1 - m_2) * v_1) / (m_1 + m_2);
-        //u_2 = 2 * m_1 * v_1 / (m_1 + m_2);
-
-        //kickedRigidbody.velocity = kickVelocity;
-        //_rigidbody.velocity = u_2;
     }
     
     private IEnumerator Deactivate()
@@ -91,8 +66,33 @@ public class PhysicalEnvironment : MonoCached
         yield return new WaitForEndOfFrame();
         _rigidbody.mass--;
         yield return new WaitForSecondsRealtime(0.5f);
-        _rigidbody.GetComponent<Collider>().isTrigger = true;
-        yield return new WaitForSecondsRealtime(1f);
-        _rigidbody.Sleep();
+        TriggerControl(true);
+        yield return new WaitForSecondsRealtime(2f);
+        FreezeControl(true);
+    }
+
+    private void FreezeControl(bool enabled)
+    {
+        _rigidbody.isKinematic = enabled;
+        if (hasConnections)
+        {
+            for (int i = 0; i < connectedBodies.Length; i++)
+            {
+                connectedBodies[i].isKinematic = enabled;
+            }
+        }
+    }
+
+    private void TriggerControl(bool enabled)
+    {
+        _rigidbody.GetComponent<Collider>().isTrigger = enabled;
+
+        if (hasConnections)
+        {
+            for (int i = 0; i < connectedBodies.Length; i++)
+            {
+                connectedBodies[i].GetComponent<Collider>().isTrigger = enabled;
+            }
+        }
     }
 }

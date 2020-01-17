@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityCondition : MonoCached
+public class EntityCondition : MonoBehaviour
 {
     [SerializeField]
     [Range(1, 10)]
@@ -16,7 +16,6 @@ public class EntityCondition : MonoCached
     public float maxCondition { get; private set; }
 
     private bool invincible;
-
     private ObjectPoolerBase effectPooler;
 
     public delegate void EntityConditionEvent();
@@ -60,18 +59,19 @@ public class EntityCondition : MonoCached
 
                 if (collision.rigidbody.mass > 30000 && collidedRigidbody.velocity.sqrMagnitude > myBodyVelocity.sqrMagnitude)
                 {
-                    //Debug.Log($"<color=red> {collidedRigidbody.name} velocity was greater than {gameObject.name}</color>");
-                    damageRange = collision.relativeVelocity.sqrMagnitude * 2f;
-
+                    damageRange = collision.relativeVelocity.sqrMagnitude * 3f;
                     AddDamage(damageRange);
                 }
                 else
                 {
-                    //Debug.Log($"<color=green> {gameObject.name} velocity was greater than {collidedRigidbody.name}</color>");
-
-                    damageRange = collision.relativeVelocity.sqrMagnitude/* collision.rigidbody.mass* collision.relativeVelocity.sqrMagnitude/ 100f*/;
+                    damageRange = collision.relativeVelocity.sqrMagnitude / 5f;
                     AddHealth(damageRange);
                 }
+                //if(myBodyVelocity.sqrMagnitude > collidedRigidbody.velocity.sqrMagnitude)
+                //{
+                //    damageRange = collision.relativeVelocity.sqrMagnitude / 3f;
+                //    AddHealth(damageRange);
+                //}
             }
             else
             {

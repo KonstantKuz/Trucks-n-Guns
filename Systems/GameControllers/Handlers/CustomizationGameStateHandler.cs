@@ -16,9 +16,6 @@ public class CustomizationGameStateHandler : MonoBehaviour
 
     public void StartCustomization()
     {
-        //PlayerStaticRunTimeData.customizationTruckData.RewriteData(PlayerStaticRunTimeData.playerTruckData);
-        //PlayerStaticRunTimeData.customizationFirePointData.RewriteData(PlayerStaticRunTimeData.playerFirePointData);
-
         objectPoolersHolder.AwakeCustomizationGameStatePooler();
         playerHandler.CreateCamera();
         playerHandler.CreatePlayer();

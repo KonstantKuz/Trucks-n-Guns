@@ -7,20 +7,29 @@ public class LocalizedText : MonoBehaviour
 {
     private Text text;
 
-    [TextArea]
+    [TextArea(2, 6)]
     public string RU;
-    [TextArea]
+    [TextArea(2,6)]
     public string ENG;
 
-    private void OnEnable()
+    private void Awake()
     {
-        if(!ReferenceEquals(GetComponent<Text>(), null))
+        if (!ReferenceEquals(GetComponent<Text>(), null))
         {
             text = GetComponent<Text>();
             ResetText();
             Localization.OnLanguageChanged += ResetText;
         }
     }
+    //private void OnEnable()
+    //{
+    //    if(!ReferenceEquals(GetComponent<Text>(), null))
+    //    {
+    //        text = GetComponent<Text>();
+    //        ResetText();
+    //        Localization.OnLanguageChanged += ResetText;
+    //    }
+    //}
 
     private void OnDisable()
     {
@@ -29,16 +38,19 @@ public class LocalizedText : MonoBehaviour
 
     public void ResetText()
     {
-        switch (Localization.currentLanguage)
+        if(!ReferenceEquals(text, null))
         {
-            case GameEnums.Language.RU:
-                text.text = RU;
-                break;
-            case GameEnums.Language.ENG:
-                text.text = ENG;
-                break;
-            default:
-                break;
+            switch (Localization.currentLanguage)
+            {
+                case GameEnums.Language.RU:
+                    text.text = RU;
+                    break;
+                case GameEnums.Language.ENG:
+                    text.text = ENG;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

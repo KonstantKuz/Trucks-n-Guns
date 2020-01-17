@@ -7,6 +7,10 @@ public class RoadPoolerAssigner : MonoBehaviour
     public RoadTile[] tilesToSetUP;
     public ObjectPoolerBase roadPooler;
 
+    public int startTilesSize;
+    public int endTilesSize;
+    public int middleTilesSize;
+
     [ContextMenu("Assign Road Prefabs to RoadPooler")]
     public void SetUpRoadPooler()
     {
@@ -20,16 +24,18 @@ public class RoadPoolerAssigner : MonoBehaviour
             switch (tilesToSetUP[i].roadTileConfiguration.shapeType)
             {
                 case GameEnums.RoadShapeType.Start:
-                    newRoadTilePool.size = 1;
+                    newRoadTilePool.size = startTilesSize;
                     break;
                 case GameEnums.RoadShapeType.Middle:
-                    newRoadTilePool.size = 3;
+                    newRoadTilePool.size = middleTilesSize;
                     break;
                 case GameEnums.RoadShapeType.End:
-                    newRoadTilePool.size = 1;
+                    newRoadTilePool.size = endTilesSize;
                     break;
             }
             roadPooler.pools.Add(newRoadTilePool);
+            //UnityEditor.AssetDatabase.SaveAssets();
         }
+
     }
 }

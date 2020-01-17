@@ -97,7 +97,14 @@ public class FirePointData : Data
         {
             locationPath = i;
             gunsConfigurations[i].gunDataType = GameEnums.GunDataType.LrLdLs;
-            gunsConfigurations[i].gunType = GameEnums.Gun.None;
+            if(i < 4)
+            {
+                gunsConfigurations[i].gunType = GameEnums.Gun.TurretGun1_Level0;
+            }
+            else
+            {
+                gunsConfigurations[i].gunType = GameEnums.Gun.None;
+            }
             gunsConfigurations[i].locationPath = (GameEnums.GunLocation)locationPath;
             gunsConfigurations[i].trackingGroup = GameEnums.TrackingGroup.FirstTrackingGroup;
         }

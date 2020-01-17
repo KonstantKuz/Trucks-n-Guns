@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using StateMachine;
+using UnityEngine.UI;
 
 public class SettingsState : State<MenuHandler>
 {
@@ -28,16 +29,27 @@ public class SettingsState : State<MenuHandler>
 
     public override void EnterState(MenuHandler _owner)
     {
-        throw new System.NotImplementedException();
+        _owner.settings.SettingsWindow.SetActive(true);
+
+        _owner.BackButton.SetActive(true);
+        _owner.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        _owner.BackButton.GetComponent<Button>().onClick.AddListener(() => BackToMain(_owner));
     }
 
     public override void ExitState(MenuHandler _owner)
     {
-        throw new System.NotImplementedException();
+        _owner.settings.SettingsWindow.SetActive(false);
+
+        _owner.BackButton.SetActive(false);
     }
 
     public override void UpdateState(MenuHandler _owner)
     {
         throw new System.NotImplementedException();
+    }
+
+    public void BackToMain(MenuHandler _owner)
+    {
+        _owner.menu.ChangeState(MainMenuState.Instance);
     }
 }

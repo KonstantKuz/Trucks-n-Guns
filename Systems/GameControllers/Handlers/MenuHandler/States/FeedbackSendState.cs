@@ -67,7 +67,12 @@ public class FeedbackSendState : State<MenuHandler>
 
     public void SendReview(MenuHandler _owner)
     {
-        if(_owner.feedBack.senderMail_Adress.text != "" && _owner.feedBack.senderMail_Adress.text.Contains("@") && _owner.feedBack.senderDevice.text != "")
+        if(!_owner.feedBack.senderMail_Adress.text.Contains("@") || !_owner.feedBack.senderMail_Adress.text.Contains("."))
+        {
+            WarningWindow.Instance.ShowWarning(WarningStrings.FillStringsRequest());
+            return;
+        }
+        if(_owner.feedBack.senderMail_Adress.text != "" && _owner.feedBack.senderDevice.text != "")
         {
             MailMessage mail = new MailMessage();
             mail.From = new MailAddress(_owner.feedBack.senderMail_Adress.text);
@@ -78,6 +83,7 @@ public class FeedbackSendState : State<MenuHandler>
             {
                 mail.Body += $"\n {_owner.feedBack.QuickQuestions[i].GetAnswer()}";
             }
+            mail.Body += $"\n Device : {_owner.feedBack.senderDevice.text}";
             mail.Body += "\n----------------------------------------------------------- \n";
             mail.Body += _owner.feedBack.senderReview.text;
 

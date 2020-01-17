@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShopGunHandler : MonoCached
+public class ShopGunHandler : MonoBehaviour
 {
     public FirePoint.GunPoint gunPoint { get; set; }
     private GameEnums.Gun gunTypeToBuy;
@@ -27,11 +27,7 @@ public class ShopGunHandler : MonoCached
     {
         CustomizationState.Instance.RefreshPlayerStats();
 
-        //Camera.main.transform.position = transform.position + new Vector3(2, 2, 2);
-        //Camera.main.transform.LookAt(gunPoint.gunsLocation);
-
-        StartCoroutine(CameraTracking(Camera.main.transform.position, transform.position + new Vector3(3, 3, 3), gunPoint.gunsLocation.position/*,*/
-        /*Camera.main.transform.eulerAngles, Quaternion.LookRotation(transform.position  - Camera.main.transform.position).eulerAngles*/));
+        CustomizationHandler.Instance.StartCoroutine(CustomizationHandler.Instance.CameraTracking(Camera.main.transform.position, transform.position + gunPoint.gunsLocation.up * 2 + gunPoint.gunsLocation.forward * 2 , gunPoint.gunsLocation.position));
 
         FirePointData.GunConfiguration ConfigFromPath = PlayerStaticRunTimeData.playerTruckData.firePointData.GetConfigOnLocation(gunPoint.locationPath);
 
@@ -61,28 +57,11 @@ public class ShopGunHandler : MonoCached
 
         menuHandler.customization.ChangeGunButton.SetActive(true);
         menuHandler.customization.ChangeGunButton.GetComponent<Button>().onClick.AddListener(() => ChangeGun());
-
-        //gameObject.GetComponent<Image>().enabled = false;
+        
         menuHandler.BackButton.GetComponent<Button>().onClick.RemoveAllListeners();
         menuHandler.BackButton.GetComponent<Button>().onClick.AddListener(() => BackToGunsOverView());
 
         CustomizationHandler.Instance.ShopGunButtonsRenderSetActive(false);
-    }
-
-    private IEnumerator CameraTracking(Vector3 from, Vector3 to, Vector3 lookAt/*, Vector3 fromeuler, Vector3 toeuler*/)
-    {
-        float waitTime = 1;
-        float elapsedTime = 0;
-        while (elapsedTime < waitTime)
-        {
-
-            Camera.main.transform.position = Vector3.Lerp(from, to, (elapsedTime / waitTime));
-            Camera.main.transform.rotation = Quaternion.Lerp(Camera.main.transform.rotation, Quaternion.LookRotation(lookAt - Camera.main.transform.position), (elapsedTime / waitTime));
-            elapsedTime += Time.deltaTime;
-
-            // Yield here
-            yield return null;
-        }
     }
 
     private void ChangeGun()
@@ -163,6 +142,10 @@ public class ShopGunHandler : MonoCached
             menuHandler.customization.GunInfoWindow.SetActive(false);
 
             SelectGun();
+        }
+        else
+        {
+            WarningWindow.Instance.ShowWarning(WarningStrings.DontHaveMoney());
         }
     }
 
@@ -281,16 +264,16 @@ public class ShopGunHandler : MonoCached
 
             CustomizationState.Instance.RefreshPlayerStats();
         }
+        else
+        {
+            WarningWindow.Instance.ShowWarning(WarningStrings.DontHaveMoney());
+        }
     }
    
     private void BackToGunsOverView()
     {
-        //CustomizationHandler.Instance.RewriteCustomizationDataToPlayerData();
-        //Camera.main.transform.position = MenuHandler.Instance.cameraStartPosition;
 
-        StartCoroutine(CameraTracking(Camera.main.transform.position, menuHandler.cameraStartPosition, 
-            CustomizationState.Instance.PlayerTruck.transform.position - 2* CustomizationState.Instance.PlayerTruck.transform.forward/*,*/
-            /*Camera.main.transform.eulerAngles, MenuHandler.Instance.cameraStartRotation*/));
+        CustomizationHandler.Instance.StartCoroutine(CustomizationHandler.Instance.CameraTracking(Camera.main.transform.position, menuHandler.cameraStartPosition, -3.5f*CustomizationState.Instance.PlayerTruck.transform.forward));
 
         gameObject.GetComponent<Image>().enabled = true;
 
@@ -305,9 +288,7 @@ public class ShopGunHandler : MonoCached
         menuHandler.customization.DamageStat.SetActive(false);
         menuHandler.customization.TargetingSpeedStat.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
         menuHandler.customization.TargetingSpeedStat.SetActive(false);
-
-        //MenuHandler.Instance.customization.RateOfFireStat.GetComponent<Slider>().value = 0;
-        //MenuHandler.Instance.customization.DamageStat.GetComponent<Slider>().value = 0;
+        
 
         menuHandler.customization.GunInfoWindow.SetActive(false);
 
@@ -315,7 +296,6 @@ public class ShopGunHandler : MonoCached
         menuHandler.BackButton.GetComponent<Button>().onClick.AddListener(() => CustomizationState.Instance.BackToSectionsWindow(MenuHandler.Instance));
         CustomizationState.Instance.RefreshPlayerTruckVisualBy(PlayerStaticRunTimeData.playerTruckData);
         CustomizationState.Instance.RewriteCustomizationData();
-        //CustomizationState.Instance.RefreshPlayerTruckVisualBy(PlayerStaticRunTimeData.playerTruckData);
 
         CustomizationHandler.Instance.ShopGunButtonsRenderSetActive(true);
     }

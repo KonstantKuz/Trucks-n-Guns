@@ -15,6 +15,7 @@ public class Controls
 public class Windows
 {
     public TaskWindow taskWindow;
+    public MusicWindow musicWindow;
 }
 
 [System.Serializable]
@@ -26,6 +27,9 @@ public class OtherUI
     public Button changeCameraBehaviour;
     public Button restartButton;
     public Button returnToMenuButton;
+
+    public Text defeatedEnemiesCount;
+    public Text traveledDistanceCount;
 }
 
 public class GeneralGameUIHolder : Singleton<GeneralGameUIHolder>

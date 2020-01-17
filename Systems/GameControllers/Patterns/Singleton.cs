@@ -2,7 +2,7 @@
 
 namespace Singleton
 {
-    public class Singleton<T> : MonoCached where T : MonoCached
+    public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
 
         public static bool isApplicationQuitting;

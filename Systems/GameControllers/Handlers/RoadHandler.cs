@@ -2,11 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-#pragma warning disable 0168 // variable declared but not used.
-#pragma warning disable 0219 // variable assigned but not used.
-#pragma warning disable 0414 // private field assigned but not used.
-
-public class RoadHandler : MonoCached
+public class RoadHandler : MonoBehaviour
 {
     [SerializeField]
     private float roadLength;
@@ -20,9 +16,21 @@ public class RoadHandler : MonoCached
 
     private PathHandler pathHandler;
 
+    private RoadTile previousRoadTile;
+
+    private Bounds nextWorldBounds;
+
+    private Rigidbody player_rigidbody;
+
     private void Awake()
     {
         roadPooler = ObjectPoolersHolder.Instance.RoadPooler;
+
+        nextWorldBounds = new Bounds
+        {
+            center = transform.position,
+            extents = new Vector3(100, 10, 800)
+        };
     }
     public void InjectPathHandler(PathHandler pathHandler)
     {
@@ -31,18 +39,17 @@ public class RoadHandler : MonoCached
    
     public void StartRoadHandle(Rigidbody player_rigidbody)
     {
-        StartCoroutine(RoadHandle(player_rigidbody, playerPosCheckPeriod));
+        this.player_rigidbody = player_rigidbody;
+        StartCoroutine(RoadHandle());
     }
-    private IEnumerator RoadHandle(Rigidbody player_rigidbody, float period = 2f)
+    private IEnumerator RoadHandle()
     {
-        yield return new WaitForSecondsRealtime(period);
+        yield return new WaitForSecondsRealtime(playerPosCheckPeriod);
         if (player_rigidbody.position.z > (allSpawnedRoadLength - distanceFromPlayerToMakeNewRoadComplex))
         {
             MakeNewRoadComplex();
         }
-
-
-        yield return StartCoroutine(RoadHandle(player_rigidbody, period));
+        yield return StartCoroutine(RoadHandle());
     }
 
     private void MakeNewRoadComplex()
@@ -50,7 +57,6 @@ public class RoadHandler : MonoCached
         GameObject generalRoad = TranslateGeneralRoad();
         TranslatePathGrid(generalRoad.transform.position);
     }
-    private RoadTile previousRoadTile;
 
     private GameObject TranslateGeneralRoad()
     {
@@ -62,13 +68,33 @@ public class RoadHandler : MonoCached
         else
         {
             generalRoad = roadPooler.Spawn(previousRoadTile.NextRoadTileCapabilitiesHolder.GetNextRandomWeightedRoadTileName());
+
+            ///for cinema
+            
         }
         previousRoadTile = generalRoad.GetComponent<RoadTile>();
-        previousRoadTile.ResetEnv(allSpawnedRoadLength);
+        previousRoadTile.ResetPhysicalEnvironment(allSpawnedRoadLength);
         generalRoad.transform.localPosition = Vector3.forward * allSpawnedRoadLength;
+
+        //roadPooler.Spawn(previousRoadTile.NextRoadTileCapabilitiesHolder.GetNextRandomWeightedRoadTileName()).transform.localPosition = generalRoad.transform.localPosition + Vector3.right * 81.45f;
+        //roadPooler.Spawn(previousRoadTile.NextRoadTileCapabilitiesHolder.GetNextRandomWeightedRoadTileName()).transform.localPosition = generalRoad.transform.localPosition - Vector3.right * 81.45f;
+
+        //roadPooler.Spawn(previousRoadTile.NextRoadTileCapabilitiesHolder.GetNextRandomWeightedRoadTileName()).transform.localPosition = generalRoad.transform.localPosition + Vector3.right * 81.45f * 2;
+        //roadPooler.Spawn(previousRoadTile.NextRoadTileCapabilitiesHolder.GetNextRandomWeightedRoadTileName()).transform.localPosition = generalRoad.transform.localPosition - Vector3.right * 81.45f * 2;
+
         allSpawnedRoadLength += roadLength;
 
+        StartCoroutine(PhysicsBoundariesRebuild());
+
         return generalRoad;
+    }
+
+    private IEnumerator PhysicsBoundariesRebuild()
+    {
+        yield return new WaitForFixedUpdate();
+
+        nextWorldBounds.center = player_rigidbody.position;
+        Physics.RebuildBroadphaseRegions(nextWorldBounds, 2);
     }
     
     private void TranslatePathGrid(Vector3 newRoadPos)

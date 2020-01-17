@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerDataAssigner : MonoBehaviour
 {
+    public int startCoins;
     public TruckData playerTruckData;
     public TruckData customizationTruckData;
 
@@ -15,7 +16,7 @@ public class PlayerDataAssigner : MonoBehaviour
         customizationTruckData.firePointData.RewriteData(playerTruckData.firePointData);
         if(PlayerStaticDataHandler.LoadData() == null)
         {
-            PlayerStaticRunTimeData.coins += 10000;
+            PlayerStaticRunTimeData.coins = startCoins;
             PlayerStaticRunTimeData.playerTruckData.ResetData();
             PlayerStaticRunTimeData.customizationTruckData.ResetData();
             PlayerStaticDataHandler.SaveData(PlayerStaticRunTimeData.playerTruckData, new PlayerSessionData(0, 0, 0));

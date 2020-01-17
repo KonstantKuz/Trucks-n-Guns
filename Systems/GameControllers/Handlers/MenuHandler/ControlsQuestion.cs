@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-public class ControlsQuestion : MonoCached
+public class ControlsQuestion : MonoBehaviour
 {
     public void OnEnable()
     {
